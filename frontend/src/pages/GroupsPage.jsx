@@ -28,8 +28,8 @@ function GroupsPage() {
                     groups.map((group) => (
                         <div
                             className="column is-one-third"
-                            key={group.groupId} // Ensure this is unique for each group
-                            onClick={() => navigate(`/groups/${group.groupId}`)} // Using groupId for navigation
+                            key={group.id} // Ensure this is unique for each group
+                            onClick={() => navigate(`/groups/${group.id}`)} // Using groupId for navigation
                         >
                             <GroupCard name={group.name} sport={group.sport} />
                         </div>

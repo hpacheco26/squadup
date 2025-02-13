@@ -44,7 +44,10 @@ const GroupService = {
     // 🔹 Create a new group
     createGroup: async (groupData) => {
         try {
+            // TODO: remove console log
+            console.log('Group Service Create Group', groupData);
             const response = await axios.post(API_URL, groupData);
+            console.log('Group Service Created Group',response.data);
             return response.data;
         } catch (error) {
             console.error('Error creating group:', error);

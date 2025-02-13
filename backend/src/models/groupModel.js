@@ -1,5 +1,6 @@
 class Group {
-    constructor(name, players = [], admin, adminId, sport) {
+    constructor(id, name, players = [], admin, adminId, sport) {
+        this.id = id;
         this.name = name;
         this.players = players;
         this.admin = admin;
@@ -20,6 +21,7 @@ class Group {
     // Convert class instance to a plain object (useful for Firestore storage)
     toObject() {
         return {
+            id: this.id,
             name: this.name,
             players: this.players,
             admin: this.admin,

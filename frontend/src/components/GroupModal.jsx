@@ -22,10 +22,11 @@ export default function CreateGroupModal() {
         if (!groupName || !sport) return;
 
         const newGroup = {
+            id: null,
             name: groupName,
-            sport,
+            sport: sport,
             adminId: playerData.id,
-            admin: `${playerData.firstName} ${playerData.lastName}`, // Full name of admin
+            admin: `${playerData.firstName} ${playerData.lastName}`, 
             players: [
                 {
                     id: playerData.id,
@@ -38,7 +39,10 @@ export default function CreateGroupModal() {
             ]
         };
 
-        await addGroup(newGroup); // Call Zustand store to create group
+        // TODO: remove console log
+        console.log('Group Modal Button Click', newGroup);
+
+        await addGroup(newGroup); 
         setIsOpen(false);
         setGroupName("");
         setSport("");

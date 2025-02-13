@@ -44,6 +44,8 @@ const useGroupStore = create((set) => ({
     addGroup: async (groupData) => {
         try {
             const newGroup = await GroupService.createGroup(groupData);
+            // TODO: Remove console log
+            console.log('Group Store Created Group',newGroup);
             set((state) => ({ groups: [...state.groups, newGroup] }));
         } catch (error) {
             console.error('Failed to add group:', error);
@@ -86,7 +88,7 @@ const useGroupStore = create((set) => ({
             // Update the state by adding the player to the group in the `groups` array
             set((state) => ({
                 groups: state.groups.map((group) =>
-                    group.groupId === groupId ? { ...group, players: updatedGroup.players } : group
+                    group.id === groupId ? { ...group, players: updatedGroup.players } : group
                 )
             }));
         } catch (error) {

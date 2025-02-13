@@ -14,7 +14,7 @@ const createGroupHandler = async (req, res) => {
         const formattedId = `${name.replace(/\s+/g, '').toLowerCase()}-${adminId}`;
 
         // ✅ Create group instance (without an `id` field)
-        const newGroup = new Group(name, players, admin, adminId, sport);
+        const newGroup = new Group(formattedId, name, players, admin, adminId, sport);
 
         // ✅ Save it using `set()` to ensure the custom ID is used
         await db.collection('groups').doc(formattedId).set(newGroup.toObject());

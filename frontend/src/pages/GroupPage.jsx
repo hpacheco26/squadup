@@ -1,37 +1,36 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import useGroupStore from '../store/groupStore';  // Assuming you've updated the store
-import { Loader, Button } from 'react-bulma-components'; // Optional: You can use a loader component from Bulma if needed
-import PlayerModal from '../components/PlayerModal'; // Import the AddPlayerModal
+import { useParams, useNavigate } from 'react-router-dom';
+import useGroupStore from '../store/groupStore';
+import { Loader, Button } from 'react-bulma-components';
+import PlayerModal from '../components/PlayerModal';
+import GroupSettingsModal from '../components/GroupSettingsModal';
 
 function GroupPage() {
     const { id } = useParams();
-    const { group, fetchGroupById, updateGroup } = useGroupStore();
+    const navigate = useNavigate();
+    const { group, fetchGroupById, updateGroup, deleteGroup } = useGroupStore();
 
-    // Modal state
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
+    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
-    // Fetch the group by ID when the component mounts
     useEffect(() => {
         fetchGroupById(id);
     }, [id, fetchGroupById]);
 
-    // Function to handle adding a player to the group
     const handleAddPlayer = (newPlayer) => {
-        const updatedGroup = {
-            ...group,
-            players: [...group.players, newPlayer]  // Add the new player to the players array
-        };
-
-        updateGroup(id, updatedGroup);  // Update the group using the store's `updateGroup` method
+        const updatedGroup = { ...group, players: [...group.players, newPlayer] };
+        updateGroup(id, updatedGroup);
     };
 
-    if (!group) return <Loader />;  // Show loading spinner while group data is being fetched
+    if (!group) return <Loader />;
 
     return (
         <div className="container p-6">
             <div className="box">
-                <h1 className="title is-3">{group.name}</h1>
+                <div className="is-flex is-justify-content-space-between">
+                    <h1 className="title is-3">{group.name}</h1>
+                    <Button color="warning" onClick={() => setIsSettingsModalOpen(true)}>Settings</Button>
+                </div>
                 <p className="subtitle">Sport: {group.sport}</p>
                 <h2 className="title is-4 mt-4">Players</h2>
                 <div className="columns is-multiline">
@@ -49,19 +48,25 @@ function GroupPage() {
                         </div>
                     ))}
                 </div>
-
-                {/* Button to open the Add Player modal */}
-                <Button color="primary" onClick={() => setIsModalOpen(true)}>
-                    Add Player
-                </Button>
-
-                {/* Add Player Modal */}
-                <PlayerModal 
-                    isOpen={isModalOpen} 
-                    setIsOpen={setIsModalOpen} 
-                    onAddPlayer={handleAddPlayer} 
-                />
+                <Button color="primary" onClick={() => setIsPlayerModalOpen(true)}>Add Player</Button>
             </div>
+
+            {/* Add Player Modal */}
+            <PlayerModal 
+                isOpen={isPlayerModalOpen} 
+                setIsOpen={setIsPlayerModalOpen} 
+                onAddPlayer={handleAddPlayer} 
+            />
+
+            {/* Group Settings Modal */}
+            <GroupSettingsModal 
+                isOpen={isSettingsModalOpen} 
+                setIsOpen={setIsSettingsModalOpen} 
+                group={group} 
+                updateGroup={updateGroup} 
+                deleteGroup={deleteGroup} 
+                navigate={navigate} 
+            />
         </div>
     );
 }
