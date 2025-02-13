@@ -16,6 +16,7 @@ function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
     const handleSubmit = () => {
         // Handle player addition
         const newPlayer = {
+            id: firstName + "." + lastName,
             firstName,
             lastName,
             rank,
@@ -23,7 +24,8 @@ function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
                 wins: 0,
                 draws: 0,
                 losses: 0
-            }
+            },
+            userId: null
         };
 
         // Call the onAddPlayer function passed from the parent component

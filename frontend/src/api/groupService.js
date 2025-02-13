@@ -44,10 +44,7 @@ const GroupService = {
     // 🔹 Create a new group
     createGroup: async (groupData) => {
         try {
-            // TODO: remove console log
-            console.log('Group Service Create Group', groupData);
             const response = await axios.post(API_URL, groupData);
-            console.log('Group Service Created Group',response.data);
             return response.data;
         } catch (error) {
             console.error('Error creating group:', error);
@@ -75,17 +72,6 @@ const GroupService = {
             throw error;
         }
     },
-
-    // 🔹 Add a player to a specific group
-    addPlayerToGroup: async (groupId, playerData) => {
-        try {
-            const response = await axios.put(`${API_URL}/groups/${groupId}/addPlayer`, playerData);
-            return response.data; // Return the updated group data (with new player)
-        } catch (error) {
-            console.error('Failed to add player to group:', error);
-            throw error;
-        }
-    }
     
 };
 

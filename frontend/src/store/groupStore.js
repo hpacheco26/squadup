@@ -44,8 +44,6 @@ const useGroupStore = create((set) => ({
     addGroup: async (groupData) => {
         try {
             const newGroup = await GroupService.createGroup(groupData);
-            // TODO: Remove console log
-            console.log('Group Store Created Group',newGroup);
             set((state) => ({ groups: [...state.groups, newGroup] }));
         } catch (error) {
             console.error('Failed to add group:', error);
@@ -55,12 +53,12 @@ const useGroupStore = create((set) => ({
     // 🔹 Update an existing group
     updateGroup: async (id, updatedData) => {
         try {
-            console.log(updatedData);
-            await GroupService.updateGroup(id, updatedData);
+            const updatedGroup = await GroupService.updateGroup(id, updatedData);
             set((state) => ({
                 groups: state.groups.map((group) =>
-                    group.id === id ? { ...group, ...updatedData } : group
-                )
+                    group.id === id ? { ...group, ...updatedGroup } : group
+                ),
+                group: state.group?.id === id ? { ...state.group, ...updatedGroup } : state.group
             }));
         } catch (error) {
             console.error('Failed to update group:', error);
@@ -79,22 +77,6 @@ const useGroupStore = create((set) => ({
         }
     },
 
-    // 🔹 Add a player to a group
-    addPlayerToGroup: async (groupId, playerData) => {
-        try {
-            // Send the request to add the player (this will be handled in your API service)
-            const updatedGroup = await GroupService.addPlayerToGroup(groupId, playerData);
-            
-            // Update the state by adding the player to the group in the `groups` array
-            set((state) => ({
-                groups: state.groups.map((group) =>
-                    group.id === groupId ? { ...group, players: updatedGroup.players } : group
-                )
-            }));
-        } catch (error) {
-            console.error('Failed to add player to group:', error);
-        }
-    }
 }));
 
 export default useGroupStore;

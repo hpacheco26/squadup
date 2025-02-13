@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
-import { Modal, Button, Form } from 'react-bulma-components';
+import React, { useState, useEffect } from 'react';
 
 function GroupSettingsModal({ isOpen, setIsOpen, group, updateGroup, deleteGroup, navigate }) {
-    const [groupName, setGroupName] = useState(group?.name || '');
+    const [groupName, setGroupName] = useState('');
+
+    useEffect(() => {
+        if (isOpen && group?.name) {
+            setGroupName(group.name);
+        }
+    }, [isOpen, group]);
 
     const handleUpdateGroup = () => {
         if (groupName.trim()) {
@@ -17,29 +22,40 @@ function GroupSettingsModal({ isOpen, setIsOpen, group, updateGroup, deleteGroup
     };
 
     return (
-        <Modal show={isOpen} onClose={() => setIsOpen(false)}>
-            <Modal.Card>
-                <Modal.Card.Header>
-                    <Modal.Card.Title>Group Settings</Modal.Card.Title>
-                </Modal.Card.Header>
-                <Modal.Card.Body>
-                    <Form.Field>
-                        <Form.Label>Group Name</Form.Label>
-                        <Form.Control>
-                            <Form.Input 
-                                value={groupName} 
+        <div className={`modal ${isOpen ? 'is-active' : ''}`}>
+            <div className="modal-background" onClick={() => setIsOpen(false)}></div>
+            <div className="modal-card">
+                <header className="modal-card-head">
+                    <p className="modal-card-title">Group Settings</p>
+                    <button className="delete" aria-label="close" onClick={() => setIsOpen(false)}></button>
+                </header>
+                <section className="modal-card-body">
+                    <div className="field">
+                        <label className="label">Group Name</label>
+                        <div className="control">
+                            <input
+                                className="input"
+                                type="text"
+                                placeholder="Enter group name"
+                                value={groupName}
                                 onChange={(e) => setGroupName(e.target.value)}
                             />
-                        </Form.Control>
-                    </Form.Field>
-                </Modal.Card.Body>
-                <Modal.Card.Footer>
-                    <Button color="success" onClick={handleUpdateGroup}>Save</Button>
-                    <Button color="danger" onClick={handleDeleteGroup}>Delete Group</Button>
-                    <Button onClick={() => setIsOpen(false)}>Cancel</Button>
-                </Modal.Card.Footer>
-            </Modal.Card>
-        </Modal>
+                        </div>
+                    </div>
+                </section>
+                <footer className="modal-card-foot">
+                    <button className="button is-success" onClick={handleUpdateGroup}>
+                        Save
+                    </button>
+                    <button className="button is-danger" onClick={handleDeleteGroup}>
+                        Delete Group
+                    </button>
+                    <button className="button" onClick={() => setIsOpen(false)}>
+                        Cancel
+                    </button>
+                </footer>
+            </div>
+        </div>
     );
 }
 

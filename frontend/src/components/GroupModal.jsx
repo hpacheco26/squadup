@@ -38,10 +38,7 @@ export default function CreateGroupModal() {
                 }
             ]
         };
-
-        // TODO: remove console log
-        console.log('Group Modal Button Click', newGroup);
-
+        
         await addGroup(newGroup); 
         setIsOpen(false);
         setGroupName("");

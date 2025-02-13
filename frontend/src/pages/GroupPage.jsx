@@ -4,6 +4,7 @@ import useGroupStore from '../store/groupStore';
 import { Loader, Button } from 'react-bulma-components';
 import PlayerModal from '../components/PlayerModal';
 import GroupSettingsModal from '../components/GroupSettingsModal';
+import PlayerCard from '../components/PlayerCard';
 
 function GroupPage() {
     const { id } = useParams();
@@ -18,8 +19,18 @@ function GroupPage() {
     }, [id, fetchGroupById]);
 
     const handleAddPlayer = (newPlayer) => {
-        const updatedGroup = { ...group, players: [...group.players, newPlayer] };
-        updateGroup(id, updatedGroup);
+        if (!group) return;
+
+        const updatedPlayers = [...group.players, newPlayer];
+        updateGroup(group.id, { ...group, players: updatedPlayers }).then(() => fetchGroupById(group.id));
+    };
+
+    const handleRemovePlayer = (playerId) => {
+        if (!group) return;
+
+        const updatedPlayers = group.players.filter(player => player.id !== playerId);
+        updateGroup(group.id, { ...group, players: updatedPlayers }).then(() => fetchGroupById(group.id));
+
     };
 
     if (!group) return <Loader />;
@@ -36,15 +47,10 @@ function GroupPage() {
                 <div className="columns is-multiline">
                     {group.players.map((player, index) => (
                         <div className="column is-one-third" key={index}>
-                            <div className="card">
-                                <div className="card-content">
-                                    <p className="title is-5">{player.firstName} {player.lastName}</p>
-                                    <p className="subtitle is-6">Rank: {player.rank}</p>
-                                    <p>Wins: {player.stats.wins}</p>
-                                    <p>Draws: {player.stats.draws}</p>
-                                    <p>Losses: {player.stats.losses}</p>
-                                </div>
-                            </div>
+                            <PlayerCard 
+                                player={player} // Passing the entire player object
+                                onRemovePlayer={handleRemovePlayer} // Passing handleRemovePlayer to PlayerCard
+                            />
                         </div>
                     ))}
                 </div>
@@ -70,5 +76,6 @@ function GroupPage() {
         </div>
     );
 }
+
 
 export default GroupPage;

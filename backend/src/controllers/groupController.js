@@ -85,7 +85,7 @@ const getGroupsByPlayerHandler = async (req, res) => {
 const updateGroupHandler = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, players, admin, sport } = req.body;
+        const { name, players, admin, adminId, sport } = req.body;
 
         if (!name || !Array.isArray(players) || !admin || !sport) {
             return res.status(400).json({ error: 'Missing required fields' });
@@ -98,7 +98,7 @@ const updateGroupHandler = async (req, res) => {
             return res.status(404).json({ error: 'Group not found' });
         }
 
-        const updatedGroup = new Group(id, name, players, admin, sport);
+        const updatedGroup = new Group(id, name, players, admin, adminId, sport);
         await groupRef.update(updatedGroup.toObject());
 
         res.status(200).json({ message: 'Group updated successfully' });
@@ -127,36 +127,6 @@ const deleteGroupHandler = async (req, res) => {
     }
 };
 
-// ADD PLAYER TO GROUP: Add a player to the group
-const addPlayerToGroupHandler = async (req, res) => {
-    try {
-        const { groupId } = req.params;
-        const { playerId, playerName } = req.body;
-
-        if (!playerId || !playerName) {
-            return res.status(400).json({ error: 'Player ID and name are required' });
-        }
-
-        const groupRef = db.collection('groups').doc(groupId);
-        const groupDoc = await groupRef.get();
-
-        if (!groupDoc.exists) {
-            return res.status(404).json({ message: 'Group not found' });
-        }
-
-        const group = groupDoc.data();
-        // Add player to the group
-        const updatedPlayers = [...group.players, { playerId, name: playerName }];
-
-        // Update the group document with the new player
-        await groupRef.update({ players: updatedPlayers });
-
-        res.status(200).json({ message: 'Player added to group successfully', updatedPlayers });
-    } catch (error) {
-        console.error('Error adding player to group:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
-};
 
 module.exports = {
     createGroupHandler,
@@ -164,6 +134,5 @@ module.exports = {
     getGroupByIdHandler,
     getGroupsByPlayerHandler,
     updateGroupHandler,
-    deleteGroupHandler,
-    addPlayerToGroupHandler,
+    deleteGroupHandler
 };
