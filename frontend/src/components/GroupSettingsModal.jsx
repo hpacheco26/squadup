@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PlayersContainer from './PlayersContainer'; // Import PlayersContainer
 
 function GroupSettingsModal({ isOpen, setIsOpen, group, updateGroup, deleteGroup, navigate }) {
     const [groupName, setGroupName] = useState('');
@@ -29,7 +30,10 @@ function GroupSettingsModal({ isOpen, setIsOpen, group, updateGroup, deleteGroup
                     <p className="modal-card-title">Group Settings</p>
                     <button className="delete" aria-label="close" onClick={() => setIsOpen(false)}></button>
                 </header>
+                
+                {/* Modal Body */}
                 <section className="modal-card-body">
+                    {/* Group Name Input */}
                     <div className="field">
                         <label className="label">Group Name</label>
                         <div className="control">
@@ -42,15 +46,20 @@ function GroupSettingsModal({ isOpen, setIsOpen, group, updateGroup, deleteGroup
                             />
                         </div>
                     </div>
+
+                    {/* Players List (With scroll inside PlayersContainer) */}
+                    <PlayersContainer />
                 </section>
-                <footer className="modal-card-foot">
-                    <button className="button is-success" onClick={handleUpdateGroup}>
-                        Save
-                    </button>
-                    <button className="button is-danger" onClick={handleDeleteGroup}>
+
+                {/* Centered & Evenly Spaced Footer Buttons */}
+                <footer className="modal-card-foot is-flex is-justify-content-space-around">
+                    <button className="button is-danger is-fullwidth" style={{ maxWidth: '30%' }} onClick={handleDeleteGroup}>
                         Delete Group
                     </button>
-                    <button className="button" onClick={() => setIsOpen(false)}>
+                    <button className="button is-success is-fullwidth" style={{ maxWidth: '30%' }} onClick={handleUpdateGroup}>
+                        Save
+                    </button>
+                    <button className="button is-fullwidth" style={{ maxWidth: '30%' }} onClick={() => setIsOpen(false)}>
                         Cancel
                     </button>
                 </footer>
