@@ -5,6 +5,8 @@ import GroupsPage from './pages/GroupsPage';
 import GroupPage from './pages/GroupPage'
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
+import PregamePage from './pages/PreGamePage';
+import GamePage from './pages/GamePage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 
@@ -45,6 +47,22 @@ function App() {
           element={
             <ProtectedRoute>
               <PlayersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/pregame/:gameId"
+          element={
+            <ProtectedRoute>
+              <PregamePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game/:gameId"
+          element={
+            <ProtectedRoute>
+              <GamePage />
             </ProtectedRoute>
           }
         />

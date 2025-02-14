@@ -1,129 +1,62 @@
-const Game = require('../models/Game'); // Import the Game class
-const db = require('../config/firebase'); // Import Firestore database
-
-// Create a new game
-exports.createGame = async (req, res) => {
-    try {
-        const { date, time, location, maxPlayers, minPlayers, invitedPlayers = [], playersGoing = [], playersNotGoing = [], subTime } = req.body;
-
-        // Instantiate the Game class
-        const newGame = new Game(
-            null, // We will let Firebase handle the ID
-            date,
-            time,
-            location,
-            maxPlayers,
-            minPlayers,
-            invitedPlayers,
-            playersGoing,
-            playersNotGoing,
-            subTime
-        );
-
-        // Convert game object to a plain object suitable for Firestore
-        const gameData = newGame.toObject();
-
-        // Add the new game to Firestore
-        const gameRef = await db.collection('games').add(gameData);
-        const createdGame = { id: gameRef.id, ...gameData };
-
-        res.status(201).json(createdGame);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
+class Game {
+    constructor(id, date, time, location, maxPlayers, minPlayers, invitedPlayers = [], playersGoing = [], playersNotGoing = [], subTime, groupId) {
+        this.id = id;
+        this.date = date;
+        this.time = time;
+        this.location = location;
+        this.maxPlayers = maxPlayers;
+        this.minPlayers = minPlayers;
+        this.invitedPlayers = invitedPlayers;
+        this.playersGoing = playersGoing;
+        this.playersNotGoing = playersNotGoing;
+        this.subTime = subTime;
+        this.groupId = groupId;
     }
-};
 
-// Get all games
-exports.getAllGames = async (req, res) => {
-    try {
-        const gamesSnapshot = await db.collection('games').get();
-        const games = gamesSnapshot.docs.map(doc => {
-            const gameData = doc.data();
-            const game = new Game(
-                doc.id,
-                gameData.date,
-                gameData.time,
-                gameData.location,
-                gameData.maxPlayers,
-                gameData.minPlayers,
-                gameData.invitedPlayers,
-                gameData.playersGoing,
-                gameData.playersNotGoing,
-                gameData.subTime
-            );
-            return game.toObject();
-        });
-        res.status(200).json(games);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+    // Utility method to add a player to the invited players list
+    addInvitedPlayer(playerId) {
+        if (!this.invitedPlayers.includes(playerId)) {
+            this.invitedPlayers.push(playerId);
+        }
     }
-};
 
-// Get a single game by ID
-exports.getGameById = async (req, res) => {
-    try {
-        const gameDoc = await db.collection('games').doc(req.params.id).get();
-        if (!gameDoc.exists) return res.status(404).json({ error: "Game not found" });
-
-        const gameData = gameDoc.data();
-        const game = new Game(
-            gameDoc.id,
-            gameData.date,
-            gameData.time,
-            gameData.location,
-            gameData.maxPlayers,
-            gameData.minPlayers,
-            gameData.invitedPlayers,
-            gameData.playersGoing,
-            gameData.playersNotGoing,
-            gameData.subTime
-        );
-
-        res.status(200).json(game.toObject());
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+    // Utility method to remove a player from the invited players list
+    removeInvitedPlayer(playerId) {
+        this.invitedPlayers = this.invitedPlayers.filter(player => player !== playerId);
     }
-};
 
-// Update a game by ID
-exports.updateGame = async (req, res) => {
-    try {
-        const gameRef = db.collection('games').doc(req.params.id);
-
-        // Update the game document with the new data
-        await gameRef.update(req.body);
-
-        // Get the updated game
-        const updatedGameDoc = await gameRef.get();
-        const updatedGameData = updatedGameDoc.data();
-
-        // Instantiate the Game class with updated data
-        const updatedGame = new Game(
-            updatedGameDoc.id,
-            updatedGameData.date,
-            updatedGameData.time,
-            updatedGameData.location,
-            updatedGameData.maxPlayers,
-            updatedGameData.minPlayers,
-            updatedGameData.invitedPlayers,
-            updatedGameData.playersGoing,
-            updatedGameData.playersNotGoing,
-            updatedGameData.subTime
-        );
-
-        res.status(200).json(updatedGame.toObject());
-    } catch (error) {
-        res.status(400).json({ error: error.message });
+    // Utility method to add a player to the "players going" list
+    markPlayerAsGoing(playerId) {
+        if (!this.playersGoing.includes(playerId)) {
+            this.playersGoing.push(playerId);
+        }
+        this.playersNotGoing = this.playersNotGoing.filter(player => player !== playerId); // Remove from 'not going' list if present
     }
-};
 
-// Delete a game by ID
-exports.deleteGame = async (req, res) => {
-    try {
-        const gameRef = db.collection('games').doc(req.params.id);
-        await gameRef.delete();
-        res.status(200).json({ message: "Game deleted successfully" });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+    // Utility method to add a player to the "players not going" list
+    markPlayerAsNotGoing(playerId) {
+        if (!this.playersNotGoing.includes(playerId)) {
+            this.playersNotGoing.push(playerId);
+        }
+        this.playersGoing = this.playersGoing.filter(player => player !== playerId); // Remove from 'going' list if present
     }
-};
+
+    // Convert class instance to a plain object (useful for Firestore storage)
+    toObject() {
+        return {
+            id: this.id,
+            date: this.date,
+            time: this.time,
+            location: this.location,
+            maxPlayers: this.maxPlayers,
+            minPlayers: this.minPlayers,
+            invitedPlayers: this.invitedPlayers,
+            playersGoing: this.playersGoing,
+            playersNotGoing: this.playersNotGoing,
+            subTime: this.subTime,
+            groupId: this.groupId,
+        };
+    }
+}
+
+module.exports = Game;

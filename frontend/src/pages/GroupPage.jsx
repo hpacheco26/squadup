@@ -5,6 +5,7 @@ import { Loader, Button } from 'react-bulma-components';
 
 import GroupSettingsModal from '../components/GroupSettingsModal';
 import GameModal from '../components/GameModal'; 
+import GamesContainer from '../components/GamesContainer'; // Import the GamesContainer
 
 function GroupPage() {
     const { id } = useParams();
@@ -54,6 +55,9 @@ function GroupPage() {
                 setIsOpen={setIsGameCreateModalOpen} 
                 group={group} 
             />
+
+            {/* Display the Games Container */}
+            <GamesContainer groupId={group.id} />
         </div>
     );
 }
