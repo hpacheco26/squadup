@@ -78,10 +78,10 @@ const deleteGameHandler = async (req, res) => {
     try {
         const { id } = req.params;
         const gameRef = db.collection('games').doc(id);
-        const groupDoc = await groupRef.get();
+        const gameDoc = await gameRef.get();
 
-        if (!groupDoc.exists) {
-            return res.status(404).json({ error: 'Group not found' });
+        if (!gameDoc.exists) {
+            return res.status(404).json({ error: 'Game not found' });
         }
 
         await gameRef.delete();

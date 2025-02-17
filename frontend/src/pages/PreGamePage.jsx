@@ -4,12 +4,14 @@ import { Button, Columns, Card } from 'react-bulma-components';
 import PlayersList from '../components/PlayersList';
 import { useNavigate } from 'react-router-dom';
 import useGameStore from '../store/gameStore';
+import useGroupStore from '../store/groupStore';
 import useAuthStore from '../store/authStore'; // Assuming there's an auth store to get user info
 
 const PreGamePage = () => {
     const { gameId } = useParams();
     const navigate = useNavigate();
-    const { game, fetchGameById, updateGame } = useGameStore();
+    const { game, fetchGameById, updateGame, deleteGame } = useGameStore();
+    const { group } = useGroupStore();
     const { user } = useAuthStore(); // Get logged-in user info
     const [going, setGoing] = useState([]);
     const [notGoing, setNotGoing] = useState([]);
@@ -60,6 +62,11 @@ const PreGamePage = () => {
 
     const handleStartGame = () => {
         navigate('/gamePage');
+    };
+
+    const handleCancelGame = async () => {
+        await deleteGame(gameId);
+        navigate(`/groups/${group.id}`);
     };
 
     if (!game) return <div>Loading...</div>;
@@ -116,10 +123,15 @@ const PreGamePage = () => {
                 </Columns>
             </section>
 
-            <div className="fixed-bottom">
-                <Button className="is-primary is-fullwidth" onClick={handleStartGame}>
+            <div className="fixed-bottom" style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+                <Button className="is-primary" onClick={handleStartGame}>
                     Start Game
                 </Button>
+                {game.adminId === user.id && (
+                    <Button className="is-danger" onClick={handleCancelGame}>
+                        Cancel Game
+                    </Button>
+                )}
             </div>
         </div>
     );

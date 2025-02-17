@@ -34,7 +34,6 @@ const useGameStore = create((set) => ({
         set({ loading: true, error: null });
         try {
             const fetchedGames = await GameService.getGamesByGroup(groupId);
-            console.log(fetchedGames);
             set({ games: fetchedGames, loading: false });
         } catch (error) {
             set({ error: 'Failed to fetch games for this group', loading: false });
