@@ -4,11 +4,13 @@ import { Button, Columns, Card } from 'react-bulma-components';
 import PlayersList from '../components/PlayersList';
 import { useNavigate } from 'react-router-dom';
 import useGameStore from '../store/gameStore';
+import useAuthStore from '../store/authStore'; // Assuming there's an auth store to get user info
 
 const PreGamePage = () => {
     const { gameId } = useParams();
     const navigate = useNavigate();
     const { game, fetchGameById, updateGame } = useGameStore();
+    const { user } = useAuthStore(); // Get logged-in user info
     const [going, setGoing] = useState([]);
     const [notGoing, setNotGoing] = useState([]);
     const [invited, setInvited] = useState([]);
@@ -77,17 +79,39 @@ const PreGamePage = () => {
                 <Columns className="is-multiline">
                     <Columns.Column size={4}>
                         <h2 className="title is-4 mb-3">Going</h2>
-                        <PlayersList players={going} onOut={handleOut} actionLabel="Game On" additionalActionLabel="Out" />
+                        <PlayersList 
+                            players={going} 
+                            onOut={handleOut} 
+                            actionLabel="Game On" 
+                            additionalActionLabel="Out" 
+                            user={user} 
+                            isAdmin={game.adminId === user.id} 
+                        />
                     </Columns.Column>
 
                     <Columns.Column size={4}>
                         <h2 className="title is-4 mb-3">Not Going</h2>
-                        <PlayersList players={notGoing} onGameOn={handleGameOn} actionLabel="Game On" additionalActionLabel="Out" />
+                        <PlayersList 
+                            players={notGoing} 
+                            onGameOn={handleGameOn} 
+                            actionLabel="Game On" 
+                            additionalActionLabel="Out" 
+                            user={user} 
+                            isAdmin={game.adminId === user.id} 
+                        />
                     </Columns.Column>
 
                     <Columns.Column size={4}>
                         <h2 className="title is-4 mb-3">Invited</h2>
-                        <PlayersList players={invited} onGameOn={handleGameOn} onOut={handleOut} actionLabel="Game On" additionalActionLabel="Out" />
+                        <PlayersList 
+                            players={invited} 
+                            onGameOn={handleGameOn} 
+                            onOut={handleOut} 
+                            actionLabel="Game On" 
+                            additionalActionLabel="Out" 
+                            user={user} 
+                            isAdmin={game.adminId === user.id} 
+                        />
                     </Columns.Column>
                 </Columns>
             </section>
