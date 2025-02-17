@@ -10,7 +10,7 @@ const PlayersList = ({ players, onGameOn, onOut, actionLabel, additionalActionLa
                 players.map(player => (
                     <Card key={player.id} className="mb-2">
                         <Card.Content>
-                            <h3 className="title is-5">{player.name}</h3>
+                            <h3 className="title is-5">{player.firstName} {player.lastName}</h3>
                             <div className="buttons">
                                 {onGameOn && (
                                     <Button color="primary" onClick={() => onGameOn(player.id)}>{actionLabel}</Button>
