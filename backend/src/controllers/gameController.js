@@ -46,9 +46,9 @@ const getGamesByGroupHandler = async (req, res) => {
             .where('groupId', '==', groupId)
             .get();
 
-        if (gamesSnapshot.empty) {
-            return res.status(404).json({ error: "No games found for this group" });
-        }
+        // if (gamesSnapshot.empty) {
+        //     return res.status(404).json({ error: "No games found for this group" });
+        // }
 
         const games = gamesSnapshot.docs.map(doc => ({
             id: doc.id,

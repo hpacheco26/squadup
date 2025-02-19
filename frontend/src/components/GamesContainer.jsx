@@ -32,7 +32,6 @@ const GamesContainer = ({ groupId }) => {
             cursor: 'pointer', 
             transition: 'transform 0.3s ease, box-shadow 0.3s ease',
             transform: hoveredGameId === gameId ? 'scale(1.05)' : 'scale(1)',
-            
         };
     };
 
@@ -42,20 +41,24 @@ const GamesContainer = ({ groupId }) => {
     return (
         <div className="container">
             <h2 className="title is-3 has-text-centered">Games</h2>
-            <div className="columns is-multiline">
-                {games.map(game => (
-                    <div 
-                        className="column is-one-third" 
-                        key={game.id}
-                        onClick={() => handleGameClick(game.id)}
-                        onMouseEnter={() => handleMouseEnter(game.id)} 
-                        onMouseLeave={handleMouseLeave} 
-                        style={getContainerStyle(game.id)} // Inline style for hover effect
-                    >
-                        <GameCard game={game} />
-                    </div>
-                ))}
-            </div>
+            {games.length === 0 ? (
+                <p className="has-text-centered has-text-grey">No games scheduled</p>
+            ) : (
+                <div className="columns is-multiline">
+                    {games.map(game => (
+                        <div 
+                            className="column is-one-third" 
+                            key={game.id}
+                            onClick={() => handleGameClick(game.id)}
+                            onMouseEnter={() => handleMouseEnter(game.id)} 
+                            onMouseLeave={handleMouseLeave} 
+                            style={getContainerStyle(game.id)} // Inline style for hover effect
+                        >
+                            <GameCard game={game} />
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };

@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import useGroupStore from '../store/groupStore';
 
 function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
-    const [rank] = useState(0); // Rank is always 0, so no need for a state setter
+    const [rank] = useState(0); 
+    const { group } = useGroupStore();
+
 
     useEffect(() => {
         if (isOpen) {
@@ -14,9 +17,9 @@ function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
     }, [isOpen]);
 
     const handleSubmit = () => {
-        // Handle player addition
+
         const newPlayer = {
-            id: firstName + "." + lastName,
+            id: Date.now(),
             firstName,
             lastName,
             rank,
@@ -28,10 +31,8 @@ function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
             userId: null
         };
 
-        // Call the onAddPlayer function passed from the parent component
         onAddPlayer(newPlayer);
 
-        // Close the modal
         setIsOpen(false);
     };
 
