@@ -4,15 +4,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { balanceTeams } from '../utils/teamBalancer';
 import useGameStore from '../store/gameStore'; // Import Zustand store
 import TeamList from '../components/TeamList'; // Import the TeamList component
+import SubTimer from '../components/SubTimer'; // Import the SubTimer component
 
 const GamePage = () => {
     const navigate = useNavigate();
     const { gameId } = useParams(); // Get game ID from URL params
 
     const { game, fetchGameById, loading } = useGameStore(); // Zustand store
-    const [timer, setTimer] = useState(60);
-    const [subTime, setSubTime] = useState(5);
-    const [isGameStarted, setIsGameStarted] = useState(false);
     const [team1, setTeam1] = useState([]);
     const [team2, setTeam2] = useState([]);
 
@@ -32,33 +30,18 @@ const GamePage = () => {
         }
     }, [game]);
 
-    // Timer logic
-    useEffect(() => {
-        let interval;
-        if (isGameStarted && timer > 0) {
-            interval = setInterval(() => {
-                setTimer(prevTimer => prevTimer - 1);
-            }, 1000);
-        } else if (timer === 0) {
-            clearInterval(interval);
-        }
-
-        return () => clearInterval(interval);
-    }, [isGameStarted, timer]);
-
-    const startGame = () => {
-        setIsGameStarted(true);
-        setTimer(60);
-    };
-
+    // Function to handle substitution and update teams
     const handleSubstitution = () => {
-        setSubTime(5);
-    };
+        const newTeam1 = [...team1];
+        const newTeam2 = [...team2];
 
-    const resetGame = () => {
-        setIsGameStarted(false);
-        setTimer(60);
-        setSubTime(5);
+        // Move the first player to the last position for both teams
+        newTeam1.push(newTeam1.shift()); // Move the first player of team1 to the last position
+        newTeam2.push(newTeam2.shift()); // Move the first player of team2 to the last position
+
+        // Update the teams state
+        setTeam1(newTeam1);
+        setTeam2(newTeam2);
     };
 
     if (loading) {
@@ -67,8 +50,14 @@ const GamePage = () => {
 
     return (
         <div className="container p-6">
+            {/* Substitution Timer Component */}
+            <div className="columns is-centered">
+                <Columns.Column size={4} className="has-text-centered">
+                    <SubTimer team1={team1} team2={team2} onSubstitution={handleSubstitution} />
+                </Columns.Column>
+            </div>
+
             <section className="section">
-                <h1 className="title">{game?.name || 'Game'}</h1>
                 <div className="columns is-multiline">
                     {/* Team 1 */}
                     <Columns.Column size={6}>
@@ -86,41 +75,6 @@ const GamePage = () => {
                             <Card.Content>
                                 <h2 className="title is-4">Team 2</h2>
                                 <TeamList team={team2} />  {/* Render Team 2 with statuses */}
-                            </Card.Content>
-                        </Card>
-                    </Columns.Column>
-                </div>
-
-                {/* Timer and Start Button */}
-                <div className="columns is-centered">
-                    <Columns.Column size={4} className="has-text-centered">
-                        <Card>
-                            <Card.Content>
-                                <h2 className="title is-3">Game Timer</h2>
-                                <p className="subtitle is-5">
-                                    {isGameStarted ? `${timer} seconds` : 'Not started yet'}
-                                </p>
-                                <Button className="is-primary" onClick={startGame} disabled={isGameStarted}>
-                                    Start Game
-                                </Button>
-                                <Button className="is-warning" onClick={resetGame} style={{ marginLeft: '10px' }}>
-                                    Reset Game
-                                </Button>
-                            </Card.Content>
-                        </Card>
-                    </Columns.Column>
-                </div>
-
-                {/* Substitution Time */}
-                <div className="columns is-centered">
-                    <Columns.Column size={4} className="has-text-centered">
-                        <Card>
-                            <Card.Content>
-                                <h2 className="title is-4">Substitution Time</h2>
-                                <p className="subtitle is-5">{subTime} seconds remaining</p>
-                                <Button className="is-info" onClick={handleSubstitution}>
-                                    Set Substitution Time
-                                </Button>
                             </Card.Content>
                         </Card>
                     </Columns.Column>
