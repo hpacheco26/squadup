@@ -5,6 +5,7 @@ import { balanceTeams } from '../utils/teamBalancer';
 import useGameStore from '../store/gameStore'; // Import Zustand store
 import TeamList from '../components/TeamList'; // Import the TeamList component
 import SubTimer from '../components/SubTimer'; // Import the SubTimer component
+import EndGame from '../components/EndGame';
 
 const GamePage = () => {
     const navigate = useNavigate();
@@ -30,19 +31,19 @@ const GamePage = () => {
         }
     }, [game]);
 
-    // Function to handle substitution and update teams
-    const handleSubstitution = () => {
-        const newTeam1 = [...team1];
-        const newTeam2 = [...team2];
+    // // Function to handle substitution and update teams
+    // const handleSubstitution = () => {
+    //     const newTeam1 = [...team1];
+    //     const newTeam2 = [...team2];
 
-        // Move the first player to the last position for both teams
-        newTeam1.push(newTeam1.shift()); // Move the first player of team1 to the last position
-        newTeam2.push(newTeam2.shift()); // Move the first player of team2 to the last position
+    //     // Move the first player to the last position for both teams
+    //     newTeam1.push(newTeam1.shift()); // Move the first player of team1 to the last position
+    //     newTeam2.push(newTeam2.shift()); // Move the first player of team2 to the last position
 
-        // Update the teams state
-        setTeam1(newTeam1);
-        setTeam2(newTeam2);
-    };
+    //     // Update the teams state
+    //     setTeam1(newTeam1);
+    //     setTeam2(newTeam2);
+    // };
 
     if (loading) {
         return <p>Loading game...</p>;
@@ -50,10 +51,12 @@ const GamePage = () => {
 
     return (
         <div className="container p-6">
-            {/* Substitution Timer Component */}
             <div className="columns is-centered">
                 <Columns.Column size={4} className="has-text-centered">
-                    <SubTimer team1={team1} team2={team2} onSubstitution={handleSubstitution} />
+                    <SubTimer team1={team1} team2={team2} />
+                </Columns.Column>
+                <Columns.Column size={2} className="has-text-centered">
+                    <EndGame /> {/* Add EndGame Button */}
                 </Columns.Column>
             </div>
 

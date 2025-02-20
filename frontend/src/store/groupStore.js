@@ -77,6 +77,35 @@ const useGroupStore = create((set) => ({
         }
     },
 
+    // Update ranks inside the group
+    updateRank: async (groupId, winningTeam, losingTeam) => {
+        if (winningTeam.length === 0 && losingTeam.length === 0) return;
+
+        try {
+            // // 🔹 Fetch the group from Firebase
+            // const group = await GroupService.getGroupById(groupId);
+            // if (!group || !group.players) return;
+
+            // 🔹 Update player ranks
+            const updatedPlayers = group.players.map(player => {
+                if (winningTeam.includes(player.id)) {
+                    return { ...player, rank: Math.min(player.rank + 1, 4) }; // Max rank = 4
+                }
+                if (losingTeam.includes(player.id)) {
+                    return { ...player, rank: Math.max(player.rank - 1, 0) }; // Min rank = 0
+                }
+                return player; // Unchanged players
+            });
+
+            // 🔹 Save updated group
+            await GroupService.updateGroup(groupId, { players: updatedPlayers });
+
+            console.log('Ranks updated successfully.');
+        } catch (error) {
+            console.error('Failed to update ranks:', error);
+        }
+    }
+
 }));
 
 export default useGroupStore;
