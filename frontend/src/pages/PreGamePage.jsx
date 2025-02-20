@@ -61,7 +61,7 @@ const PreGamePage = () => {
     };
 
     const handleStartGame = () => {
-        navigate('/gamePage');
+        navigate(`/game/${game.id}`);
     };
 
     const handleCancelGame = async () => {
