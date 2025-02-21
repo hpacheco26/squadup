@@ -31,6 +31,29 @@ const GamePage = () => {
         }
     }, [game]);
 
+    // Handle game end and rank updates
+    const handleEndGame = (winningTeam) => {
+        const isTeam1Winner = winningTeam === 1;
+        
+        const updatedPlayers = game.goingPlayers.map(player => {
+            const isWinner = team1.includes(player) ? isTeam1Winner : !isTeam1Winner;
+            return {
+                ...player,
+                rank: Math.max(0, Math.min(4, player.rank + (isWinner ? 1 : -1))),
+                stats: {
+                    ...player.stats,
+                    wins: isWinner ? player.stats.wins + 1 : player.stats.wins,
+                    losses: !isWinner ? player.stats.losses + 1 : player.stats.losses,
+                    draws: player.stats.draws
+                }
+            };
+        });
+
+        updatePlayerRanks(updatedPlayers);
+        setShowEndGameModal(false);
+        navigate('/'); // Redirect after updating ranks
+    };
+
     // // Function to handle substitution and update teams
     // const handleSubstitution = () => {
     //     const newTeam1 = [...team1];
@@ -56,7 +79,7 @@ const GamePage = () => {
                     <SubTimer team1={team1} team2={team2} />
                 </Columns.Column>
                 <Columns.Column size={2} className="has-text-centered">
-                    <EndGame /> {/* Add EndGame Button */}
+                    <EndGame team1={team1} team2={team2} /> {/* Add EndGame Button */}
                 </Columns.Column>
             </div>
 
