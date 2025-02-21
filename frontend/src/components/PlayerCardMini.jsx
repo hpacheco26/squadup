@@ -2,13 +2,13 @@ import React from 'react';
 import { Card } from 'react-bulma-components';
 import RankIcon from './RankIcon';
 
-const PlayerCard = ({ player, status }) => {
+const PlayerCardMini = ({ player, status }) => {
     return (
         <Card className="mb-2 mx-2">
             <Card.Content>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <h3 className="title is-5">{player.firstName} {player.lastName}</h3>
-                        <RankIcon rank={player.rank} size={40} />
+                        <h3 className="title is-5">{player?.firstName} {player?.lastName}</h3>
+                        <RankIcon rank={player?.rank} size={40} />
                     </div>
                     <div>{status}</div>
             </Card.Content>
@@ -16,4 +16,4 @@ const PlayerCard = ({ player, status }) => {
     );
 };
 
-export default PlayerCard;
+export default PlayerCardMini;

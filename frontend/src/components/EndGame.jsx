@@ -2,19 +2,19 @@ import React, { useState } from 'react';
 import { Modal, Button, Card } from 'react-bulma-components';
 import useGroupStore from '../store/groupStore'; // Import groupStore
 import { useNavigate } from 'react-router-dom';
+import useHoverEffect from '../hooks/useHoverEffect'; // Import the custom hook
 
 const EndGame = ({ team1, team2 }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { updateRank, group } = useGroupStore(); // Access updateRank function
     const navigate = useNavigate();
 
+    const { handleMouseEnter, handleMouseLeave, getStyle } = useHoverEffect();
+
     const handleSelectWinner = (winner, looser) => {
-        
         updateRank(group.id, winner, looser); // Call updateRank with the selected team
         setIsModalOpen(false); // Close modal after selection
-        navigate('/rank')
-        
-        
+        navigate('/rank');
     };
 
     return (
@@ -36,7 +36,13 @@ const EndGame = ({ team1, team2 }) => {
                         <div className="columns is-centered">
                             {/* Team 1 Card */}
                             <div className="column is-half">
-                                <Card onClick={() => handleSelectWinner(team1,team2)} className="clickable-card">
+                                <Card
+                                    onClick={() => handleSelectWinner(team1, team2)}
+                                    className="clickable-card"
+                                    onMouseEnter={() => handleMouseEnter('team1')} // Handle hover enter for team 1
+                                    onMouseLeave={handleMouseLeave} // Handle hover leave
+                                    style={getStyle('team1')} // Apply hover style
+                                >
                                     <Card.Content className="has-text-centered">
                                         <h2 className="title is-4">Team 1</h2>
                                     </Card.Content>
@@ -45,7 +51,13 @@ const EndGame = ({ team1, team2 }) => {
 
                             {/* Team 2 Card */}
                             <div className="column is-half">
-                                <Card onClick={() => handleSelectWinner(team2,team1)} className="clickable-card">
+                                <Card
+                                    onClick={() => handleSelectWinner(team2, team1)}
+                                    className="clickable-card"
+                                    onMouseEnter={() => handleMouseEnter('team2')} // Handle hover enter for team 2
+                                    onMouseLeave={handleMouseLeave} // Handle hover leave
+                                    style={getStyle('team2')} // Apply hover style
+                                >
                                     <Card.Content className="has-text-centered">
                                         <h2 className="title is-4">Team 2</h2>
                                     </Card.Content>

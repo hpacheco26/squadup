@@ -4,7 +4,6 @@ import useGroupStore from "../store/groupStore";
 import GroupCard from "../components/GroupCard";
 import useAuthStore from "../store/authStore";
 import CreateGroupModal from "../components/GroupModal";
-import { Plus } from "lucide-react";
 
 function GroupsPage() {
     const { groups, fetchGroupsByPlayer } = useGroupStore();

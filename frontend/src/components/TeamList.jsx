@@ -4,7 +4,7 @@ import { Button } from 'react-bulma-components';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa'; // Toggle icons
 
 const TeamList = ({ team }) => {
-    const [isCollapsed, setIsCollapsed] = useState(false); // Toggle state
+    const [isCollapsed, setIsCollapsed] = useState(true); // Start with collapsed state
 
     const handleToggle = () => {
         setIsCollapsed((prev) => !prev); // Toggle collapse state
