@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useGroupStore from '../store/groupStore';
+import useAuthStore from '../store/authStore';
 import { Loader, Button } from 'react-bulma-components';
 
 import GroupSettingsModal from '../components/GroupSettingsModal';

@@ -12,6 +12,7 @@ const EndGame = ({ team1, team2 }) => {
         
         updateRank(group.id, winner, looser); // Call updateRank with the selected team
         setIsModalOpen(false); // Close modal after selection
+        navigate('/rank')
         
         
     };

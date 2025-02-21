@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import PregamePage from './pages/PreGamePage';
 import GamePage from './pages/GamePage';
+import RankPage from './pages/RankPage.jsx';
 import ProtectedRoute from './components/ProtectedRoute';
 
 
@@ -63,6 +64,14 @@ function App() {
           element={
             <ProtectedRoute>
               <GamePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rank"
+          element={
+            <ProtectedRoute>
+              <RankPage />
             </ProtectedRoute>
           }
         />

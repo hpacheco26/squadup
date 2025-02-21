@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import GroupService from '../api/groupService';
+import useAuthStore from './authStore';
 
 const useGroupStore = create(
     persist(
@@ -9,6 +10,7 @@ const useGroupStore = create(
             group: null,
             loading: false,
             error: null,
+            myPlayer: null,
 
             // 🔹 Fetch all groups
             fetchGroups: async () => {
@@ -22,10 +24,12 @@ const useGroupStore = create(
 
             // 🔹 Fetch a single group by ID
             fetchGroupById: async (id) => {
+                const playerId = useAuthStore.getState().playerData?.id; // Get player ID from store
                 set({ loading: true });
                 try {
                     const group = await GroupService.getGroupById(id);
-                    set({ group, loading: false });
+                    const myPlayer = group.players.find(player => player.id === playerId) || null;
+                    set({ group, myPlayer, loading: false });
                 } catch (error) {
                     set({ error: 'Failed to fetch group by ID', loading: false });
                     console.error('Failed to fetch group by ID:', error);
