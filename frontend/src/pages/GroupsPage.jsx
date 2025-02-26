@@ -20,7 +20,7 @@ function GroupsPage() {
     }, [user, navigate]);
 
     return (
-        <div className="container p-6">
+        <div className="container">
             <h1 className="title is-2 mb-4">Groups</h1>
             <div className="columns is-multiline">
                 {groups.length > 0 ? (

@@ -2,7 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage.jsx';
 import PlayersPage from './pages/PlayerPage.jsx';
 import GroupsPage from './pages/GroupsPage';
-import GroupPage from './pages/GroupPage'
+import GroupPage from './pages/GroupPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import PregamePage from './pages/PreGamePage';
@@ -10,16 +10,22 @@ import GamePage from './pages/GamePage';
 import RankPage from './pages/RankPage.jsx';
 import ProtectedRoute from './components/ProtectedRoute';
 
-
 function App() {
-  return (
-    <Routes>
-      {/* Public routes */}
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/signup" element={<SignupPage  />} />
+  // Inline style object for padding
+  const appStyles = {
+    padding: '20px', // Set your preferred padding here
+    minHeight: '100vh', // Ensure the page stretches the full height
+  };
 
-      {/* Protected routes */}
-      <Route
+  return (
+    <div style={appStyles}> {/* Apply inline padding */}
+      <Routes>
+        {/* Public routes */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+
+        {/* Protected routes */}
+        <Route
           path="/"
           element={
             <ProtectedRoute>
@@ -27,7 +33,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-      <Route
+        <Route
           path="/groups"
           element={
             <ProtectedRoute>
@@ -75,9 +81,8 @@ function App() {
             </ProtectedRoute>
           }
         />
-
-
-    </Routes>
+      </Routes>
+    </div>
   );
 }
 
