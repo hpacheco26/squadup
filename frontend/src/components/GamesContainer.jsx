@@ -25,7 +25,6 @@ const GamesContainer = ({ groupId }) => {
 
   return (
     <div className="container">
-      <h2 className="title is-3 has-text-centered">Games</h2>
       {games.length === 0 ? (
         <p className="has-text-centered has-text-grey">No games scheduled</p>
       ) : (
