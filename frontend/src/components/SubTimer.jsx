@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from 'react-bulma-components';
-import SubTimerModal from './SubTimerModal'; // Import the SubTimerModal component
-import useHoverEffect from '../hooks/useHoverEffect'; // Import the hover effect hook
+import SubTimerModal from './SubTimerModal';
+import useHoverEffect from '../hooks/useHoverEffect';
 import useGameStore from '../store/gameStore';
 
 const SubTimer = ({ team1, team2, onSubstitution }) => {
     const { game } = useGameStore();
-    const initialTime = (game?.subTime || 5) * 60; // Convert subTime to seconds
+    const initialTime = (game?.subTime || 5) * 60;
     const [timer, setTimer] = useState(initialTime);
     const [isRunning, setIsRunning] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isClicked, setIsClicked] = useState(false); // To toggle the background color when clicked
+    const [isClicked, setIsClicked] = useState(false);
+    const [showStripes, setShowStripes] = useState(false); // Toggle between styles
 
-    const { handleMouseEnter, handleMouseLeave, getStyle } = useHoverEffect(); // Use the hover effect
+    const { handleMouseEnter, handleMouseLeave, getStyle } = useHoverEffect();
 
     useEffect(() => {
         let interval;
@@ -23,15 +24,16 @@ const SubTimer = ({ team1, team2, onSubstitution }) => {
         } else if (timer === 0) {
             setIsRunning(false);
             clearInterval(interval);
-            setIsModalOpen(true); // Open the modal when the timer ends
+            setIsModalOpen(true);
         }
         return () => clearInterval(interval);
     }, [isRunning, timer]);
 
     const startStopTimer = () => {
-        setIsClicked(!isClicked); // Toggle the clicked state to change background color
+        setIsClicked(!isClicked);
+        setShowStripes(!showStripes); 
         if (!isRunning) {
-            setTimer(initialTime);
+            // setTimer(initialTime);
             setIsRunning(true);
         } else {
             setIsRunning(false);
@@ -41,7 +43,8 @@ const SubTimer = ({ team1, team2, onSubstitution }) => {
     const resetTimer = () => {
         setIsRunning(false);
         setTimer(initialTime);
-        setIsClicked(false); // Reset the background color when reset
+        setIsClicked(false);
+        setShowStripes(false);
     };
 
     const formatTime = (time) => {
@@ -50,25 +53,35 @@ const SubTimer = ({ team1, team2, onSubstitution }) => {
         return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     };
 
-    // Inline styles for the card
-    const cardStyles = {
-        position: 'relative',
-        cursor: 'pointer', // Make it clickable
-        borderRadius: '8px', // Add rounded corners
-    };
-
-    // Updated triangle styles for a bigger triangle
+    // Triangle styles
     const triangleStyles = {
         position: 'absolute',
         top: '50%',
         left: '50%',
         width: '0',
         height: '0',
-        borderLeft: '60px solid transparent', // Increased size
-        borderRight: '60px solid transparent', // Increased size
-        borderTop: '60px solid green', // Increased size and kept the green color
-        opacity: 0.2, // Add opacity to the triangle
-        transform: 'translate(-50%, -50%) rotate(-90deg)', // Center and rotate the triangle by 90 degrees
+        borderLeft: '60px solid transparent',
+        borderRight: '60px solid transparent',
+        borderTop: '60px solid green',
+        opacity: 0.2,
+        transform: 'translate(-50%, -50%) rotate(-90deg)',
+    };
+
+    // Vertical stripes styles
+    const stripeStyles = {
+        position: 'absolute',
+        top: '50%',
+        left: '40%',
+        width: '20px',
+        height: '110px',
+        backgroundColor: 'green',
+        opacity: 0.2,
+        transform: 'translate(-50%, -50%)',
+    };
+
+    const secondStripeStyles = {
+        ...stripeStyles,
+        left: 'calc(50% + 25px)',
     };
 
     return (
@@ -78,29 +91,33 @@ const SubTimer = ({ team1, team2, onSubstitution }) => {
                 onClick={startStopTimer}
                 onMouseEnter={() => handleMouseEnter('subtimer')}
                 onMouseLeave={handleMouseLeave}
-                style={cardStyles} // Apply inline styles for the card
+                style={getStyle('subtimer')}
             >
-                <Card.Content
-                    className={`has-text-centered ${isClicked ? 'has-background-primary' : ''}`} // Change background color on click
-                >
+                <Card.Content>
                     <h2 className="title is-3">Sub Timer</h2>
                     <p className="subtitle is-1">{formatTime(timer)}</p>
                 </Card.Content>
 
-                {/* Centered and rotated bigger green triangle */}
-                <div style={triangleStyles}></div>
+                {/* Show triangle or stripes based on state */}
+                {showStripes ? (
+                    <>
+                        <div style={stripeStyles}></div>
+                        <div style={secondStripeStyles}></div>
+                    </>
+                ) : (
+                    <div style={triangleStyles}></div>
+                )}
             </Card>
 
-            {/* Substitution Modal - Using SubTimerModal Component */}
             <SubTimerModal
                 team1={team1}
                 team2={team2}
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onAcceptSub={() => {
-                    onSubstitution(); // Call the function passed from the parent
-                    setIsModalOpen(false); // Close the modal after accepting
-                    resetTimer(); // Optionally reset the timer
+                    onSubstitution();
+                    setIsModalOpen(false);
+                    resetTimer();
                 }}
             />
         </>
