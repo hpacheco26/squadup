@@ -84,8 +84,9 @@ const useAuthStore = create((set) => ({
                 set({ playerData });
                 localStorage.setItem('playerData', JSON.stringify(playerData));
             } else {
-                set({ playerData: playerExists });
-                localStorage.setItem('playerData', JSON.stringify(playerExists));
+                const player = await PlayerService.getPlayerByUserId(user.uid);
+                set({ playerData: player });
+                localStorage.setItem('playerData', JSON.stringify(player));
             }
         } catch (error) {
             console.error("Google Login Error:", error);

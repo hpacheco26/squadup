@@ -11,12 +11,21 @@ const useGroupStore = create(
             loading: false,
             error: null,
             myPlayer: null,
+            ranks: [],
 
-            // 🔹 Fetch all groups
+            // 🔹 Fetch all groups and update ranks
             fetchGroups: async () => {
                 try {
                     const groups = await GroupService.getGroups();
-                    set({ groups });
+                    // const playerId = useAuthStore.getState().playerData?.id;
+                    const playerId = myPlayer?.id;
+                    
+                    const ranks = groups.map(group => {
+                        const player = group.players.find(p => p.id === playerId);
+                        return player ? player.rank : null;
+                    });
+                    
+                    set({ groups, ranks });
                 } catch (error) {
                     console.error('Failed to fetch groups:', error);
                 }
@@ -138,8 +147,6 @@ const useGroupStore = create(
                     console.error('Failed to update ranks and stats:', error);
                 }
             }
-            
-
         }),
         {
             name: 'group-store', // Key for localStorage

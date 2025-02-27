@@ -1,30 +1,41 @@
 import React from 'react';
 
-const RankIcon = ({ rank, size = 30 }) => {  // Default size set to 30px
-    const shapeStyles = {
-        0: { borderRadius: '50%' }, // Circle
-        1: { clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }, // Triangle
-        2: {}, // Square (default)
-        3: { clipPath: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)' }, // Pentagon
-        4: { clipPath: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)' }, // Hexagon
-    };
+const shapeStyles = {
+    0: { borderRadius: "50%" }, // Circle
+    1: { 
+        width: 0, 
+        height: 0, 
+        borderLeft: "calc(0.5 * var(--size)) solid transparent",
+        borderRight: "calc(0.5 * var(--size)) solid transparent",
+        borderBottom: "var(--size) solid currentColor", 
+        background: "none" 
+    }, // Triangle
+    2: {}, // Square (default)
+    3: { clipPath: "polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)" }, // Pentagon
+    4: { clipPath: "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)" } // Hexagon
+};
 
-    const rankColors = {
-        0: 'gold',      // Circle - Gold
-        1: 'blue',      // Triangle - Blue
-        2: 'green',     // Square - Green
-        3: 'purple',    // Pentagon - Purple
-        4: 'red',       // Hexagon - Red
-    };
+const rankColors = {
+    0: '#D4AF37', // Muted Gold
+    1: '#607D8B', // Cool Gray
+    2: '#78909C', // Steel Blue
+    3: '#8D6E63', // Warm Brown
+    4: '#B0BEC5', // Soft Silver
+};
+
+const RankIcon = ({ rank, size = 30 }) => {
+    const shapeStyle = shapeStyles[rank] || {};
+    const color = rankColors[rank] || '#9E9E9E'; // Default to neutral gray if rank is unknown
 
     return (
         <div 
             style={{ 
-                width: `${size}px`, 
-                height: `${size}px`, 
-                backgroundColor: rankColors[rank] || 'gray', // Default to gray if no rank matches
+                "--size": `${size}px`, // CSS Variable for consistent scaling
+                width: size, 
+                height: size, 
+                backgroundColor: color, 
                 display: 'inline-block',
-                ...shapeStyles[rank] 
+                ...shapeStyle
             }} 
         />
     );

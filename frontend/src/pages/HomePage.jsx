@@ -5,13 +5,13 @@ function HomePage() {
   const navigate = useNavigate(); // Hook to navigate programmatically
 
   return (
-    <div className="hero is-flex is-justify-content-center is-align-items-center">
-      <div className="container has-text-centered">
-        <h1 className="title is-2" style={{ marginBottom: '20px' }}>Welcome to SquadUp</h1>
+    <div className="hero is-flex is-justify-content-center is-align-items-center" style={{ minHeight: "100vh", textAlign: "center" }}>
+      <div className="container">
+        <h1 className="title is-2 mb-4">Welcome to SquadUp</h1>
         <p className="subtitle is-4">The best place to manage your sports groups</p>
 
-        {/* Vertically centered Enter button */}
-        <div className="is-flex is-justify-content-center is-align-items-center" style={{ height: '50vh' }}>
+        {/* Centered Enter button */}
+        <div className="is-flex is-justify-content-center is-align-items-center mt-5">
           <Link to="/groups" className="button is-primary is-large">
             Enter
           </Link>
@@ -22,11 +22,12 @@ function HomePage() {
       <button 
         onClick={() => navigate('/settings')} 
         className="settings-button button is-info"
+        aria-label="Go to Account Settings"
       >
-        <FiSettings size={24} /> {/* Settings Icon */}
+        <FiSettings size={24} />
       </button>
 
-      {/* Inline styles for positioning */}
+      {/* Styles */}
       <style>
         {`
           .settings-button {
@@ -39,6 +40,11 @@ function HomePage() {
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: background 0.2s ease-in-out;
+          }
+
+          .settings-button:hover {
+            background: #209cee; /* Lighter blue for hover effect */
           }
         `}
       </style>

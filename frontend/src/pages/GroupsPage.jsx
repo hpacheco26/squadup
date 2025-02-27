@@ -4,6 +4,7 @@ import useGroupStore from "../store/groupStore";
 import GroupCard from "../components/GroupCard";
 import useAuthStore from "../store/authStore";
 import CreateGroupModal from "../components/GroupModal";
+import { getGroupRank } from "../utils/groupRank";
 
 function GroupsPage() {
     const { groups, fetchGroupsByPlayer } = useGroupStore();
@@ -30,7 +31,8 @@ function GroupsPage() {
                             key={group.id} // Ensure this is unique for each group
                             onClick={() => navigate(`/groups/${group.id}`)} // Using groupId for navigation
                         >
-                            <GroupCard name={group.name} sport={group.sport} />
+                            <GroupCard name={group.name} sport={group.sport} rank={getGroupRank(group, user.uid)} />
+                            
                         </div>
                     ))
                 ) : (
