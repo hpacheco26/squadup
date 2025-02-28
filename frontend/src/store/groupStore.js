@@ -17,15 +17,8 @@ const useGroupStore = create(
             fetchGroups: async () => {
                 try {
                     const groups = await GroupService.getGroups();
-                    // const playerId = useAuthStore.getState().playerData?.id;
-                    const playerId = myPlayer?.id;
                     
-                    const ranks = groups.map(group => {
-                        const player = group.players.find(p => p.id === playerId);
-                        return player ? player.rank : null;
-                    });
-                    
-                    set({ groups, ranks });
+                    set({ groups });
                 } catch (error) {
                     console.error('Failed to fetch groups:', error);
                 }
@@ -48,8 +41,20 @@ const useGroupStore = create(
             // 🔹 Fetch groups where a specific player is a member
             fetchGroupsByPlayer: async (playerId) => {
                 try {
-                    const data = await GroupService.getGroupsByPlayer(playerId);
-                    set({ groups: data }); // Always set state, even if empty
+                    const groups = await GroupService.getGroupsByPlayer(playerId);
+
+                    const ranks = groups.map(group => {
+                        const player = group.players.find(p => p.id === playerId);
+                        const rank = {
+                            groupName: group.name,
+                            groupRank: player.rank,
+                            groupStats: player.stats
+                        }
+                        return player ? rank : null;
+                    });
+
+                    set({ groups, ranks });
+
                 } catch (error) {
                     console.error("Error fetching groups:", error);
                     set({ groups: [] }); // Ensure Zustand updates state on error

@@ -3,7 +3,7 @@ import confetti from "canvas-confetti";
 import "bulma/css/bulma.min.css";
 import useGroupStore from "../store/groupStore";
 import { useNavigate } from "react-router-dom";
-import RankCard from "../components/RankCard"; // Import the new RankCard
+import RankCard from "../components/RankCard"; 
 
 const RankPage = () => {
   const { myPlayer, group } = useGroupStore();
