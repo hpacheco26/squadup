@@ -5,7 +5,7 @@ import GroupCard from "../components/cards/GroupCard";
 import useAuthStore from "../store/authStore";
 import CreateGroupModal from "../components/modals/GroupModal";
 import { getGroupRank } from "../utils/groupRank";
-import HeaderBar from "../components/bars/HeaderBar.jsx";
+import SquadsHeaderBar from "../components/bars/SquadsHeaderBar";
 
 function GroupsPage() {
     const { groups, fetchGroupsByPlayer } = useGroupStore();
@@ -23,7 +23,7 @@ function GroupsPage() {
 
     return (
         <>
-        <HeaderBar />
+        <SquadsHeaderBar />
             <div className="container p-4">
                 <div className="columns is-multiline">
                     {groups.length > 0 ? (
