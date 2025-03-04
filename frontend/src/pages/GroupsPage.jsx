@@ -21,8 +21,7 @@ function GroupsPage() {
     }, [user, navigate]);
 
     return (
-        <div className="container">
-            <h1 className="title is-2 mb-4">Groups</h1>
+        <div className="container p-4">
             <div className="columns is-multiline">
                 {groups.length > 0 ? (
                     groups.map((group) => (

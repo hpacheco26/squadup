@@ -16,16 +16,20 @@ import HeaderBar from './components/HeaderBar.jsx';
 
 function App() {
   const appStyles = {
-    padding: '20px',
-    minHeight: '95vh', // Ensure page fills the screen
+    // padding: '20px',
+    height: '100vh', // Ensure page fills the screen
+    display: 'flex',
+    flexDirection: 'column',
+    background: '#e0e2db',
   };
 
   return (
     <>
-      <HeaderBar />
-      <Navbar />
+
+
 
       <div style={appStyles}>
+      <HeaderBar />
         <Routes>
           {/* Public Routes */}
           <Route path="/login" element={<LoginPage />} />
@@ -43,6 +47,7 @@ function App() {
           {/* New Settings Page */}
           <Route path="/settings" element={<ProtectedRoute><AppSettingsPage /></ProtectedRoute>} />
         </Routes>
+        <Navbar />
       </div>
     </>
   );

@@ -27,15 +27,9 @@ const styles = {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '15px 20px',
+        padding: '10px',
         backgroundColor: '#f8f9fa', // Light background
         borderBottom: '1px solid #ddd',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1000,
-        width: '100%',
     },
     title: {
         fontSize: '1.5rem',

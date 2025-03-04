@@ -49,8 +49,7 @@ const { ranks, fetchGroupsByPlayer } = useGroupStore();
           .rank-scroll-container {
             overflow-x: auto; 
             white-space: nowrap;
-            padding: 10px;
-            margin-top: 20px;
+            padding: 30px;
           }
 
           /* Rank List - Flexbox for horizontal scrolling */

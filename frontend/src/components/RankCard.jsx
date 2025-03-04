@@ -15,8 +15,19 @@ const shapes = {
   4: { name: "Hexagon", styles: { clipPath: "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)" } },
 };
 
+const rankColors = {
+  0: '#ddd8c4', 
+  1: '#a3c9a8', 
+  2: '#84b59f', 
+  3: '#69a297', 
+  4: '#50808e', 
+};
+
+
+
 const RankCard = ({ rank, groupName, stats, isAnimated }) => {
   const shape = shapes[rank] || null;
+  const color = rankColors[rank] || '#9E9E9E'; // Default to neutral gray if rank is unknown
 
   if (!shape) return <p className="title has-text-centered">Loading...</p>;
 
@@ -28,7 +39,7 @@ const RankCard = ({ rank, groupName, stats, isAnimated }) => {
           style={{
             width: "150px",
             height: "150px",
-            backgroundColor: "#00d1b2",
+            backgroundColor: color,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -44,7 +55,7 @@ const RankCard = ({ rank, groupName, stats, isAnimated }) => {
           style={{
             width: "150px",
             height: "150px",
-            backgroundColor: "#00d1b2",
+            backgroundColor: color,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -58,13 +69,26 @@ const RankCard = ({ rank, groupName, stats, isAnimated }) => {
       <h2 className="title is-4">{groupName}</h2>
 
       {/* Player Stats */}
-      <div className="box">
-        <h3 className="title is-5">Player Stats</h3>
+      <div className="box rank-stats">
+        {/* <h3 className="title is-5">Player Stats</h3> */}
         <p><strong>Wins:</strong> {stats?.wins || 0}</p>
         <p><strong>Losses:</strong> {stats?.losses || 0}</p>
         <p><strong>Draws:</strong> {stats?.draws || 0}</p>
       </div>
+
+      {/* Styles */}
+      <style>
+        {`
+          .rank-stats {
+            box-shadow:none;
+            border-top: solid #e0e2db;
+            border-radius: 0px;
+          }
+        `}  
+      </style>
     </div>
+
+
   );
 };
 

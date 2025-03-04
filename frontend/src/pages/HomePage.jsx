@@ -4,7 +4,7 @@ function HomePage() {
   return (
     <div 
       className="container is-justify-content-center "
-      style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
+      style={{ display: "flex", flexDirection: "column" }}
     >
       {/* Rank List - Centered Vertically */}
       <RankList />

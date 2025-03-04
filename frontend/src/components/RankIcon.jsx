@@ -16,12 +16,13 @@ const shapeStyles = {
 };
 
 const rankColors = {
-    0: '#D4AF37', // Muted Gold
-    1: '#607D8B', // Cool Gray
-    2: '#78909C', // Steel Blue
-    3: '#8D6E63', // Warm Brown
-    4: '#B0BEC5', // Soft Silver
-};
+    0: '#ddd8c4', 
+    1: '#a3c9a8', 
+    2: '#84b59f', 
+    3: '#69a297', 
+    4: '#50808e', 
+  };
+
 
 const RankIcon = ({ rank, size = 30 }) => {
     const shapeStyle = shapeStyles[rank] || {};

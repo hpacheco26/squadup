@@ -22,7 +22,7 @@ const RankPage = () => {
   if (!myPlayer) return <p className="title has-text-centered">Loading...</p>;
 
   return (
-    <div className="container is-flex is-flex-direction-column is-align-items-center is-justify-content-center" style={{ height: "100vh", textAlign: "center" }}>
+    <div className="container is-flex is-flex-direction-column is-align-items-center is-justify-content-center" style={{ textAlign: "center" }}>
       <RankCard 
         rank={myPlayer.rank} 
         groupName={group?.name || "Unknown Group"} 

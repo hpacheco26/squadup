@@ -27,10 +27,10 @@ function Navbar() {
 // Custom inline styles for fixed bottom navbar with reduced space
 const styles = {
     navbar: {
-        position: 'fixed',
-        bottom: '0',
-        left: '0',
-        right: '0',
+        // position: 'fixed',
+        // bottom: '0',
+        // left: '0',
+        // right: '0',
         zIndex: 1000, // Ensure it stays on top of content
     },
     navbarMenu: {
