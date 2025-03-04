@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { Plus } from "lucide-react";
 import useAuthStore from "../../store/authStore";
 import useGroupStore from "../../store/groupStore";
 
 export default function CreateGroupModal({ isOpen, setIsOpen }) {
     const [groupName, setGroupName] = useState("");
-    const [sport, setSport] = useState("");
+    const [sport, setSport] = useState("Futebol"); // Default to "Futebol"
 
     const { playerData } = useAuthStore(); // Get logged-in player
     const { addGroup } = useGroupStore(); // Function to add group
@@ -41,20 +40,20 @@ export default function CreateGroupModal({ isOpen, setIsOpen }) {
         await addGroup(newGroup);
         setIsOpen(false);
         setGroupName("");
-        setSport("");
+        setSport("Futebol"); 
     };
 
     return (
         <div className={`modal ${isOpen ? "is-active" : ""}`}>
             <div className="modal-background" onClick={() => setIsOpen(false)}></div>
-            <div className="modal-card">
+            <div className="modal-card p-2">
                 <header className="modal-card-head">
-                    <p className="modal-card-title">Create New Group</p>
+                    <p className="modal-card-title">New Squad</p>
                     <button className="delete" onClick={() => setIsOpen(false)}></button>
                 </header>
                 <section className="modal-card-body">
                     <div className="field">
-                        <label className="label">Group Name</label>
+                        <label className="label">Squad Name</label>
                         <div className="control">
                             <input
                                 className="input"
@@ -69,21 +68,19 @@ export default function CreateGroupModal({ isOpen, setIsOpen }) {
                     <div className="field">
                         <label className="label">Sport</label>
                         <div className="control">
-                            <input
-                                className="input"
-                                type="text"
-                                placeholder="Enter sport type"
-                                value={sport}
-                                onChange={(e) => setSport(e.target.value)}
-                            />
+                            <div className="select is-fullwidth">
+                                <select value={sport} onChange={(e) => setSport(e.target.value)}>
+                                    <option value="Futebol">Futebol</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </section>
-                <footer className="modal-card-foot">
-                    <button className="button is-success" onClick={handleSubmit}>
+                <footer className="modal-card-foot" style={styles.footer}>
+                    <button className="button is-success" style={styles.button} onClick={handleSubmit}>
                         Create Group
                     </button>
-                    <button className="button" onClick={() => setIsOpen(false)}>
+                    <button className="button" style={styles.button} onClick={() => setIsOpen(false)}>
                         Cancel
                     </button>
                 </footer>
@@ -91,3 +88,18 @@ export default function CreateGroupModal({ isOpen, setIsOpen }) {
         </div>
     );
 }
+
+// Styles for button alignment
+const styles = {
+    footer: {
+        display: "flex",
+        justifyContent: "center",
+        gap: "10px",
+        width: "100%",
+    },
+    button: {
+        flex: 1, // Makes both buttons equal size
+        maxWidth: "150px", // Sets a reasonable max width
+    },
+};
+
