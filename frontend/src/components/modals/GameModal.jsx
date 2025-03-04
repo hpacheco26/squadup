@@ -28,6 +28,7 @@ function GameModal({ isOpen, setIsOpen, group }) {
 
     const handleSubmit = async () => {
         const newGame = {
+            status: 'open',
             date,
             time,
             location,

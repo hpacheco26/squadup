@@ -24,7 +24,7 @@ const GamesContainer = ({ groupId }) => {
   if (error) return <p className="has-text-centered has-text-danger">Error: {error}</p>;
 
   return (
-    <div className="container">
+    <>
       {games.length === 0 ? (
         <p className="has-text-centered has-text-grey">No games scheduled</p>
       ) : (
@@ -43,7 +43,7 @@ const GamesContainer = ({ groupId }) => {
           ))}
         </div>
       )}
-    </div>
+    </>
   );
 };
 
