@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import useGroupStore from '../store/groupStore';
+import useGroupStore from '../../store/groupStore';
 
 function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
     const [firstName, setFirstName] = useState('');

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import PlayersContainer from './PlayersContainer'; // Import PlayersContainer
+import PlayersContainer from '../containers/PlayersContainer'; // Import PlayersContainer
 
 function GroupSettingsModal({ isOpen, setIsOpen, group, updateGroup, deleteGroup, navigate }) {
     const [groupName, setGroupName] = useState('');

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Columns, Card } from 'react-bulma-components';
 import { useParams } from 'react-router-dom';
 import { balanceTeams } from '../utils/teamBalancer';
-import useGameStore from '../store/gameStore'; // Import Zustand store
-import TeamList from '../components/TeamList'; // Import the TeamList component
-import SubTimer from '../components/SubTimer'; // Import the SubTimer component
+import useGameStore from '../store/gameStore'; 
+import TeamList from '../components/lists/TeamList';
+import SubTimer from '../components/SubTimer'; 
 import EndGame from '../components/EndGame';
 
 const GamePage = () => {

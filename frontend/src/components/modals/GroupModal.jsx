@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import useAuthStore from "../store/authStore";
-import useGroupStore from "../store/groupStore";
+import useAuthStore from "../../store/authStore";
+import useGroupStore from "../../store/groupStore";
 
 export default function CreateGroupModal() {
     const [isOpen, setIsOpen] = useState(false);

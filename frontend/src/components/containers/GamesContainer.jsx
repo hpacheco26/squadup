@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useGameStore from '../store/gameStore';
-import GameCard from './GameCard';
-import useHoverEffect from '../hooks/useHoverEffect';  // Import the custom hook
+import useGameStore from '../../store/gameStore';
+import GameCard from '../cards/GameCard';
+import useHoverEffect from '../../hooks/useHoverEffect'; 
 
 const GamesContainer = ({ groupId }) => {
   const { games, fetchGamesByGroup, loading, error } = useGameStore();

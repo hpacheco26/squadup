@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from 'react-bulma-components';
-import SubTimerModal from './SubTimerModal';
+import SubTimerModal from './modals/SubTimerModal';
 import useHoverEffect from '../hooks/useHoverEffect';
 import useGameStore from '../store/gameStore';
 

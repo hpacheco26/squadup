@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import PlayerCardMini from './PlayerCardMini';  
+import PlayerCardMini from '../cards/PlayerCardMini';  
 import { Button } from 'react-bulma-components';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa'; // Toggle icons
 

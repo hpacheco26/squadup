@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, Columns, Card } from 'react-bulma-components';
-import PlayersList from '../components/PlayersList';
+import PlayersList from '../components/lists/PlayersList';
 import { useNavigate } from 'react-router-dom';
 import useGameStore from '../store/gameStore';
 import useGroupStore from '../store/groupStore';

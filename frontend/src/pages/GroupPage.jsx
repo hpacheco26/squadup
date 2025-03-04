@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useGroupStore from '../store/groupStore';
-import useAuthStore from '../store/authStore';
 import { Loader, Button } from 'react-bulma-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Import FontAwesomeIcon
 import { faCog, faFutbol } from '@fortawesome/free-solid-svg-icons'; // Import icons - changed to a soccer ball for sports
 
-import GroupSettingsModal from '../components/GroupSettingsModal';
-import GameModal from '../components/GameModal'; 
-import GamesContainer from '../components/GamesContainer'; // Import the GamesContainer
+import GroupSettingsModal from '../components/modals/GroupSettingsModal';
+import GameModal from '../components/modals/GameModal'; 
+import GamesContainer from '../components/containers/GamesContainer'; // Import the GamesContainer
 
 function GroupPage() {
     const { id } = useParams();

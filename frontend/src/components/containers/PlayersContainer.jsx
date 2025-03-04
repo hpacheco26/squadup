@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from 'react-bulma-components';
-import PlayerCard from '../components/PlayerCard';
-import PlayerModal from '../components/PlayerModal';
-import useGroupStore from '../store/groupStore';
+import PlayerCard from '../cards/PlayerCard';
+import PlayerModal from '../modals/PlayerModal';
+import useGroupStore from '../../store/groupStore';
 
 function PlayersContainer() {
     const { group, updateGroup, fetchGroupById } = useGroupStore();

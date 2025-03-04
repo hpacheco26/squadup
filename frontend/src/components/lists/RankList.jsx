@@ -1,9 +1,9 @@
 import React from "react";
-import RankCard from "./RankCard"; 
+import RankCard from "../cards/RankCard"; 
 import {  useNavigate } from 'react-router-dom';
 import { useEffect } from "react";
-import useGroupStore from "../store/groupStore";
-import useAuthStore from '../store/authStore';
+import useGroupStore from "../../store/groupStore";
+import useAuthStore from '../../store/authStore';
 
 const RankList = () => {
 const navigate = useNavigate(); // Hook to navigate programmatically

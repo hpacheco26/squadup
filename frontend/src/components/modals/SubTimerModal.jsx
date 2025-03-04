@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button } from 'react-bulma-components';
 import { motion } from 'framer-motion';
-import PlayerCardMini from './PlayerCardMini';
+import PlayerCardMini from '../cards/PlayerCardMini';
 
 const SubTimerModal = ({ team1, team2, isOpen, onClose, onAcceptSub }) => {
     const getLowestIndexPlayer = (team) => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card } from 'react-bulma-components';
-import RankIcon from './RankIcon';
+import RankIcon from '../RankIcon';
 
 const PlayerCardMini = ({ player, status }) => {
     return (

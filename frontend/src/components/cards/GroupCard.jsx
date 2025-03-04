@@ -1,6 +1,6 @@
 import React from 'react';
-import useHoverEffect from '../hooks/useHoverEffect';
-import RankIcon from './RankIcon'; // Import RankIcon component
+import useHoverEffect from '../../hooks/useHoverEffect';
+import RankIcon from '../RankIcon'; // Import RankIcon component
 
 function GroupCard({ name, sport, id, rank }) {
   const { handleMouseEnter, handleMouseLeave, getStyle } = useHoverEffect();

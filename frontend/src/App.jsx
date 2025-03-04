@@ -11,8 +11,8 @@ import GamePage from './pages/GamePage';
 import RankPage from './pages/RankPage.jsx';
 import AppSettingsPage from './pages/AppSettingsPage.jsx'; // Import new settings page
 import ProtectedRoute from './components/ProtectedRoute';
-import Navbar from './components/NavBar.jsx'; 
-import HeaderBar from './components/HeaderBar.jsx';
+import Navbar from './components/bars/NavBar.jsx'; 
+// import HeaderBar from './components/HeaderBar.jsx';
 
 function App() {
   const appStyles = {
@@ -29,7 +29,7 @@ function App() {
 
 
       <div style={appStyles}>
-      <HeaderBar />
+      {/* <HeaderBar /> */}
         <Routes>
           {/* Public Routes */}
           <Route path="/login" element={<LoginPage />} />
