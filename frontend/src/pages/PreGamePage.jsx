@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import useGameStore from '../store/gameStore';
 import useGroupStore from '../store/groupStore';
 import useAuthStore from '../store/authStore'; // Assuming there's an auth store to get user info
+import GameHeaderBar from '../components/bars/GameHeaderBar';
 
 const PreGamePage = () => {
     const { gameId } = useParams();
@@ -72,68 +73,71 @@ const PreGamePage = () => {
     if (!game) return <div>Loading...</div>;
 
     return (
-        <div className="container p-6">
-            <section className="section">
-                <Card className="game-card mb-6">
-                    <Card.Content>
-                        <h1 className="title is-3">{game.name}</h1>
-                        <p><strong>Location:</strong> {game.location}</p>
-                        <p><strong>Date:</strong> {game.date}</p>
-                        <p><strong>Time:</strong> {game.time}</p>
-                    </Card.Content>
-                </Card>
+        <>
+            <GameHeaderBar gameId={gameId}/>
+            <div className="container p-2">
+                <section className="section">
+                    {/* <Card className="game-card mb-6">
+                        <Card.Content>
+                            <h1 className="title is-3">{game.name}</h1>
+                            <p><strong>Location:</strong> {game.location}</p>
+                            <p><strong>Date:</strong> {game.date}</p>
+                            <p><strong>Time:</strong> {game.time}</p>
+                        </Card.Content>
+                    </Card> */}
 
-                <Columns className="is-multiline">
-                    <Columns.Column size={4}>
-                        <h2 className="title is-4 mb-3">Going</h2>
-                        <PlayersList 
-                            players={going} 
-                            onOut={handleOut} 
-                            actionLabel="Game On" 
-                            additionalActionLabel="Out" 
-                            user={user} 
-                            isAdmin={game.adminId === user.id} 
-                        />
-                    </Columns.Column>
+                    <Columns className="is-multiline">
+                        <Columns.Column size={4}>
+                            <h2 className="title is-4 mb-3">Going</h2>
+                            <PlayersList 
+                                players={going} 
+                                onOut={handleOut} 
+                                actionLabel="Game On" 
+                                additionalActionLabel="Out" 
+                                user={user} 
+                                isAdmin={game.adminId === user.id} 
+                                />
+                        </Columns.Column>
 
-                    <Columns.Column size={4}>
-                        <h2 className="title is-4 mb-3">Not Going</h2>
-                        <PlayersList 
-                            players={notGoing} 
-                            onGameOn={handleGameOn} 
-                            actionLabel="Game On" 
-                            additionalActionLabel="Out" 
-                            user={user} 
-                            isAdmin={game.adminId === user.id} 
-                        />
-                    </Columns.Column>
+                        <Columns.Column size={4}>
+                            <h2 className="title is-4 mb-3">Not Going</h2>
+                            <PlayersList 
+                                players={notGoing} 
+                                onGameOn={handleGameOn} 
+                                actionLabel="Game On" 
+                                additionalActionLabel="Out" 
+                                user={user} 
+                                isAdmin={game.adminId === user.id} 
+                                />
+                        </Columns.Column>
 
-                    <Columns.Column size={4}>
-                        <h2 className="title is-4 mb-3">Invited</h2>
-                        <PlayersList 
-                            players={invited} 
-                            onGameOn={handleGameOn} 
-                            onOut={handleOut} 
-                            actionLabel="Game On" 
-                            additionalActionLabel="Out" 
-                            user={user} 
-                            isAdmin={game.adminId === user.id} 
-                        />
-                    </Columns.Column>
-                </Columns>
-            </section>
+                        <Columns.Column size={4}>
+                            <h2 className="title is-4 mb-3">Invited</h2>
+                            <PlayersList 
+                                players={invited} 
+                                onGameOn={handleGameOn} 
+                                onOut={handleOut} 
+                                actionLabel="Game On" 
+                                additionalActionLabel="Out" 
+                                user={user} 
+                                isAdmin={game.adminId === user.id} 
+                                />
+                        </Columns.Column>
+                    </Columns>
+                </section>
 
-            <div className="fixed-bottom" style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
-                <Button className="is-primary" onClick={handleStartGame}>
-                    Start Game
-                </Button>
-                {game.adminId === user.id && (
-                    <Button className="is-danger" onClick={handleCancelGame}>
-                        Cancel Game
+                <div className="fixed-bottom" style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+                    <Button className="is-primary" onClick={handleStartGame}>
+                        Start Game
                     </Button>
-                )}
+                    {game.adminId === user.id && (
+                        <Button className="is-danger" onClick={handleCancelGame}>
+                            Cancel Game
+                        </Button>
+                    )}
+                </div>
             </div>
-        </div>
+        </>
     );
 };
 

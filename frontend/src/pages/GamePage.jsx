@@ -6,6 +6,7 @@ import useGameStore from '../store/gameStore';
 import TeamList from '../components/lists/TeamList';
 import SubTimer from '../components/SubTimer'; 
 import EndGame from '../components/EndGame';
+import GameHeaderBar from '../components/bars/GameHeaderBar';
 
 const GamePage = () => {
     const { gameId } = useParams(); // Get game ID from URL params
@@ -49,40 +50,43 @@ const GamePage = () => {
     }
 
     return (
-        <div className="container p-6">
-            <div className="columns is-centered">
-                <Columns.Column size={4} className="has-text-centered">
-                    <SubTimer team1={team1} team2={team2} onSubstitution={handleSubstitution} /> {/* Correct the function prop */}
-                </Columns.Column>
-                <Columns.Column size={2} className="has-text-centered">
-                    <EndGame team1={team1} team2={team2} /> {/* Add EndGame Button */}
-                </Columns.Column>
-            </div>
-
-            <section className="section">
-                <div className="columns is-multiline">
-                    {/* Team 1 */}
-                    <Columns.Column size={6}>
-                        <Card>
-                            <Card.Content>
-                                <h2 className="title is-4">Team 1</h2>
-                                <TeamList team={team1} />  {/* Render Team 1 with statuses */}
-                            </Card.Content>
-                        </Card>
+        <>
+            <GameHeaderBar gameId={gameId} />
+            <div className="container p-6">
+                <div className="columns is-centered">
+                    <Columns.Column size={4} className="has-text-centered">
+                        <SubTimer team1={team1} team2={team2} onSubstitution={handleSubstitution} /> {/* Correct the function prop */}
                     </Columns.Column>
-
-                    {/* Team 2 */}
-                    <Columns.Column size={6}>
-                        <Card>
-                            <Card.Content>
-                                <h2 className="title is-4">Team 2</h2>
-                                <TeamList team={team2} />  {/* Render Team 2 with statuses */}
-                            </Card.Content>
-                        </Card>
+                    <Columns.Column size={2} className="has-text-centered">
+                        <EndGame team1={team1} team2={team2} /> {/* Add EndGame Button */}
                     </Columns.Column>
                 </div>
-            </section>
-        </div>
+
+                <section className="section">
+                    <div className="columns is-multiline">
+                        {/* Team 1 */}
+                        <Columns.Column size={6}>
+                            <Card>
+                                <Card.Content>
+                                    <h2 className="title is-4">Team 1</h2>
+                                    <TeamList team={team1} />  {/* Render Team 1 with statuses */}
+                                </Card.Content>
+                            </Card>
+                        </Columns.Column>
+
+                        {/* Team 2 */}
+                        <Columns.Column size={6}>
+                            <Card>
+                                <Card.Content>
+                                    <h2 className="title is-4">Team 2</h2>
+                                    <TeamList team={team2} />  {/* Render Team 2 with statuses */}
+                                </Card.Content>
+                            </Card>
+                        </Columns.Column>
+                    </div>
+                </section>
+            </div>
+        </>
     );
 };
 
