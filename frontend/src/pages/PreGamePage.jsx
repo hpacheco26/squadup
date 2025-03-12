@@ -74,52 +74,40 @@ const PreGamePage = () => {
 
     return (
         <>
-            <GameHeaderBar gameId={gameId}/>
-            <div className="container p-2">
-                
-                    <Columns className="is-multiline">
-                        <Columns.Column size={4}>
-                            <PlayersList 
-                                players={going} 
-                                onOut={handleOut}
-                                statusLabel="IN" 
-                                user={user} 
-                                isAdmin={game.adminId === user.id} 
-                                />
-                        </Columns.Column>
+            <GameHeaderBar gameId={gameId} />
+            <div className="container p-2" style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+                <Columns.Column size={4} style={{ padding: '0px'}}>
+                    <PlayersList 
+                        players={going}
+                        onOut={handleOut}
+                        statusLabel="IN"
+                        user={user}
+                        isAdmin={game.adminId === user.id}
+                    />
+                </Columns.Column>
 
-                        <Columns.Column size={4}>
-                            <PlayersList 
-                                players={notGoing} 
-                                onGameOn={handleGameOn} 
-                                statusLabel="OUT" 
-                                user={user} 
-                                isAdmin={game.adminId === user.id} 
-                                />
-                        </Columns.Column>
+                <Columns.Column size={4} style={{ padding: '0px'}}>
+                    <PlayersList
+                        players={notGoing}
+                        onGameOn={handleGameOn}
+                        statusLabel="OUT"
+                        user={user}
+                        isAdmin={game.adminId === user.id}
+                    />
+                </Columns.Column>
 
-                        <Columns.Column size={4}>
-                            <PlayersList 
-                                players={invited} 
-                                onGameOn={handleGameOn} 
-                                onOut={handleOut} 
-                                statusLabel="?" 
-                                user={user} 
-                                isAdmin={game.adminId === user.id} 
-                                />
-                        </Columns.Column>
-                    </Columns>
+                <Columns.Column size={4} style={{ padding: '0px'}}>
+                    <PlayersList
+                        players={invited}
+                        onGameOn={handleGameOn}
+                        onOut={handleOut}
+                        statusLabel="?"
+                        user={user}
+                        isAdmin={game.adminId === user.id}
+                        
+                    />
+                </Columns.Column>
 
-                {/* <div className="fixed-bottom" style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
-                    <Button className="is-primary" onClick={handleStartGame}>
-                        Start Game
-                    </Button>
-                    {game.adminId === user.id && (
-                        <Button className="is-danger" onClick={handleCancelGame}>
-                            Cancel Game
-                        </Button>
-                    )}
-                </div> */}
             </div>
         </>
     );

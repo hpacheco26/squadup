@@ -13,9 +13,9 @@ const PlayersList = ({ players, onGameOn, onOut, statusLabel, user, isAdmin }) =
         }
     }
     return (
-        <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+        <div>
             {players.length === 0 ? (
-                <p>No players in this category.</p>
+                <p></p>
             ) : (
                 players.map(player => (
                     <SwipePlayer key={player.id} player={player} playerStatus={statusLabel} onLeft={() => handleLeftSwiped(player)} onRight={ () => handleRightSwiped(player) }/>
