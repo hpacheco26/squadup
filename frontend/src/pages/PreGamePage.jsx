@@ -76,57 +76,41 @@ const PreGamePage = () => {
         <>
             <GameHeaderBar gameId={gameId}/>
             <div className="container p-2">
-                <section className="section">
-                    {/* <Card className="game-card mb-6">
-                        <Card.Content>
-                            <h1 className="title is-3">{game.name}</h1>
-                            <p><strong>Location:</strong> {game.location}</p>
-                            <p><strong>Date:</strong> {game.date}</p>
-                            <p><strong>Time:</strong> {game.time}</p>
-                        </Card.Content>
-                    </Card> */}
-
+                
                     <Columns className="is-multiline">
                         <Columns.Column size={4}>
-                            <h2 className="title is-4 mb-3">Going</h2>
                             <PlayersList 
                                 players={going} 
-                                onOut={handleOut} 
-                                actionLabel="Game On" 
-                                additionalActionLabel="Out" 
+                                onOut={handleOut}
+                                statusLabel="IN" 
                                 user={user} 
                                 isAdmin={game.adminId === user.id} 
                                 />
                         </Columns.Column>
 
                         <Columns.Column size={4}>
-                            <h2 className="title is-4 mb-3">Not Going</h2>
                             <PlayersList 
                                 players={notGoing} 
                                 onGameOn={handleGameOn} 
-                                actionLabel="Game On" 
-                                additionalActionLabel="Out" 
+                                statusLabel="OUT" 
                                 user={user} 
                                 isAdmin={game.adminId === user.id} 
                                 />
                         </Columns.Column>
 
                         <Columns.Column size={4}>
-                            <h2 className="title is-4 mb-3">Invited</h2>
                             <PlayersList 
                                 players={invited} 
                                 onGameOn={handleGameOn} 
                                 onOut={handleOut} 
-                                actionLabel="Game On" 
-                                additionalActionLabel="Out" 
+                                statusLabel="?" 
                                 user={user} 
                                 isAdmin={game.adminId === user.id} 
                                 />
                         </Columns.Column>
                     </Columns>
-                </section>
 
-                <div className="fixed-bottom" style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+                {/* <div className="fixed-bottom" style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
                     <Button className="is-primary" onClick={handleStartGame}>
                         Start Game
                     </Button>
@@ -135,7 +119,7 @@ const PreGamePage = () => {
                             Cancel Game
                         </Button>
                     )}
-                </div>
+                </div> */}
             </div>
         </>
     );
