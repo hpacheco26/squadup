@@ -1,23 +1,16 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FiSettings } from 'react-icons/fi';
+
+
 
 const HeaderBar = () => {
-    const navigate = useNavigate();
+    
     
     return (
         <header style={styles.header}>
             {/* App Name */}
             <h1 style={styles.title}>SquadUp</h1>
             
-            {/* Settings Button (Removed from HomePage) */}
-            <button 
-                onClick={() => navigate('/settings')} 
-                style={styles.settingsButton}
-                aria-label="Go to Account Settings"
-            >
-                <FiSettings size={24} />
-            </button>
+           
         </header>
     );
 };
@@ -35,12 +28,7 @@ const styles = {
         fontSize: '1.5rem',
         fontWeight: 'bold',
     },
-    settingsButton: {
-        background: 'none',
-        border: 'none',
-        cursor: 'pointer',
-        padding: '5px',
-    }
+    
 };
 
 export default HeaderBar;

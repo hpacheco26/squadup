@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { FiSettings } from "react-icons/fi";
+import { FiSettings, FiArrowLeft } from "react-icons/fi";
+import { IoIosArrowBack } from "react-icons/io";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import useGroupStore from "../../store/groupStore";
 import GameModal from "../modals/GameModal";
@@ -22,6 +23,12 @@ const GameHeaderBar = ({ gameId }) => {
             <header style={styles.header}>
                 {/* Tabs: PreGame & Game */}
                 <div style={styles.tabsContainer}>
+                    <button 
+                        onClick={() => navigate(`/groups/${group.id}`)} 
+                    >
+                        <IoIosArrowBack size={24} />
+                    </button>
+
                     <button 
                         onClick={() => navigate(`/pregame/${gameId}`)} 
                         style={{ 

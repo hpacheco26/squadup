@@ -1,50 +1,62 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // Import Link for navigation
+import { GiArena } from "react-icons/gi";
+import { MdGroups3 } from "react-icons/md";
+import { IoSettingsSharp } from "react-icons/io5";
+import { Link, useNavigate } from 'react-router-dom';
+import { TbTriangleSquareCircleFilled } from "react-icons/tb";
 
 function Navbar() {
+    const navigate = useNavigate();
     return (
         <nav className="navbar is-light" style={styles.navbar}>
             <div id="navbarBasicExample" className="navbar-menu" style={styles.navbarMenu}>
                 <div className="navbar-start" style={styles.navbarStart}>
                     {/* Home Link */}
                     <Link to="/" className="navbar-item">
-                        Home
+                        <TbTriangleSquareCircleFilled style={{fontSize: "25px", padding: "0px"}} />
                     </Link>
                     {/* Group Link */}
                     <Link to="/groups" className="navbar-item">
-                        Groups
+                        <MdGroups3 style={{fontSize: "30px", padding: "0px"}} />
                     </Link>
-                    {/* Game Link */}
-                    <Link to="/game" className="navbar-item">
-                        Game
-                    </Link>
+                     {/* Settings Button (Removed from HomePage) */}
+                    <button 
+                        onClick={() => navigate('/settings')} 
+                        style={styles.settingsButton}
+                        aria-label="Go to Account Settings"
+                    >
+                        <IoSettingsSharp size={24} />
+                    </button>
                 </div>
             </div>
         </nav>
     );
 }
 
-// Custom inline styles for fixed bottom navbar with reduced space
 const styles = {
     navbar: {
-        // position: 'fixed',
-        // bottom: '0',
-        // left: '0',
-        // right: '0',
-        zIndex: 1000, // Ensure it stays on top of content
+        zIndex: 1000,
+        padding: "0px",
     },
     navbarMenu: {
         display: 'flex',
-        justifyContent: 'center', // Horizontally center the menu
+        justifyContent: 'center', 
         width: '100%',
     },
     navbarStart: {
         display: 'flex',
-        justifyContent: 'center', // This will center the items
-        alignItems: 'center', // Vertically center the items (useful for better alignment)
-        gap: '15px', // Adjust space between links
-        width: '100%', // Make sure the container spans the full width
+        justifyContent: 'center',
+        alignItems: 'center', 
+        gap: '50px', 
+        width: '100%',
     },
+
+    settingsButton: {
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        padding: '5px',
+    }
 };
 
 export default Navbar;
