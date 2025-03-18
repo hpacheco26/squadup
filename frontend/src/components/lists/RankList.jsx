@@ -1,78 +1,57 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";  
+import "swiper/css/pagination";  
+import { Pagination } from "swiper/modules";
 import RankCard from "../cards/RankCard"; 
-import {  useNavigate } from 'react-router-dom';
-import { useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import useGroupStore from "../../store/groupStore";
 import useAuthStore from '../../store/authStore';
 
 const RankList = () => {
-const navigate = useNavigate(); // Hook to navigate programmatically
-const { user, playerData } = useAuthStore();
-const { ranks, fetchGroupsByPlayer } = useGroupStore();
+  const navigate = useNavigate();
+  const { user, playerData } = useAuthStore();
+  const { ranks, fetchGroupsByPlayer } = useGroupStore();
 
   useEffect(() => {
     if (!user) {
       navigate("/login");
       return;
     }
-    
     if (playerData?.id) {
       fetchGroupsByPlayer(playerData.id);
     }
   }, [user, playerData?.id, navigate]);
 
-
-
   return (
-    <div className="rank-scroll-container">
-      <div className="rank-list">
-        {Array.isArray(ranks) && ranks.length > 0 ? (
-          ranks.map((rank) => (
-            <div className="rank-item" key={rank.groupId || rank.groupName}>
+    <div className="rank-carousel-container">
+      {Array.isArray(ranks) && ranks.length > 0 ? (
+        <Swiper
+          modules={[Pagination]} 
+          spaceBetween={15} 
+          slidesPerView={1.2} 
+          centeredSlides={true}  // This will center the active slide
+          breakpoints={{
+            640: { slidesPerView: 2, centeredSlides: true },  
+            1024: { slidesPerView: 3, centeredSlides: true } 
+          }}
+          pagination={{ clickable: true }} 
+          style={{ paddingBottom: "30px" }} 
+        >
+          {ranks.map((rank) => (
+            <SwiperSlide key={rank.groupId || rank.groupName}>
               <RankCard 
                 rank={rank.groupRank} 
                 groupName={rank.groupName || "Unknown Group"} 
                 stats={rank.stats}
                 isAnimated={false}
               />
-            </div>
-          ))
-        ) : (
-          <p>No groups available.</p>
-        )}
-      </div>
-
-      {/* Styles */}
-      <style>
-        {`
-          /* Horizontal Scroll Container */
-          .rank-scroll-container {
-            overflow-x: auto; 
-            white-space: nowrap;
-            padding: 30px;
-          }
-
-          /* Rank List - Flexbox for horizontal scrolling */
-          .rank-list {
-            display: flex;
-            gap: 20px; /* Space between RankCards */
-            padding-bottom: 10px;
-            scroll-snap-type: x mandatory;
-          }
-
-          /* Each RankCard Container */
-          .rank-item {
-            flex: 0 0 auto;
-            width: 300px; /* Adjust based on your card size */
-            scroll-snap-align: start;
-          }
-
-          /* Hide scrollbar for better UX */
-          .rank-scroll-container::-webkit-scrollbar {
-            display: none; /* Hides scrollbar for Chrome, Safari */
-          }
-        `}
-      </style>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      ) : (
+        <p>No groups available.</p>
+      )}
     </div>
   );
 };

@@ -84,21 +84,48 @@ function PlayerCard({ player, onRemovePlayer, onUpdatePlayer }) {
                                     autoFocus
                                 />
                             ) : null}
-                            <div className='mt-4' style={{display: "flex", justifyContent:"space-between"}}>
-                                <div className="content">
+
+
+                            <div className='' style={{ position: "relative", padding: "20px" }}>
+                                {/* Background Rank Icon */}
+                                {/* <div 
+                                    style={{
+                                        position: "absolute",
+                                        top: "50%",
+                                        right: "10px",
+                                        transform: "translateY(-50%)",
+                                        opacity: 0.2, // Adjust opacity for better readability
+                                        zIndex: 0,
+                                    }}
+                                >
+                                    <RankIcon rank={rank} size={150} />
+                                </div> */}
+
+                                {/* Foreground Stats */}
+                                <div style={{ position: "relative", zIndex: 1 }}>
                                     <p>Wins: {stats.wins}</p>
                                     <p>Draws: {stats.draws}</p>
                                     <p>Losses: {stats.losses}</p>
                                 </div>
-                                <div className="mr-4">
-                                    <RankIcon rank={rank} size={90} />
-                                </div>
                             </div>
-                            <footer className="card-footer">
-                                <button className="card-footer-item button" style={{background:"#F4A6A0"}} onClick={handleRemove}>
-                                    Remove Player
-                                </button>
-                            </footer>
+
+                            <button className="button" style={{background:"#F4A6A0", zIndex: 1, position: "relative"}} onClick={handleRemove}>
+                                Remove Player
+                            </button>
+
+                             {/* Background Rank Icon */}
+                             <div 
+                                style={{
+                                    position: "absolute",
+                                    top: "75%",
+                                    right: "10px",
+                                    transform: "translateY(-70%)",
+                                    opacity: 0.5, 
+                                    zIndex: 0,
+                                }}
+                            >
+                                <RankIcon rank={rank} size={140} />
+                            </div>
                         </>
                     )}
                 </div>

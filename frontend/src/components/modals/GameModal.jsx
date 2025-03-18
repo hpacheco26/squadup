@@ -47,15 +47,19 @@ function GameModal({ isOpen, setIsOpen, group }) {
     };
 
     return (
-        <div className={`modal ${isOpen ? 'is-active' : ''}`}>
+        <div className={`modal ${isOpen ? 'is-active' : ''}`} >
             <div className="modal-background" onClick={() => setIsOpen(false)}></div>
-            <div className="modal-card">
-                <header className="modal-card-head">
+            <div className="modal-card p-2">
+                <header className="modal-card-head" style={{height:"50px"}}>
                     <p className="modal-card-title">Create Game</p>
                     <button className="delete" aria-label="close" onClick={() => setIsOpen(false)}></button>
                 </header>
                 <section className="modal-card-body">
-                    <div className="field">
+                    <div className="field" style={{ display:"flex", gap:"10px" }}>
+                        <input className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+                        <input className="input" type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+                    </div>
+                    {/* <div className="field">
                         <label className="label">Date</label>
                         <div className="control">
                             <input className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
@@ -66,39 +70,30 @@ function GameModal({ isOpen, setIsOpen, group }) {
                         <div className="control">
                             <input className="input" type="time" value={time} onChange={(e) => setTime(e.target.value)} />
                         </div>
-                    </div>
+                    </div> */}
                     <div className="field">
                         <label className="label">Location</label>
                         <div className="control">
                             <input className="input" type="text" placeholder="Enter location" value={location} onChange={(e) => setLocation(e.target.value)} />
                         </div>
                     </div>
-                    <div className="field">
-                        <label className="label">Max Players</label>
-                        <div className="control">
-                            <input className="input" type="number" min="1" value={maxPlayers} onChange={(e) => setMaxPlayers(e.target.value)} />
-                        </div>
+
+                    <label className="label">Players</label>
+                    <div className="field"  style={{ display:"flex", gap:"10px" }}>
+                        <input className="input" type="number" min="1" value={minPlayers} onChange={(e) => setMinPlayers(e.target.value)} placeholder='min'/>
+                        <div style={{alignSelf: "center"}}>to</div>
+                        <input className="input" type="number" min="1" value={maxPlayers} onChange={(e) => setMaxPlayers(e.target.value)} placeholder='max' />
                     </div>
-                    <div className="field">
-                        <label className="label">Min Players</label>
-                        <div className="control">
-                            <input className="input" type="number" min="1" value={minPlayers} onChange={(e) => setMinPlayers(e.target.value)} />
-                        </div>
-                    </div>
-                    <div className="field">
-                        <label className="label">Substitution Time (Minutes)</label>
-                        <div className="control">
-                            <input className="input" type="number" min="1" value={subTime} onChange={(e) => setSubTime(e.target.value)} />
-                        </div>
+                    <div className="field" >
+                        <label className="label">Sub Time</label>
+                        <input className="input" type="number" min="1" value={subTime} onChange={(e) => setSubTime(e.target.value)} />
                     </div>
                 </section>
-                <footer className="modal-card-foot is-flex is-justify-content-space-around">
-                    <button className="button is-success is-fullwidth" style={{ maxWidth: '30%' }} onClick={handleSubmit} disabled={loading}>
+                <footer className="modal-card-foot is-flex is-justify-content-space-around" style={{height:"50px"}}>
+                    <button className="button is-fullwidth" style={{ maxWidth: '100%',background:"#badfe1" }} onClick={handleSubmit} disabled={loading}>
                         {loading ? 'Creating...' : 'Create Game'}
                     </button>
-                    <button className="button is-light is-fullwidth" style={{ maxWidth: '30%' }} onClick={() => setIsOpen(false)}>
-                        Cancel
-                    </button>
+                   
                 </footer>
             </div>
         </div>
