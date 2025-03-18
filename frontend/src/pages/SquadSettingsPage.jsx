@@ -1,0 +1,116 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import useGroupStore from '../store/groupStore';
+import PlayerCard from '../components/cards/PlayerCard';
+import PlayerModal from '../components/modals/PlayerModal';
+import { Button } from 'react-bulma-components';
+import SquadSettingsHeaderBar from '../components/bars/SquadSettingsHeaderBar';
+
+function SquadSettingsPage() {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const { group, fetchGroupById, updateGroup, deleteGroup } = useGroupStore();
+
+    const [groupName, setGroupName] = useState('');
+    const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
+
+    // Ensure `fetchGroupById` doesn't trigger unnecessary renders
+    const fetchGroup = useCallback(() => fetchGroupById(id), [id, fetchGroupById]);
+
+    useEffect(() => {
+        fetchGroup();
+    }, [fetchGroup]);
+
+    useEffect(() => {
+        if (group?.name) {
+            setGroupName(group.name);
+        }
+    }, [group]);
+
+    const handleUpdateGroup = () => {
+        if (groupName.trim()) {
+            updateGroup(group.id, { ...group, name: groupName });
+            navigate(`/groups/${group.id}`);
+        }
+    };
+
+    const handleDeleteGroup = () => {
+        deleteGroup(group.id);
+        navigate('/groups');
+    };
+
+    const handleAddPlayer = (newPlayer) => {
+        if (!group) return;
+        const updatedPlayers = [...(group.players ?? []), newPlayer];
+        updateGroup(group.id, { ...group, players: updatedPlayers }).then(fetchGroup);
+    };
+
+    const handleRemovePlayer = (playerId) => {
+        if (!group) return;
+        const updatedPlayers = (group.players ?? []).filter(player => player.id !== playerId);
+        updateGroup(group.id, { ...group, players: updatedPlayers }).then(fetchGroup);
+    };
+
+    return (
+        <>
+            <SquadSettingsHeaderBar 
+                group={group} 
+                groupName={groupName}
+                setGroupName={setGroupName}
+                updateGroup={updateGroup} 
+                navigate={navigate} 
+            />
+            
+            <div className="container p-4" style={{display: "flex", flexDirection: "column", height: "calc(100vh - 120px"}}>
+                {/* Group Name Input */}
+                <div className="field mb-4">
+                    {/* <label className="label">Group Name</label> */}
+                    <div className="control">
+                        <input
+                            className="input"
+                            type="text"
+                            placeholder="Enter group name"
+                            value={groupName}
+                            onChange={(e) => setGroupName(e.target.value)}
+                        />
+                    </div>
+                </div>
+
+                {/* Players List (Scrollable) */}
+                {/* <div style={{  overflowY: 'auto', border: '1px solid #ddd', borderRadius: '8px', padding: '10px' }}> */}
+                    {/* Single Column Layout */}
+                    <div className="columns is-multiline" style={{  overflowY: 'auto', border: '1px solid #ddd', borderRadius: '8px', padding: '10px' }}>
+                        {(group.players ?? []).map((player) => (
+                            <div className="column is-full" style={{ padding: '5px 0px'}} key={player.id}>  
+                                <PlayerCard 
+                                    player={player}
+                                    onRemovePlayer={handleRemovePlayer}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                {/* </div> */}
+
+                {/* Add Player Modal */}
+                <PlayerModal 
+                    isOpen={isPlayerModalOpen} 
+                    setIsOpen={setIsPlayerModalOpen} 
+                    onAddPlayer={handleAddPlayer} 
+                />
+
+                {/* Centered Buttons */}
+                <div className="buttons is-centered">
+                    <Button color="primary" onClick={() => setIsPlayerModalOpen(true)}>
+                        Add Player
+                    </Button>
+
+                    <Button color="danger" onClick={handleDeleteGroup}>
+                        Delete Group
+                    </Button>
+                </div>
+            </div>
+        </>
+    );
+}
+
+export default SquadSettingsPage;

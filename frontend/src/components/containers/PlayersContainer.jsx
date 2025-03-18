@@ -29,8 +29,7 @@ function PlayersContainer() {
     if (!group) return <p>Loading...</p>;
 
     return (
-        <div className="box" style={{ maxHeight: '50vh', overflowY: 'auto' }}>
-            <h2 className="title is-4 mt-4">Players</h2>
+        <div style={{ maxHeight: '50vh', overflowY: 'auto' }}>
             <Button color="primary" className="mb-4" onClick={() => setIsPlayerModalOpen(true)}>
                 Add Player
             </Button>

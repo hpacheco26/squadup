@@ -39,18 +39,18 @@ function PlayerCard({ player, onRemovePlayer, onUpdatePlayer }) {
     };
 
     return (
-        <div className={`${cardClass} player-card`} style={{ transition: 'all 0.3s ease' }}>
-            <div className="card-content">
-                <div className="is-flex is-justify-content-space-between">
-                    <h2 className="title is-4">
+        <div className={`${cardClass} player-card`} style={{ transition: 'all 0.3s ease'}}>
+            <div className="card-content" style={{ padding: '10px'}}>
+                <div className="is-flex is-justify-content-space-between"  >
+                    <h2 className="subtitle is-5" style={{ margin: '0px'}}>
                         {editedName}
                         {!isCollapsed && (
-                            <button className="button is-small is-light" onClick={handleEditClick}>
+                            <button  onClick={handleEditClick}>
                                 <FaEdit />
                             </button>
                         )}
                     </h2>
-                    <button className="button is-small is-light" onClick={toggleCollapse}>
+                    <button className='mr-2' onClick={toggleCollapse}>
                         {isCollapsed ? <FaChevronDown /> : <FaChevronUp />}
                     </button>
                 </div>

@@ -2,32 +2,29 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useGroupStore from '../store/groupStore';
 import { Loader, Button } from 'react-bulma-components';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Import FontAwesomeIcon
-import {  faFutbol } from '@fortawesome/free-solid-svg-icons'; // Import icons - changed to a soccer ball for sports
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
+import { faFutbol } from '@fortawesome/free-solid-svg-icons'; 
 
 import GameModal from '../components/modals/GameModal'; 
-import GamesContainer from '../components/containers/GamesContainer'; // Import the GamesContainer
-
+import GamesContainer from '../components/containers/GamesContainer'; 
 import SquadHeaderBar from '../components/bars/SquadHeaderBar';
 
 function GroupPage() {
     const { id } = useParams();
     const { group, fetchGroupById } = useGroupStore();
 
-    const [isGameCreateModalOpen, setIsGameCreateModalOpen] = useState(false); // State for Game Create Modal
+    const [isGameCreateModalOpen, setIsGameCreateModalOpen] = useState(false); 
 
     useEffect(() => {
-        // Fetch group data based on the group ID
         fetchGroupById(id);
     }, [id, fetchGroupById]);
 
-    // Show a loader until the group data is available
     if (!group) return <Loader />;
 
     return (
         <>
             <SquadHeaderBar />
-            <div className="container p-4">
+            <div className="container p-4" style={{ maxHeight: "100vh", overflowY: "auto" }}>
                 {/* Create Game Modal */}
                 <GameModal 
                     isOpen={isGameCreateModalOpen} 
@@ -38,18 +35,20 @@ function GroupPage() {
                 {/* Display the Games Container */}
                 <GamesContainer groupId={group.id} />
 
-                {/* Create Game Icon Button */}
-                <div className='m-2' style={{  }}>
+                {/* Centered Button with Shadow */}
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
                     <Button 
                         color="primary" 
                         onClick={() => setIsGameCreateModalOpen(true)} 
                         style={{
-                            padding: '10px',  
-                            borderRadius: '50%',
-                            fontSize: '40px' 
+                            padding: '12px 24px',  
+                            borderRadius: '15px',
+                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Adds shadow
+                            fontSize: '16px',
+                            fontWeight: 'bold',
                         }}
                     >
-                        <FontAwesomeIcon icon={faFutbol} size="1x" />
+                        Schedule Game
                     </Button>
                 </div>
             </div>

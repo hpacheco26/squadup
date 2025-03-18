@@ -1,41 +1,26 @@
-import React, { useState } from 'react';
-import useGroupStore from '../../store/groupStore';
-import GroupSettingsModal from '../modals/GroupSettingsModal';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiSettings } from 'react-icons/fi';
+import useGroupStore from '../../store/groupStore';
 
 const SquadHeaderBar = () => {
-    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
-    const { group, updateGroup, deleteGroup } = useGroupStore();
+    const { group } = useGroupStore();
     const navigate = useNavigate();
 
     return (
-        <>
-            <header style={styles.header}>
-                {/* App Name */}
-                <h1 style={styles.title}>{group.name}</h1>
+        <header style={styles.header}>
+            {/* App Name */}
+            <h1 style={styles.title}>{group?.name || "Squad"}</h1>
 
-                {/* Group Settings Button */}
-                <button 
-                    onClick={() => setIsSettingsModalOpen(true)} 
-                    style={styles.settingsButton}
-                    aria-label="Go to Squad Settings"
-                >
-                    <FiSettings size={24} />
-                </button>
-            </header>
-
-            {/* Group Settings Modal */}
-            <GroupSettingsModal 
-                    isOpen={isSettingsModalOpen} 
-                    setIsOpen={setIsSettingsModalOpen} 
-                    group={group} 
-                    updateGroup={updateGroup} 
-                    deleteGroup={deleteGroup} 
-                    navigate={navigate} 
-                />
-
-        </>
+            {/* Group Settings Button */}
+            <button 
+                onClick={() => navigate(`/groups/${group.id}/settings`)} 
+                style={styles.settingsButton}
+                aria-label="Go to Squad Settings"
+            >
+                <FiSettings size={24} />
+            </button>
+        </header>
     );
 };
 
@@ -44,7 +29,7 @@ const styles = {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '10px',
+        padding: '10px 15px',
         backgroundColor: '#f8f9fa', // Light background
         borderBottom: '1px solid #ddd',
     },
@@ -52,11 +37,13 @@ const styles = {
         fontSize: '1.5rem',
         fontWeight: 'bold',
     },
-    newGroupButton: {
+    settingsButton: {
         background: 'none',
         border: 'none',
         cursor: 'pointer',
         padding: '5px',
+        display: 'flex',
+        alignItems: 'center',
     }
 };
 
