@@ -9,7 +9,7 @@ function Navbar() {
     const navigate = useNavigate();
     return (
         <nav className="navbar is-light" style={styles.navbar}>
-            <div id="navbarBasicExample" className="navbar-menu" style={styles.navbarMenu}>
+            <div style={styles.navbarMenu}>
                 <div className="navbar-start" style={styles.navbarStart}>
                     {/* Home Link */}
                     <Link to="/" className="navbar-item">

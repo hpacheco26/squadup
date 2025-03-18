@@ -27,12 +27,12 @@ function SquadSettingsPage() {
         }
     }, [group]);
 
-    const handleUpdateGroup = () => {
-        if (groupName.trim()) {
-            updateGroup(group.id, { ...group, name: groupName });
-            navigate(`/groups/${group.id}`);
-        }
-    };
+    // const handleUpdateGroup = () => {
+    //     if (groupName.trim()) {
+    //         updateGroup(group.id, { ...group, name: groupName });
+    //         navigate(`/groups/${group.id}`);
+    //     }
+    // };
 
     const handleDeleteGroup = () => {
         deleteGroup(group.id);
@@ -61,25 +61,23 @@ function SquadSettingsPage() {
                 navigate={navigate} 
             />
             
-            <div className="container p-4" style={{display: "flex", flexDirection: "column", height: "calc(100vh - 120px"}}>
+            <div className="container p-4" style={{display: "flex", flexDirection: "column", height: "calc(100vh - 120px" }}>
                 {/* Group Name Input */}
-                <div className="field mb-4">
+                <div className="field" style={{height: "100px", borderBottom: "2px solid #b1b8c7"}} >
                     {/* <label className="label">Group Name</label> */}
-                    <div className="control">
-                        <input
-                            className="input"
-                            type="text"
-                            placeholder="Enter group name"
-                            value={groupName}
-                            onChange={(e) => setGroupName(e.target.value)}
-                        />
-                    </div>
+                    <input
+                        className="input subtitle"
+                        type="text"
+                        placeholder="Enter group name"
+                        value={groupName}
+                        onChange={(e) => setGroupName(e.target.value)}
+                    />
                 </div>
 
                 {/* Players List (Scrollable) */}
                 {/* <div style={{  overflowY: 'auto', border: '1px solid #ddd', borderRadius: '8px', padding: '10px' }}> */}
-                    {/* Single Column Layout */}
-                    <div className="columns is-multiline" style={{  overflowY: 'auto', border: '1px solid #ddd', borderRadius: '8px', padding: '10px' }}>
+                    {/* Single Column Layout , background: "#f3f4f6" */}
+                    <div className="columns is-multiline" style={{  overflowY: 'auto', border: '1px solid #ddd', borderRadius: '8px', padding: '10px'}}>
                         {(group.players ?? []).map((player) => (
                             <div className="column is-full" style={{ padding: '5px 0px'}} key={player.id}>  
                                 <PlayerCard 
@@ -99,12 +97,12 @@ function SquadSettingsPage() {
                 />
 
                 {/* Centered Buttons */}
-                <div className="buttons is-centered">
-                    <Button color="primary" onClick={() => setIsPlayerModalOpen(true)}>
+                <div className="buttons is-centered" style={{ display: "flex", gap: "20px" }}>
+                    <Button style={{background:"#badfe1", flex:"1"}} onClick={() => setIsPlayerModalOpen(true)}>
                         Add Player
                     </Button>
 
-                    <Button color="danger" onClick={handleDeleteGroup}>
+                    <Button style={{background:"#F4A6A0", flex:"1"}} onClick={handleDeleteGroup}>
                         Delete Group
                     </Button>
                 </div>
