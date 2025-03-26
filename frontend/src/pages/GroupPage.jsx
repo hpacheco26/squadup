@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useGroupStore from '../store/groupStore';
+import useGameStore from '../store/gameStore';
 import { Loader, Button } from 'react-bulma-components';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; 
-import { faFutbol } from '@fortawesome/free-solid-svg-icons'; 
-
 import GameModal from '../components/modals/GameModal'; 
 import GamesContainer from '../components/containers/GamesContainer'; 
 import SquadHeaderBar from '../components/bars/SquadHeaderBar';
@@ -12,14 +10,16 @@ import SquadHeaderBar from '../components/bars/SquadHeaderBar';
 function GroupPage() {
     const { id } = useParams();
     const { group, fetchGroupById } = useGroupStore();
+    const { games, fetchGamesByGroup, loading, error } = useGameStore();
 
     const [isGameCreateModalOpen, setIsGameCreateModalOpen] = useState(false); 
 
     useEffect(() => {
         fetchGroupById(id);
-    }, [id, fetchGroupById]);
+        fetchGamesByGroup(id);
+    }, [id, fetchGroupById, fetchGamesByGroup]);
 
-    if (!group) return <Loader />;
+    if (!group || loading) return <Loader />;
 
     return (
         <>
@@ -32,25 +32,27 @@ function GroupPage() {
                     group={group} 
                 />
 
-                {/* Display the Games Container */}
-                <GamesContainer groupId={group.id} />
+                {/* Display Games Container if there are games */}
+                <GamesContainer games={games} />
 
-                {/* Centered Button with Shadow */}
-                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-                    <Button 
-                        color="primary" 
-                        onClick={() => setIsGameCreateModalOpen(true)} 
-                        style={{
-                            padding: '12px 24px',  
-                            borderRadius: '15px',
-                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Adds shadow
-                            fontSize: '16px',
-                            fontWeight: 'bold',
-                        }}
-                    >
-                        Schedule Game
-                    </Button>
-                </div>
+                {/* Show Schedule Button only if no games exist */}
+                {games.length === 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                        <Button 
+                            color="primary" 
+                            onClick={() => setIsGameCreateModalOpen(true)} 
+                            style={{
+                                padding: '12px 24px',  
+                                borderRadius: '15px',
+                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Adds shadow
+                                fontSize: '16px',
+                                fontWeight: 'bold',
+                            }}
+                        >
+                            Schedule Game
+                        </Button>
+                    </div>
+                )}
             </div>
         </>
     );

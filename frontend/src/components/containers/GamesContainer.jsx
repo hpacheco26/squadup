@@ -1,27 +1,15 @@
-import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useGameStore from '../../store/gameStore';
 import GameCard from '../cards/GameCard';
 import useHoverEffect from '../../hooks/useHoverEffect'; 
 
-const GamesContainer = ({ groupId }) => {
-  const { games, fetchGamesByGroup, loading, error } = useGameStore();
+const GamesContainer = ({ games }) => {
   const navigate = useNavigate();
 
-  const { hoveredId, handleMouseEnter, handleMouseLeave, getStyle } = useHoverEffect(); // Using the custom hook
-
-  useEffect(() => {
-    if (groupId) {
-      fetchGamesByGroup(groupId);
-    }
-  }, [groupId, fetchGamesByGroup]);
+  const { handleMouseEnter, handleMouseLeave, getStyle } = useHoverEffect(); // Using the custom hook
 
   const handleGameClick = (gameId) => {
     navigate(`/pregame/${gameId}`);
   };
-
-  if (loading) return <p className="has-text-centered has-text-info">Loading...</p>;
-  if (error) return <p className="has-text-centered has-text-danger">Error: {error}</p>;
 
   return (
     <>

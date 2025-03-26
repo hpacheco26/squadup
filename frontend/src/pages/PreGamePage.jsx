@@ -27,8 +27,8 @@ const PreGamePage = () => {
 
     useEffect(() => {
         if (game) {
-            setGoing(game.goingPlayers || []);
-            setNotGoing(game.notGoingPlayers || []);
+            setGoing(game.playersGoing || []);
+            setNotGoing(game.playersNotGoing || []);
             setInvited(game.invitedPlayers || []);
         }
     }, [game]);
@@ -39,13 +39,13 @@ const PreGamePage = () => {
             const updatedGoing = [...going, notGoing.find(player => player.id === playerId)];
             setNotGoing(updatedNotGoing);
             setGoing(updatedGoing);
-            await updateGame(gameId, { goingPlayers: updatedGoing, notGoingPlayers: updatedNotGoing });
+            await updateGame(gameId, { playersGoing: updatedGoing, playersNotGoing: updatedNotGoing });
         } else if (invited.some(player => player.id === playerId)) {
             const updatedInvited = invited.filter(player => player.id !== playerId);
             const updatedGoing = [...going, invited.find(player => player.id === playerId)];
             setInvited(updatedInvited);
             setGoing(updatedGoing);
-            await updateGame(gameId, { goingPlayers: updatedGoing, invitedPlayers: updatedInvited });
+            await updateGame(gameId, { playersGoing: updatedGoing, invitedPlayers: updatedInvited });
         }
     };
 
@@ -57,7 +57,7 @@ const PreGamePage = () => {
             setGoing(updatedGoing);
             setInvited(updatedInvited);
             setNotGoing(updatedNotGoing);
-            await updateGame(gameId, { goingPlayers: updatedGoing, invitedPlayers: updatedInvited, notGoingPlayers: updatedNotGoing });
+            await updateGame(gameId, { playersGoing: updatedGoing, invitedPlayers: updatedInvited, playersNotGoing: updatedNotGoing });
         }
     };
 
