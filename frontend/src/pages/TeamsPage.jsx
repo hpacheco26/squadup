@@ -8,32 +8,17 @@ import useGroupStore from '../store/groupStore';
 import useAuthStore from '../store/authStore'; // Assuming there's an auth store to get user info
 import GameHeaderBar from '../components/bars/GameHeaderBar';
 
-const PreGamePage = () => {
-    const { gameId } = useParams();
-    const navigate = useNavigate();
-    const { game, fetchGameById, handlePlayerOut, handlePlayerIn } = useGameStore();
-    const { group } = useGroupStore();
-    const { user } = useAuthStore(); // Get logged-in user info
-    const [playersIn, setPlayersIn] = useState([]);
-    const [playersOut, setPlayersOut] = useState([]);
-    const [playersInvited, setPlayersInvited] = useState([]);
+const TeamsPage = () => {
 
-    useEffect(() => {
-        const fetchGameData = async () => {
-            await fetchGameById(gameId);
-        };
-        fetchGameData();
-    }, [gameId, fetchGameById]);
 
-    useEffect(() => {
-        if (game) {
-            setPlayersIn(game.playersIn || []);
-            setPlayersOut(game.playersOut || []);
-            setPlayersInvited(game.playersInvited || []);
-        }
-    }, [game]);
+    const handleTeamSelectA = async (playerId) => {
+        
+    };
 
-    if (!game) return <div>Loading...</div>;
+    const handleTeamSelectB = async (playerId) => {
+        
+    };
+
 
     return (
         <>
@@ -41,9 +26,9 @@ const PreGamePage = () => {
             <div className="container p-2" style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
                 <Columns.Column size={4} style={{ padding: '0px'}}>
                     <PlayersList 
-                        players={playersIn}
-                        leftSwipe={handlePlayerOut}
-                        statusLabel="IN"
+                        players={teamA}
+                        onSelectTeamB={handleSelectTeamB}
+                        statusLabel="Team A"
                         user={user}
                         isAdmin={game.adminId === user.id}
                     />
@@ -51,9 +36,9 @@ const PreGamePage = () => {
 
                 <Columns.Column size={4} style={{ padding: '0px'}}>
                     <PlayersList
-                        players={playersOut}
-                        rightSwipe={handlePlayerIn}
-                        statusLabel="OUT"
+                        players={teamB}
+                        onSelectTeamA={handleSelectTeamA}
+                        statusLabel="Team B"
                         user={user}
                         isAdmin={game.adminId === user.id}
                     />
@@ -61,9 +46,9 @@ const PreGamePage = () => {
 
                 <Columns.Column size={4} style={{ padding: '0px'}}>
                     <PlayersList
-                        players={playersInvited}
-                        rightSwipe={handlePlayerIn}
-                        leftSwipe={handlePlayerOut}
+                        players={invited}
+                        onSelectTeamA={handleSelectTeamA}
+                        onSelectTeamB={handleSelectTeamB}
                         statusLabel="?"
                         user={user}
                         isAdmin={game.adminId === user.id}
@@ -76,4 +61,4 @@ const PreGamePage = () => {
     );
 };
 
-export default PreGamePage;
+export default TeamsPage;

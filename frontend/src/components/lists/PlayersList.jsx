@@ -1,15 +1,15 @@
 import React from 'react';
 import SwipePlayer from '../SwipePlayer';
 
-const PlayersList = ({ players, onGameOn, onOut, statusLabel, user, isAdmin }) => {
+const PlayersList = ({ players, leftSwipe, rightSwipe, statusLabel, user, isAdmin }) => {
     function handleLeftSwiped(player) {
-        if(onOut) {
-            onOut(player.id);
+        if(leftSwipe) {
+            leftSwipe(player.id);
         }
     }
     function handleRightSwiped(player) {        
-        if(onGameOn) {
-            onGameOn(player.id);
+        if(rightSwipe) {
+            rightSwipe(player.id);
         }
     }
     return (

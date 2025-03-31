@@ -34,9 +34,11 @@ function GameModal({ isOpen, setIsOpen, group }) {
             location,
             maxPlayers,
             minPlayers,
-            invitedPlayers,
-            playersGoing: [],
-            playersNotGoing: [],
+            playersInvited,
+            playersIn: [],
+            playersOut: [],
+            teamA:[],
+            teamB:[],
             subTime,
             groupId
         };
