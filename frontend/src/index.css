@@ -7,6 +7,10 @@ $primary: #0d9488;
   box-sizing: border-box;
 }
 
+html {
+  overflow-y: auto;
+}
+
 body {
   min-width: 320px;
   min-height: 100vh;

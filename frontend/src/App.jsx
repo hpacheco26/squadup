@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom'; 
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'; 
 import HomePage from './pages/HomePage.jsx';
 import PlayersPage from './pages/PlayerPage.jsx';
 import GroupsPage from './pages/GroupsPage';
@@ -15,6 +15,9 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/bars/NavBar.jsx'; 
 
 function App() {
+  const location = useLocation();
+  const hideNavbar = ['/login', '/signup'].includes(location.pathname);
+
   const appStyles = {
     height: '100vh',
     display: 'flex',
@@ -24,6 +27,7 @@ function App() {
 
   return (
     <div style={appStyles}>
+      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<LoginPage />} />
@@ -39,8 +43,10 @@ function App() {
         <Route path="/game/:gameId" element={<ProtectedRoute><GamePage /></ProtectedRoute>} />
         <Route path="/rank" element={<ProtectedRoute><RankPage /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><AppSettingsPage /></ProtectedRoute>} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      <Navbar />
+      </div>
+      {!hideNavbar && <Navbar />}
     </div>
   );
 }
