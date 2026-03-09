@@ -19,7 +19,7 @@ function App() {
     height: '100vh',
     display: 'flex',
     flexDirection: 'column',
-    background: '#e0e2db',
+    background: '#f0f2f5',
   };
 
   return (

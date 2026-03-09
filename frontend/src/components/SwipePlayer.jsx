@@ -69,11 +69,11 @@ function SwipPlayer({ player, playerStatus, onLeft, onRight }) {
     const getStatusColor = (status) => {
         switch (status) {
             case "IN":
-                return "#66a366";
+                return "#16a34a";
             case "OUT":
-                return "#F4A6A0";
+                return "#ef4444";
             default:
-                return "#B0C4DE"; 
+                return "#94a3b8"; 
         }
     };
 
@@ -158,7 +158,7 @@ const styles = {
         left: "0px",
         width: "50%",
         height: "100%",
-        backgroundColor: "#66a366",
+        backgroundColor: "#16a34a",
         zIndex: "10",
         borderRadius: "15px",
         display: "flex",
@@ -171,7 +171,7 @@ const styles = {
         right: "0px",
         width: "50%",
         height: "100%",
-        backgroundColor: "#F4A6A0",
+        backgroundColor: "#ef4444",
         zIndex: "10",
         borderRadius: "15px",
         display: "flex",

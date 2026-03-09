@@ -8,15 +8,15 @@ import { TbTriangleSquareCircleFilled } from "react-icons/tb";
 function Navbar() {
     const navigate = useNavigate();
     return (
-        <nav className="navbar is-light" style={styles.navbar}>
+        <nav className="navbar" style={styles.navbar}>
             <div style={styles.navbarMenu}>
                 <div className="navbar-start" style={styles.navbarStart}>
                     {/* Home Link */}
-                    <Link to="/" className="navbar-item">
+                    <Link to="/" className="navbar-item" style={{color: '#94a3b8'}}>
                         <TbTriangleSquareCircleFilled style={{fontSize: "25px", padding: "0px"}} />
                     </Link>
                     {/* Group Link */}
-                    <Link to="/groups" className="navbar-item">
+                    <Link to="/groups" className="navbar-item" style={{color: '#94a3b8'}}>
                         <MdGroups3 style={{fontSize: "30px", padding: "0px"}} />
                     </Link>
                      {/* Settings Button (Removed from HomePage) */}
@@ -37,6 +37,8 @@ const styles = {
     navbar: {
         zIndex: 1000,
         padding: "0px",
+        backgroundColor: "#1e293b",
+        color: "#94a3b8",
     },
     navbarMenu: {
         display: 'flex',
@@ -56,6 +58,7 @@ const styles = {
         border: 'none',
         cursor: 'pointer',
         padding: '5px',
+        color: '#94a3b8',
     }
 };
 

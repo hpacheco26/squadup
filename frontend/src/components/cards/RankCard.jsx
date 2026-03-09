@@ -7,7 +7,7 @@ const shapes = {
       width: 0, height: 0, 
       borderLeft: "50px solid transparent",
       borderRight: "50px solid transparent",
-      borderBottom: "100px solid #00d1b2",
+      borderBottom: "100px solid #0d9488",
       background: "none"
   }},
   2: { name: "Square", styles: { borderRadius: "5px" } },
@@ -16,18 +16,18 @@ const shapes = {
 };
 
 const rankColors = {
-  0: '#ddd8c4', 
-  1: '#a3c9a8', 
-  2: '#84b59f', 
-  3: '#69a297', 
-  4: '#50808e', 
+  0: '#94a3b8', 
+  1: '#5eead4', 
+  2: '#2dd4bf', 
+  3: '#14b8a6', 
+  4: '#0d9488', 
 };
 
 
 
 const RankCard = ({ rank, groupName, stats, isAnimated }) => {
   const shape = shapes[rank] || null;
-  const color = rankColors[rank] || '#9E9E9E'; // Default to neutral gray if rank is unknown
+  const color = rankColors[rank] || '#94a3b8'; // Default to neutral gray if rank is unknown
 
   if (!shape) return <p className="title has-text-centered">Loading...</p>;
 
@@ -81,7 +81,7 @@ const RankCard = ({ rank, groupName, stats, isAnimated }) => {
         {`
           .rank-stats {
             box-shadow:none;
-            border-top: solid #e0e2db;
+            border-top: solid #e2e8f0;
             border-radius: 0px;
           }
         `}  

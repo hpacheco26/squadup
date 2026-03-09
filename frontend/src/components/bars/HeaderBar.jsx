@@ -21,8 +21,8 @@ const styles = {
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: '10px',
-        backgroundColor: '#f8f9fa', // Light background
-        borderBottom: '1px solid #ddd',
+        backgroundColor: '#ffffff',
+        borderBottom: '1px solid #e2e8f0',
     },
     title: {
         fontSize: '1.5rem',

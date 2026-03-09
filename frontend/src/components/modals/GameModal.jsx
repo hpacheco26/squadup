@@ -34,7 +34,7 @@ function GameModal({ isOpen, setIsOpen, group }) {
             location,
             maxPlayers,
             minPlayers,
-            playersInvited,
+            playersInvited: invitedPlayers,
             playersIn: [],
             playersOut: [],
             teamA:[],
@@ -92,7 +92,7 @@ function GameModal({ isOpen, setIsOpen, group }) {
                     </div>
                 </section>
                 <footer className="modal-card-foot is-flex is-justify-content-space-around" style={{height:"50px"}}>
-                    <button className="button is-fullwidth" style={{ maxWidth: '100%',background:"#badfe1" }} onClick={handleSubmit} disabled={loading}>
+                    <button className="button is-fullwidth" style={{ maxWidth: '100%',background:"#0d9488", color:"#fff" }} onClick={handleSubmit} disabled={loading}>
                         {loading ? 'Creating...' : 'Create Game'}
                     </button>
                    

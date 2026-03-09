@@ -76,8 +76,8 @@ const styles = {
         justifyContent: "space-between",
         alignItems: "center",
         padding: "10px 20px",
-        backgroundColor: "#f8f9fa",
-        borderBottom: "1px solid #ddd",
+        backgroundColor: "#ffffff",
+        borderBottom: "1px solid #e2e8f0",
     },
     tabsContainer: {
         display: "flex",
@@ -90,13 +90,13 @@ const styles = {
         cursor: "pointer",
         fontSize: "1rem",
         fontWeight: "bold",
-        color: "#6c757d",
+        color: "#64748b",
         borderBottom: "3px solid transparent",
         transition: "color 0.3s, border-bottom 0.3s",
     },
     activeTab: {
-        color: "#343a40",
-        borderBottom: "3px solid #343a40",
+        color: "#0d9488",
+        borderBottom: "3px solid #0d9488",
     },
     settingsButton: {
         background: "none",

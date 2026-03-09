@@ -109,7 +109,7 @@ function PlayerCard({ player, onRemovePlayer, onUpdatePlayer }) {
                                 </div>
                             </div>
 
-                            <button className="button" style={{background:"#F4A6A0", zIndex: 1, position: "relative"}} onClick={handleRemove}>
+                            <button className="button" style={{background:"#ef4444", color:"#fff", zIndex: 1, position: "relative"}} onClick={handleRemove}>
                                 Remove Player
                             </button>
 

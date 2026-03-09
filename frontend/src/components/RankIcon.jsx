@@ -16,17 +16,17 @@ const shapeStyles = {
 };
 
 const rankColors = {
-    0: '#ddd8c4', 
-    1: '#a3c9a8', 
-    2: '#84b59f', 
-    3: '#69a297', 
-    4: '#50808e', 
+    0: '#94a3b8', 
+    1: '#5eead4', 
+    2: '#2dd4bf', 
+    3: '#14b8a6', 
+    4: '#0d9488', 
   };
 
 
 const RankIcon = ({ rank, size = 30 }) => {
     const shapeStyle = shapeStyles[rank] || {};
-    const color = rankColors[rank] || '#9E9E9E'; // Default to neutral gray if rank is unknown
+    const color = rankColors[rank] || '#94a3b8'; // Default to neutral gray if rank is unknown
 
     return (
         <div 

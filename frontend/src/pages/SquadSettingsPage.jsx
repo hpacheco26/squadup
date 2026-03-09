@@ -63,7 +63,7 @@ function SquadSettingsPage() {
             
             <div className="container p-4" style={{display: "flex", flexDirection: "column", height: "calc(100vh - 120px" }}>
                 {/* Group Name Input */}
-                <div className="field" style={{height: "100px", borderBottom: "2px solid #b1b8c7"}} >
+                <div className="field" style={{height: "100px", borderBottom: "2px solid #e2e8f0"}} >
                     {/* <label className="label">Group Name</label> */}
                     <input
                         className="input subtitle"
@@ -77,7 +77,7 @@ function SquadSettingsPage() {
                 {/* Players List (Scrollable) */}
                 {/* <div style={{  overflowY: 'auto', border: '1px solid #ddd', borderRadius: '8px', padding: '10px' }}> */}
                     {/* Single Column Layout , background: "#f3f4f6" */}
-                    <div className="columns is-multiline" style={{  overflowY: 'auto', border: '1px solid #ddd', borderRadius: '8px', padding: '10px'}}>
+                    <div className="columns is-multiline" style={{  overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px'}}>
                         {(group.players ?? []).map((player) => (
                             <div className="column is-full" style={{ padding: '5px 0px'}} key={player.id}>  
                                 <PlayerCard 
@@ -98,11 +98,11 @@ function SquadSettingsPage() {
 
                 {/* Centered Buttons */}
                 <div className="buttons is-centered" style={{ display: "flex", gap: "20px" }}>
-                    <Button style={{background:"#badfe1", flex:"1"}} onClick={() => setIsPlayerModalOpen(true)}>
+                    <Button style={{background:"#0d9488", color:"#fff", flex:"1"}} onClick={() => setIsPlayerModalOpen(true)}>
                         Add Player
                     </Button>
 
-                    <Button style={{background:"#F4A6A0", flex:"1"}} onClick={handleDeleteGroup}>
+                    <Button style={{background:"#ef4444", color:"#fff", flex:"1"}} onClick={handleDeleteGroup}>
                         Delete Group
                     </Button>
                 </div>

@@ -35,7 +35,7 @@ const useAuthStore = create((set) => ({
             if (user) {
                 set({ user });
                 localStorage.setItem('user', JSON.stringify(user));
-                await useAuthStore.getState().fetchPlayerData(user.uid); // Fetch player data
+                await useAuthStore.getState().fetchPlayerData(user.uid);
             } else {
                 set({ user: null, playerData: null });
                 localStorage.removeItem('user');
@@ -68,7 +68,6 @@ const useAuthStore = create((set) => ({
             set({ user });
             localStorage.setItem('user', JSON.stringify(user));
 
-            // Check if player already exists in Firestore
             const playerExists = await PlayerService.checkPlayerExists(user.uid);
 
             if (!playerExists) {

@@ -41,9 +41,9 @@ const GameCard = ({ game }) => {
 
                 {/* Players Info */}
                 <div className="content">
-                    <p><strong>Invited:</strong> {game.invitedPlayers.length}</p>
-                    <p><strong>In:</strong> {game.playersGoing.length}</p>
-                    <p><strong>Out:</strong> {game.playersNotGoing.length}</p>
+                    <p><strong>Invited:</strong> {(game.playersInvited || []).length}</p>
+                    <p><strong>In:</strong> {(game.playersIn || []).length}</p>
+                    <p><strong>Out:</strong> {(game.playersOut || []).length}</p>
                 </div>
 
                 {/* Player Invite Status in Bottom Right */}
