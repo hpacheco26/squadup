@@ -110,7 +110,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
                     </div>
                 </section>
                 <footer className="modal-card-foot" style={{ minHeight: "50px", display: "flex", flexDirection: "column", gap: "10px" }}>
-                    <button className="button is-fullwidth" style={{ maxWidth: '100%', background: "#0d9488", color: "#fff" }} onClick={handleSubmit} disabled={loading}>
+                    <button className="button is-fullwidth" style={{ maxWidth: '100%', background: "#5b7bb3", color: "#fff" }} onClick={handleSubmit} disabled={loading}>
                         {loading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Game' : 'Create Game')}
                     </button>
                     {isEditMode && (

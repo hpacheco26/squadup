@@ -4,10 +4,10 @@ const theme = {
   surface: '#ffffff',       // Cards, modals, content areas
   surfaceAlt: '#f7f8fa',   // Header bars, subtle sections
   
-  // Primary — teal/emerald accent
-  primary: '#0d9488',       // Buttons, links, active states
-  primaryLight: '#ccfbf1',  // Hover backgrounds, highlights
-  primaryDark: '#0f766e',   // Pressed state
+  // Primary — slate blue accent
+  primary: '#5b7bb3',       // Buttons, links, active states
+  primaryLight: '#dbe4f0',  // Hover backgrounds, highlights
+  primaryDark: '#4a6694',   // Pressed state
   
   // Success / IN
   success: '#16a34a',       // Green — player IN, confirmations
@@ -33,16 +33,16 @@ const theme = {
   navText: '#94a3b8',       // Navbar icons default
   navTextActive: '#ffffff', // Navbar icons active
   
-  // Rank progression — unified teal gradient
+  // Rank progression — gold gradient
   rank: {
-    0: '#94a3b8',  // Unranked — slate gray
-    1: '#5eead4',  // Bronze — light teal
-    2: '#2dd4bf',  // Silver — teal
-    3: '#14b8a6',  // Gold — vivid teal
-    4: '#0d9488',  // Diamond — deep teal (matches primary)
+    0: '#d4c5a0',  // Unranked — pale gold
+    1: '#c9a84c',  // Bronze — light gold
+    2: '#b8922e',  // Silver — medium gold
+    3: '#a67c00',  // Gold — rich gold
+    4: '#8b6914',  // Diamond — deep gold
   },
-  rankDefault: '#94a3b8',
-  rankAccent: '#0d9488',
+  rankDefault: '#d4c5a0',
+  rankAccent: '#a67c00',
 };
 
 export default theme;

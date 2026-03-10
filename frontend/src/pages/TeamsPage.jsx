@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { balanceTeams } from '../utils/teamBalancer';
+import { balanceTeams, getCaptain } from '../utils/teamBalancer';
 import PlayerCardMini from '../components/cards/PlayerCardMini';
 import SwipeTeamPlayer from '../components/SwipeTeamPlayer';
 import useGameStore from '../store/gameStore';
@@ -94,6 +94,8 @@ const TeamsPage = () => {
 
     const playersIn = game.playersIn || [];
     const hasTeams = game.team1?.length > 0 || game.team2?.length > 0;
+    const captain1 = getCaptain(game.team1);
+    const captain2 = getCaptain(game.team2);
 
     return (
         <>
@@ -123,6 +125,7 @@ const TeamsPage = () => {
                                             player={player}
                                             status={getPlayerStatus(index)}
                                             team="team1"
+                                            isCaptain={captain1?.id === player.id}
                                             onSwipe={() => handleSwapPlayer(player.id, 'team1')}
                                         />
                                     </div>
@@ -141,6 +144,7 @@ const TeamsPage = () => {
                                             player={player}
                                             status={getPlayerStatus(index)}
                                             team="team2"
+                                            isCaptain={captain2?.id === player.id}
                                             onSwipe={() => handleSwapPlayer(player.id, 'team2')}
                                         />
                                     </div>
@@ -160,7 +164,7 @@ const TeamsPage = () => {
                         fontSize: '1.1rem',
                         fontWeight: 'bold',
                         color: '#fff',
-                        backgroundColor: pressed ? '#0f766e' : '#0d9488',
+                        backgroundColor: pressed ? '#4a6694' : '#5b7bb3',
                         border: 'none',
                         borderRadius: '10px',
                         cursor: 'pointer',

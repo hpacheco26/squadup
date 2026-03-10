@@ -7,6 +7,23 @@ const useGameStore = create((set) => ({
     loading: false,
     error: null,
 
+    // Game session state (persists across tab switches)
+    team1Goals: 0,
+    team2Goals: 0,
+    timer: null,
+    isRunning: false,
+
+    setTeam1Goals: (updater) => set((state) => ({
+        team1Goals: typeof updater === 'function' ? updater(state.team1Goals) : updater,
+    })),
+    setTeam2Goals: (updater) => set((state) => ({
+        team2Goals: typeof updater === 'function' ? updater(state.team2Goals) : updater,
+    })),
+    setTimer: (updater) => set((state) => ({
+        timer: typeof updater === 'function' ? updater(state.timer) : updater,
+    })),
+    setIsRunning: (val) => set({ isRunning: typeof val === 'function' ? val(useGameStore.getState().isRunning) : val }),
+
     // Fetch all games
     fetchGames: async () => {
         set({ loading: true, error: null });

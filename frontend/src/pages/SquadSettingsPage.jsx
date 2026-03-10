@@ -98,7 +98,7 @@ function SquadSettingsPage() {
 
                 {/* Centered Buttons */}
                 <div className="buttons is-centered" style={{ display: "flex", gap: "20px" }}>
-                    <Button style={{background:"#0d9488", color:"#fff", flex:"1"}} onClick={() => setIsPlayerModalOpen(true)}>
+                    <Button style={{background:"#5b7bb3", color:"#fff", flex:"1"}} onClick={() => setIsPlayerModalOpen(true)}>
                         Add Player
                     </Button>
 

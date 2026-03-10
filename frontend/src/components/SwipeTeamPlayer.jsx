@@ -4,7 +4,7 @@ import { faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { Card } from "react-bulma-components";
 import RankIcon from "./RankIcon";
 
-function SwipeTeamPlayer({ player, status, onSwipe, team }) {
+function SwipeTeamPlayer({ player, status, onSwipe, team, isCaptain }) {
     const [startY, setStartY] = useState(null);
     const [heightRoot, setHeightRoot] = useState(0);
     const [translateY, setTranslateY] = useState(0);
@@ -118,6 +118,7 @@ function SwipeTeamPlayer({ player, status, onSwipe, team }) {
                             <h3 className="title is-6" style={{ margin: 0 }}>
                                 {status && <span style={{ marginRight: "6px" }}>{status}</span>}
                                 {player?.firstName} {player?.lastName}
+                                {isCaptain && <span style={{ marginLeft: '6px', fontSize: '0.7rem', fontWeight: 'bold', color: '#f59e0b', border: '1.5px solid #f59e0b', borderRadius: '4px', padding: '0 3px', verticalAlign: 'middle' }}>C</span>}
                             </h3>
                             <RankIcon rank={player?.rank} size={28} />
                         </div>

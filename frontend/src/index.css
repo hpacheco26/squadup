@@ -1,5 +1,5 @@
 /* Bulma primary color override */
-$primary: #0d9488;
+$primary: #5b7bb3;
 
 * {
   margin: 0;
@@ -24,8 +24,20 @@ body {
 
 /* Override Bulma link color */
 a {
-  color: #0d9488;
+  color: #5b7bb3;
 }
 a:hover {
-  color: #0f766e;
+  color: #4a6694;
+}
+
+/* Navbar: icon color only, no background change */
+.navbar-item:hover,
+.navbar-item:focus,
+.navbar-item:active,
+.navbar-item.is-active,
+.navbar button:hover,
+.navbar button:focus,
+.navbar button:active {
+  background-color: transparent !important;
+  color: #ffffff !important;
 }

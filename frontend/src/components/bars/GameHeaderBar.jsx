@@ -108,8 +108,8 @@ const styles = {
         transition: "color 0.3s, border-bottom 0.3s",
     },
     activeTab: {
-        color: "#0d9488",
-        borderBottom: "3px solid #0d9488",
+        color: "#5b7bb3",
+        borderBottom: "3px solid #5b7bb3",
     },
     settingsButton: {
         background: "none",

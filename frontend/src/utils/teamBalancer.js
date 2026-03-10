@@ -1,3 +1,8 @@
+export function getCaptain(team) {
+    if (!team || team.length === 0) return null;
+    return team.reduce((cap, player) => (player.rank > cap.rank ? player : cap), team[0]);
+}
+
 export function balanceTeams(players) {
     // Shuffle players with same rank so re-clicks produce different results
     const shuffled = [...players].sort(() => Math.random() - 0.5);
