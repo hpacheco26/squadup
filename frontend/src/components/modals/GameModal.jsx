@@ -10,6 +10,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
     const [maxPlayers, setMaxPlayers] = useState(10);
     const [minPlayers, setMinPlayers] = useState(5);
     const [subTime, setSubTime] = useState(5);
+    const [recurrence, setRecurrence] = useState('none');
     const [invitedPlayers, setInvitedPlayers] = useState(group?.players || []);
     const [groupId, setGroupId] = useState('');
 
@@ -27,6 +28,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
                 setMaxPlayers(game.maxPlayers || 10);
                 setMinPlayers(game.minPlayers || 5);
                 setSubTime(game.subTime || 5);
+                setRecurrence(game.recurrence || 'none');
                 setInvitedPlayers(game.playersInvited || []);
                 setGroupId(game.groupId || group?.id || '');
             } else {
@@ -36,6 +38,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
                 setMaxPlayers(12);
                 setMinPlayers(10);
                 setSubTime(5);
+                setRecurrence('none');
                 setInvitedPlayers(group?.players || []);
                 setGroupId(group?.id || '');
             }
@@ -56,6 +59,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
             teamA: isEditMode ? game.teamA : [],
             teamB: isEditMode ? game.teamB : [],
             subTime,
+            recurrence,
             groupId
         };
 
@@ -120,9 +124,36 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
 
                     {/* Sub Time */}
                     <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Sub Timer (minutes)</label>
-                    <div className="field">
+                    <div className="field" style={{ marginBottom: '16px' }}>
                         <div className="control">
                             <input className="input has-text-centered" type="number" min="1" value={subTime} onChange={(e) => setSubTime(e.target.value)} style={{ borderRadius: '8px', maxWidth: '120px' }} />
+                        </div>
+                    </div>
+
+                    {/* Recurrence */}
+                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Repeat</label>
+                    <div className="field">
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            {['none', 'weekly', 'monthly'].map((opt) => (
+                                <button
+                                    key={opt}
+                                    type="button"
+                                    className="button"
+                                    style={{
+                                        flex: 1,
+                                        borderRadius: '8px',
+                                        fontWeight: recurrence === opt ? 'bold' : 'normal',
+                                        background: recurrence === opt ? '#5b7bb3' : '#f0f2f5',
+                                        color: recurrence === opt ? '#fff' : '#64748b',
+                                        border: 'none',
+                                        textTransform: 'capitalize',
+                                        fontSize: '0.85rem',
+                                    }}
+                                    onClick={() => setRecurrence(opt)}
+                                >
+                                    {opt === 'none' ? 'None' : opt}
+                                </button>
+                            ))}
                         </div>
                     </div>
                 </section>

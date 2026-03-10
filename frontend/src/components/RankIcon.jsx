@@ -1,86 +1,77 @@
 import React from 'react';
 
-const shapeStyles = {
-    0: { borderRadius: "50%" }, // Circle
-    1: { 
-        width: 0, 
-        height: 0, 
-        borderLeft: "calc(0.5 * var(--size)) solid transparent",
-        borderRight: "calc(0.5 * var(--size)) solid transparent",
-        borderBottom: "var(--size) solid currentColor", 
-        background: "none" 
-    }, // Triangle
-    2: {}, // Square (default)
-    3: { clipPath: "polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)" }, // Pentagon
-    4: { clipPath: "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)" } // Hexagon
+const rankThemes = {
+    0: { frame: '#b0b8c4', ring: '#c8d0dc', glow: 'none' },
+    1: { frame: '#cd7f32', ring: '#e0944a', glow: 'none' },
+    2: { frame: '#c0c0c0', ring: '#d8d8d8', glow: 'none' },
+    3: { frame: '#ffd700', ring: '#ffe44d', glow: 'none' },
+    4: { frame: '#4dd4e6', ring: '#7ae8f5', glow: 'none' },
 };
 
-const rankColors = {
-    0: '#b0b8c4', 
-    1: '#cd7f32', 
-    2: '#9b59b6', 
-    3: '#f0c832', 
-    4: '#a8b4d4', 
+const shapeConfigs = {
+    0: { type: 'circle' },
+    1: { type: 'polygon', sides: 3, offset: 0 },
+    2: { type: 'polygon', sides: 4, offset: Math.PI / 4 },
+    3: { type: 'polygon', sides: 5, offset: 0 },
+    4: { type: 'polygon', sides: 6, offset: 0 },
 };
 
-const rankGradients = {
-    0: 'linear-gradient(135deg, #c0c8d4, #b0b8c4, #a0a8b4)',
-    1: 'linear-gradient(135deg, #e0944a, #cd7f32, #b06a28)',
-    2: 'linear-gradient(135deg, #b06ec8, #9b59b6, #8344a0)',
-    3: 'linear-gradient(135deg, #f5dc78, #f0c832, #d4a017)',
-    4: 'linear-gradient(135deg, #c8d0e8, #a8b4d4, #8898c0, #a8b4d4, #c8d0e8)',
-};
-
-const rankGlow = {
-    0: 'none',
-    1: '0 0 6px rgba(205, 127, 50, 0.4)',
-    2: '0 0 8px rgba(155, 89, 182, 0.5), 0 0 16px rgba(155, 89, 182, 0.2)',
-    3: '0 0 10px rgba(240, 200, 50, 0.5), 0 0 20px rgba(240, 200, 50, 0.25)',
-    4: '0 0 12px rgba(136, 152, 192, 0.6), 0 0 24px rgba(168, 180, 212, 0.3), 0 0 36px rgba(136, 152, 192, 0.2)',
-};
-
+const polyPoints = (n, cx, cy, r, offset = 0) =>
+    Array.from({ length: n }, (_, i) => {
+        const a = (2 * Math.PI * i) / n - Math.PI / 2 + offset;
+        return `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`;
+    }).join(' ');
 
 const RankIcon = ({ rank, size = 30 }) => {
-    const shapeStyle = shapeStyles[rank] || {};
-    const color = rankColors[rank] || '#d4c5a0';
-    const isTriangle = rank === 1;
+    const theme = rankThemes[rank] || rankThemes[0];
+    const shape = shapeConfigs[rank] || shapeConfigs[0];
+    const id = `ri-${rank}-${Math.random().toString(36).slice(2, 7)}`;
+    const cx = 100;
+
+    // Per-rank sizing so all shapes fill the same visual space
+    const sizeConfigs = {
+        0: { cy: 100, outerR: 90, midR: 80, innerR: 75 },   // circle
+        1: { cy: 115, outerR: 115, midR: 100, innerR: 94 },  // triangle
+        2: { cy: 100, outerR: 127, midR: 113, innerR: 106 }, // square
+        3: { cy: 100, outerR: 105, midR: 91, innerR: 85 },   // pentagon
+        4: { cy: 100, outerR: 104, midR: 90, innerR: 84 },   // hexagon
+    };
+    const s = sizeConfigs[rank] || sizeConfigs[0];
+    const cy = s.cy;
+
+    const outerShape = shape.type === 'circle'
+        ? <circle cx={cx} cy={cy} r={s.outerR} fill={theme.frame} />
+        : <polygon points={polyPoints(shape.sides, cx, cy, s.outerR, shape.offset)} fill={theme.frame} />;
+
+    const midShape = shape.type === 'circle'
+        ? <circle cx={cx} cy={cy} r={s.midR} fill="#fff" />
+        : <polygon points={polyPoints(shape.sides, cx, cy, s.midR, shape.offset)} fill="#fff" />;
+
+    const innerShape = shape.type === 'circle'
+        ? <circle cx={cx} cy={cy} r={s.innerR} fill={theme.ring} opacity="0.3" />
+        : <polygon points={polyPoints(shape.sides, cx, cy, s.innerR, shape.offset)} fill={theme.ring} opacity="0.3" />;
 
     return (
-        <div style={{ position: 'relative', display: 'inline-block', width: size, height: size }}>
-            <div 
-                style={{ 
-                    "--size": `${size}px`,
-                    width: size, 
-                    height: size, 
-                    background: isTriangle ? 'none' : (rankGradients[rank] || color),
-                    backgroundColor: isTriangle ? undefined : undefined,
-                    boxShadow: isTriangle ? 'none' : (rankGlow[rank] || 'none'),
-                    display: 'inline-block',
-                    ...shapeStyle,
-                    ...(isTriangle ? { borderBottomColor: color } : {}),
-                }} 
-            />
-            {rank >= 3 && !isTriangle && (
-                <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: size,
-                    height: size,
-                    background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.25) 45%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.25) 55%, transparent 60%)',
-                    backgroundSize: '200% 100%',
-                    animation: 'shimmer 3s ease-in-out infinite',
-                    pointerEvents: 'none',
-                    ...shapeStyle,
-                }} />
-            )}
-            <style>{`
-                @keyframes shimmer {
-                    0% { background-position: 200% 0; }
-                    100% { background-position: -200% 0; }
-                }
-            `}</style>
-        </div>
+        <svg width={size} height={size} viewBox="0 0 200 200" fill="none" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+            <defs>
+                <radialGradient id={`${id}-ball`} cx="0.4" cy="0.35" r="0.6">
+                    <stop offset="0%" stopColor="#ffffff" />
+                    <stop offset="60%" stopColor="#e8e8e8" />
+                    <stop offset="100%" stopColor="#c0c0c0" />
+                </radialGradient>
+            </defs>
+            {outerShape}
+            {midShape}
+            {innerShape}
+            <circle cx={cx} cy={cy} r={45} fill={`url(#${id}-ball)`} stroke={theme.frame} strokeWidth="2.5" />
+            <g transform={`translate(0, ${cy - 100})`}>
+                <polygon points="100,65 110,74 107,85 93,85 90,74" fill="#333" />
+                <polygon points="122,90 130,100 124,110 114,108 114,96" fill="#333" />
+                <polygon points="78,90 70,100 76,110 86,108 86,96" fill="#333" />
+                <polygon points="89,116 94,126 106,126 111,116 100,110" fill="#333" />
+                <ellipse cx="90" cy="82" rx="15" ry="11" fill="rgba(255,255,255,0.2)" />
+            </g>
+        </svg>
     );
 };
 

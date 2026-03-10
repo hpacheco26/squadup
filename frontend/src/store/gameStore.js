@@ -24,6 +24,14 @@ const useGameStore = create((set) => ({
     })),
     setIsRunning: (val) => set({ isRunning: typeof val === 'function' ? val(useGameStore.getState().isRunning) : val }),
 
+    // Reset game session state (goals, timer, running)
+    resetGameSession: () => set({
+        team1Goals: 0,
+        team2Goals: 0,
+        timer: null,
+        isRunning: false,
+    }),
+
     // Fetch all games
     fetchGames: async () => {
         set({ loading: true, error: null });
@@ -40,7 +48,7 @@ const useGameStore = create((set) => ({
         set({ loading: true, error: null });
         try {
             const game = await GameService.getGameById(gameId);
-            set({ game, loading: false });
+            set({ game, team1Goals: 0, team2Goals: 0, timer: null, isRunning: false, loading: false });
         } catch (error) {
             set({ error: error.message, loading: false });
         }

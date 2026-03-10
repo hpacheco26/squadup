@@ -19,7 +19,7 @@ const SquadSettingsHeaderBar = ({ group, groupName, setGroupName, updateGroup, n
             </button>
             
             {/* App Name */}
-            <h1 style={styles.title}>Squad Settings</h1>
+            <h1 style={styles.title}>Group Settings</h1>
 
             {/* Save Button */}
             <button onClick={handleUpdateGroup} style={styles.saveButton} aria-label="Save">

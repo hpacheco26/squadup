@@ -47,41 +47,43 @@ export default function CreateGroupModal({ isOpen, setIsOpen }) {
         <div className={`modal ${isOpen ? "is-active" : ""}`}>
             <div className="modal-background" onClick={() => setIsOpen(false)}></div>
             <div className="modal-card p-2">
-                <header className="modal-card-head">
-                    <p className="modal-card-title">New Squad</p>
-                    <button className="delete" onClick={() => setIsOpen(false)}></button>
+                <header className="modal-card-head" style={{ background: '#fff', borderBottom: '1px solid #e2e8f0', minHeight: '50px' }}>
+                    <p className="modal-card-title" style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>New Group</p>
+                    <button className="delete" aria-label="close" onClick={() => setIsOpen(false)}></button>
                 </header>
-                <section className="modal-card-body">
-                    <div className="field">
-                        <label className="label">Squad Name</label>
+                <section className="modal-card-body" style={{ padding: '20px' }}>
+                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Squad Name</label>
+                    <div className="field" style={{ marginBottom: '16px' }}>
                         <div className="control">
                             <input
                                 className="input"
                                 type="text"
-                                placeholder="Enter group name"
+                                placeholder="e.g. Sunday League"
                                 value={groupName}
                                 onChange={(e) => setGroupName(e.target.value)}
+                                style={{ borderRadius: '8px' }}
                             />
                         </div>
                     </div>
 
+                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Sport</label>
                     <div className="field">
-                        <label className="label">Sport</label>
                         <div className="control">
                             <div className="select is-fullwidth">
-                                <select value={sport} onChange={(e) => setSport(e.target.value)}>
+                                <select value={sport} onChange={(e) => setSport(e.target.value)} style={{ borderRadius: '8px' }}>
                                     <option value="Futebol">Futebol</option>
                                 </select>
                             </div>
                         </div>
                     </div>
                 </section>
-                <footer className="modal-card-foot" style={styles.footer}>
-                    <button className="button is-success" style={styles.button} onClick={handleSubmit}>
+                <footer className="modal-card-foot" style={{ display: 'flex', justifyContent: 'center', background: '#fff', borderTop: '1px solid #e2e8f0' }}>
+                    <button
+                        className="button"
+                        style={{ background: '#5b7bb3', color: '#fff', borderRadius: '8px', fontWeight: 'bold', letterSpacing: '0.5px', border: 'none' }}
+                        onClick={handleSubmit}
+                    >
                         Create Group
-                    </button>
-                    <button className="button" style={styles.button} onClick={() => setIsOpen(false)}>
-                        Cancel
                     </button>
                 </footer>
             </div>

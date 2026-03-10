@@ -30,7 +30,7 @@ const RankList = () => {
           modules={[Pagination]} 
           spaceBetween={15} 
           slidesPerView={1.2} 
-          centeredSlides={true}  // This will center the active slide
+          centeredSlides={true}
           breakpoints={{
             640: { slidesPerView: 2, centeredSlides: true },  
             1024: { slidesPerView: 3, centeredSlides: true } 
@@ -39,7 +39,7 @@ const RankList = () => {
           style={{ paddingBottom: "30px" }} 
         >
           {ranks.map((rank) => (
-            <SwiperSlide key={rank.groupId || rank.groupName}>
+            <SwiperSlide key={rank.groupId || rank.groupName} style={{ height: 'auto' }}>
               <RankCard 
                 rank={rank.groupRank} 
                 groupName={rank.groupName || "Unknown Group"} 

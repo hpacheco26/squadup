@@ -39,14 +39,16 @@ function GroupPage() {
                 {games.length === 0 && (
                     <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
                         <Button 
-                            color="primary" 
                             onClick={() => setIsGameCreateModalOpen(true)} 
                             style={{
                                 padding: '12px 24px',  
                                 borderRadius: '15px',
-                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Adds shadow
+                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
                                 fontSize: '16px',
                                 fontWeight: 'bold',
+                                background: '#5b7bb3',
+                                color: '#fff',
+                                border: 'none',
                             }}
                         >
                             Schedule Game

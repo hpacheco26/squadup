@@ -47,11 +47,12 @@ const useGroupStore = create(
                         const player = group.players.find(p => p.id === playerId);
                         if (!player) return null;
                         return {
+                            groupId: group.id,
                             groupName: group.name,
                             groupRank: player.rank,
-                            groupStats: player.stats
+                            stats: player.stats
                         };
-                    });
+                    }).filter(Boolean);
 
                     set({ groups, ranks });
 
@@ -141,6 +142,13 @@ const useGroupStore = create(
             
                     // Fetch the latest state with updated ranks and stats
                     const updatedGroup = useGroupStore.getState().group;
+
+                    // Update myPlayer to reflect new stats/rank
+                    const playerId = useAuthStore.getState().playerData?.id;
+                    if (updatedGroup && playerId) {
+                        const updatedMyPlayer = updatedGroup.players.find(p => p.id === playerId) || null;
+                        set({ myPlayer: updatedMyPlayer });
+                    }
             
                     // Save updated group to backend
                     if (updatedGroup) {

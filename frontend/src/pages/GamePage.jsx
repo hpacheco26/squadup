@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Modal, Button, Card } from 'react-bulma-components';
 import { FiPlay, FiPause, FiRotateCcw } from 'react-icons/fi';
 import useGameStore from '../store/gameStore';
 import useGroupStore from '../store/groupStore';
@@ -14,6 +13,7 @@ const GamePage = () => {
     const navigate = useNavigate();
     const {
         game, fetchGameById, loading,
+        createGame, deleteGame,
         team1Goals, setTeam1Goals,
         team2Goals, setTeam2Goals,
         timer, setTimer,
@@ -22,7 +22,6 @@ const GamePage = () => {
     const { updateRank, group } = useGroupStore();
 
     const [isSubModalOpen, setIsSubModalOpen] = useState(false);
-    const [isEndModalOpen, setIsEndModalOpen] = useState(false);
 
     useEffect(() => {
         if (gameId) fetchGameById(gameId);
@@ -65,9 +64,42 @@ const GamePage = () => {
         return `${m}:${s < 10 ? '0' : ''}${s}`;
     };
 
-    const handleEndGame = (winnerTeam, loserTeam) => {
-        updateRank(group.id, winnerTeam, loserTeam);
-        setIsEndModalOpen(false);
+    const handleEndGame = async () => {
+        const winner = team1Goals >= team2Goals ? team1 : team2;
+        const loser = team1Goals >= team2Goals ? team2 : team1;
+        updateRank(group.id, winner, loser);
+
+        if (game.recurrence && game.recurrence !== 'none') {
+            // Create next recurring game
+            const currentDate = new Date(`${game.date}T${game.time || '00:00'}`);
+            if (game.recurrence === 'weekly') {
+                currentDate.setDate(currentDate.getDate() + 7);
+            } else if (game.recurrence === 'monthly') {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+            }
+            const nextDate = currentDate.toISOString().split('T')[0];
+            const nextTime = game.time;
+
+            await createGame({
+                status: 'open',
+                date: nextDate,
+                time: nextTime,
+                location: game.location,
+                maxPlayers: game.maxPlayers,
+                minPlayers: game.minPlayers,
+                playersInvited: group?.players || game.playersInvited || [],
+                playersIn: [],
+                playersOut: [],
+                teamA: [],
+                teamB: [],
+                subTime: game.subTime,
+                recurrence: game.recurrence,
+                groupId: game.groupId,
+            });
+        }
+
+        // Delete the finished game
+        await deleteGame(game.id);
         navigate('/rank');
     };
 
@@ -137,7 +169,7 @@ const GamePage = () => {
 
                 {/* End Game Button */}
                 <button
-                    onClick={() => setIsEndModalOpen(true)}
+                    onClick={handleEndGame}
                     style={{
                         padding: '14px 24px',
                         fontSize: '1.1rem',
@@ -166,37 +198,7 @@ const GamePage = () => {
                 onAcceptSub={handleSubstitution}
             />
 
-            {/* End Game Modal */}
-            <Modal show={isEndModalOpen} onClose={() => setIsEndModalOpen(false)} closeOnEsc closeOnBlur>
-                <Modal.Card>
-                    <Modal.Card.Header>
-                        <Modal.Card.Title className="has-text-centered">Select the Winning Team</Modal.Card.Title>
-                    </Modal.Card.Header>
-                    <Modal.Card.Body className="has-text-centered">
-                        <div className="columns is-centered">
-                            <div className="column is-half">
-                                <Card onClick={() => handleEndGame(team1, team2)} style={{ cursor: 'pointer' }}>
-                                    <Card.Content className="has-text-centered">
-                                        <h2 className="title is-4" style={{ color: '#0d9488' }}>{team1Label}</h2>
-                                        <p className="subtitle is-2">{team1Goals}</p>
-                                    </Card.Content>
-                                </Card>
-                            </div>
-                            <div className="column is-half">
-                                <Card onClick={() => handleEndGame(team2, team1)} style={{ cursor: 'pointer' }}>
-                                    <Card.Content className="has-text-centered">
-                                        <h2 className="title is-4" style={{ color: '#b91c1c' }}>{team2Label}</h2>
-                                        <p className="subtitle is-2">{team2Goals}</p>
-                                    </Card.Content>
-                                </Card>
-                            </div>
-                        </div>
-                    </Modal.Card.Body>
-                    <Modal.Card.Footer className="has-text-centered">
-                        <Button onClick={() => setIsEndModalOpen(false)}>Cancel</Button>
-                    </Modal.Card.Footer>
-                </Modal.Card>
-            </Modal>
+
         </>
     );
 };

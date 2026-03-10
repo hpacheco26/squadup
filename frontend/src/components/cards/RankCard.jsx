@@ -1,128 +1,153 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-const shapes = {
-  0: { name: "Circle", styles: { borderRadius: "50%" } },
-  1: { name: "Triangle", styles: { 
-      width: 0, height: 0, 
-      borderLeft: "50px solid transparent",
-      borderRight: "50px solid transparent",
-      borderBottom: "100px solid #f0c832",
-      background: "none"
-  }},
-  2: { name: "Square", styles: { borderRadius: "5px" } },
-  3: { name: "Pentagon", styles: { clipPath: "polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)" } },
-  4: { name: "Hexagon", styles: { clipPath: "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)" } },
+const rankThemes = {
+  0: { frame: '#b0b8c4', ring: '#c8d0dc', glow: 'none' },
+  1: { frame: '#cd7f32', ring: '#e0944a', glow: 'drop-shadow(0 0 6px rgba(205,127,50,0.4))' },
+  2: { frame: '#c0c0c0', ring: '#d8d8d8', glow: 'drop-shadow(0 0 8px rgba(192,192,192,0.5))' },
+  3: { frame: '#ffd700', ring: '#ffe44d', glow: 'drop-shadow(0 0 10px rgba(255,215,0,0.5))' },
+  4: { frame: '#4dd4e6', ring: '#7ae8f5', glow: 'drop-shadow(0 0 12px rgba(77,212,230,0.5))' },
 };
 
-const rankColors = {
-  0: '#b0b8c4', 
-  1: '#cd7f32', 
-  2: '#9b59b6', 
-  3: '#f0c832', 
-  4: '#a8b4d4', 
+const shapeConfigs = {
+  0: { type: 'circle' },
+  1: { type: 'polygon', sides: 3, offset: 0 },
+  2: { type: 'polygon', sides: 4, offset: Math.PI / 4 },
+  3: { type: 'polygon', sides: 5, offset: 0 },
+  4: { type: 'polygon', sides: 6, offset: 0 },
 };
 
-const rankGradients = {
-  0: 'linear-gradient(135deg, #c0c8d4, #b0b8c4, #a0a8b4)',
-  1: 'linear-gradient(135deg, #e0944a, #cd7f32, #b06a28)',
-  2: 'linear-gradient(135deg, #b06ec8, #9b59b6, #8344a0)',
-  3: 'linear-gradient(135deg, #f5dc78, #f0c832, #d4a017)',
-  4: 'linear-gradient(135deg, #c8d0e8, #a8b4d4, #8898c0, #a8b4d4, #c8d0e8)',
-};
+const polyPoints = (n, cx, cy, r, offset = 0) =>
+  Array.from({ length: n }, (_, i) => {
+    const a = (2 * Math.PI * i) / n - Math.PI / 2 + offset;
+    return `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`;
+  }).join(' ');
 
-const rankGlow = {
-  0: 'none',
-  1: '0 0 8px rgba(205, 127, 50, 0.4)',
-  2: '0 0 12px rgba(155, 89, 182, 0.5), 0 0 24px rgba(155, 89, 182, 0.2)',
-  3: '0 0 16px rgba(240, 200, 50, 0.5), 0 0 32px rgba(240, 200, 50, 0.25)',
-  4: '0 0 20px rgba(136, 152, 192, 0.6), 0 0 40px rgba(168, 180, 212, 0.3), 0 0 60px rgba(136, 152, 192, 0.2)',
-};
+const BadgeSVG = ({ rank, size = 150 }) => {
+  const theme = rankThemes[rank] || rankThemes[0];
+  const shape = shapeConfigs[rank] || shapeConfigs[0];
+  const id = `badge-${rank}-${Math.random().toString(36).slice(2, 7)}`;
+  const cx = 100;
 
-
-const RankCard = ({ rank, groupName, stats, isAnimated }) => {
-  const shape = shapes[rank] || null;
-  const color = rankColors[rank] || '#d4c5a0';
-  const isTriangle = rank === 1;
-
-  const shapeBaseStyle = {
-    width: "150px",
-    height: "150px",
-    background: isTriangle ? 'none' : (rankGradients[rank] || color),
-    boxShadow: isTriangle ? 'none' : (rankGlow[rank] || 'none'),
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    margin: "0 auto 20px",
-    position: 'relative',
-    ...shape.styles,
+  // Per-rank sizing so all shapes fill the same visual space
+  const sizeConfigs = {
+    0: { cy: 100, outerR: 90, midR: 80, innerR: 75, ballR: 45 },   // circle
+    1: { cy: 115, outerR: 115, midR: 100, innerR: 94, ballR: 45 },  // triangle — shifted down
+    2: { cy: 100, outerR: 127, midR: 113, innerR: 106, ballR: 45 }, // square — scaled by √2
+    3: { cy: 100, outerR: 105, midR: 91, innerR: 85, ballR: 45 },    // pentagon
+    4: { cy: 100, outerR: 104, midR: 90, innerR: 84, ballR: 45 },   // hexagon
   };
+  const s = sizeConfigs[rank] || sizeConfigs[0];
+  const cy = s.cy;
 
-  const shimmerOverlay = rank >= 3 && !isTriangle ? (
-    <div style={{
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.25) 45%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.25) 55%, transparent 60%)',
-      backgroundSize: '200% 100%',
-      animation: 'shimmer 3s ease-in-out infinite',
-      pointerEvents: 'none',
-      ...shape.styles,
-    }} />
-  ) : null;
+  const outerShape = shape.type === 'circle'
+    ? <circle cx={cx} cy={cy} r={s.outerR} fill={theme.frame} />
+    : <polygon points={polyPoints(shape.sides, cx, cy, s.outerR, shape.offset)} fill={theme.frame} />;
 
-  if (!shape) return <p className="title has-text-centered">Loading...</p>;
+  const midShape = shape.type === 'circle'
+    ? <circle cx={cx} cy={cy} r={s.midR} fill="#fff" />
+    : <polygon points={polyPoints(shape.sides, cx, cy, s.midR, shape.offset)} fill="#fff" />;
+
+  const innerShape = shape.type === 'circle'
+    ? <circle cx={cx} cy={cy} r={s.innerR} fill={theme.ring} opacity="0.3" />
+    : <polygon points={polyPoints(shape.sides, cx, cy, s.innerR, shape.offset)} fill={theme.ring} opacity="0.3" />;
 
   return (
-    <div className="box has-text-centered">
-      {/* Shape (Animated or Static) */}
-      {isAnimated ? (
-        <div style={{ position: 'relative', display: 'inline-block' }}>
-          <motion.div
-            style={shapeBaseStyle}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1, rotate: 360 }}
-            transition={{ duration: 1, ease: "easeOut" }}
-          />
-          {shimmerOverlay}
-        </div>
-      ) : (
-        <div style={{ position: 'relative', display: 'inline-block' }}>
-          <div style={shapeBaseStyle} />
-          {shimmerOverlay}
-        </div>
-      )}
+    <svg width={size} height={size} viewBox="0 0 200 200" fill="none" style={{ filter: theme.glow }}>
+      <defs>
+        <radialGradient id={`${id}-ball`} cx="0.4" cy="0.35" r="0.6">
+          <stop offset="0%" stopColor="#ffffff" />
+          <stop offset="60%" stopColor="#e8e8e8" />
+          <stop offset="100%" stopColor="#c0c0c0" />
+        </radialGradient>
+      </defs>
 
-      {/* Group Name */}
-      <h2 className="title is-4">{groupName}</h2>
+      {outerShape}
+      {midShape}
+      {innerShape}
 
-      {/* Player Stats */}
-      <div className="box rank-stats">
-        {/* <h3 className="title is-5">Player Stats</h3> */}
-        <p><strong>Wins:</strong> {stats?.wins || 0}</p>
-        <p><strong>Losses:</strong> {stats?.losses || 0}</p>
-        <p><strong>Draws:</strong> {stats?.draws || 0}</p>
+      {/* Soccer ball */}
+      <circle cx={cx} cy={cy} r={45} fill={`url(#${id}-ball)`} stroke={theme.frame} strokeWidth="2.5" />
+      <g transform={`translate(0, ${cy - 100})`}>
+        <polygon points="100,65 110,74 107,85 93,85 90,74" fill="#333" />
+        <polygon points="122,90 130,100 124,110 114,108 114,96" fill="#333" />
+        <polygon points="78,90 70,100 76,110 86,108 86,96" fill="#333" />
+        <polygon points="89,116 94,126 106,126 111,116 100,110" fill="#333" />
+        <ellipse cx="90" cy="82" rx="15" ry="11" fill="rgba(255,255,255,0.2)" />
+      </g>
+    </svg>
+  );
+};
+
+const rankNames = ['Unranked', 'Bronze', 'Silver', 'Gold', 'Platinum'];
+
+const RankCard = ({ rank, groupName, stats, isAnimated }) => {
+  const badge = isAnimated ? (
+    <motion.div
+      initial={{ scale: 0, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+    >
+      <BadgeSVG rank={rank} />
+    </motion.div>
+  ) : (
+    <BadgeSVG rank={rank} />
+  );
+
+  const theme = rankThemes[rank] || rankThemes[0];
+  const name = rankNames[rank] || 'Unranked';
+
+  return (
+    <div style={{
+      background: '#fff',
+      borderRadius: '16px',
+      padding: '24px 20px',
+      textAlign: 'center',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+    }}>
+      <div style={{ height: '190px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        {badge}
       </div>
 
-      {/* Styles */}
-      <style>
-        {`
-          .rank-stats {
-            box-shadow:none;
-            border-top: solid #e2e8f0;
-            border-radius: 0px;
-          }
-          @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-          }
-        `}  
-      </style>
+      {/* Rank Name */}
+      <p style={{
+        fontSize: '0.75rem',
+        fontWeight: '600',
+        textTransform: 'uppercase',
+        letterSpacing: '1.5px',
+        color: theme.frame,
+        marginBottom: '4px',
+      }}>
+        {name}
+      </p>
+
+      {/* Group Name */}
+      <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1e293b', marginBottom: '16px' }}>
+        {groupName}
+      </h2>
+
+      {/* Stats */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '24px',
+        borderTop: '1px solid #e2e8f0',
+        paddingTop: '14px',
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#1e293b' }}>{stats?.wins || 0}</p>
+          <p style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Wins</p>
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#1e293b' }}>{stats?.draws || 0}</p>
+          <p style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Draws</p>
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#1e293b' }}>{stats?.losses || 0}</p>
+          <p style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Losses</p>
+        </div>
+      </div>
     </div>
-
-
   );
 };
 

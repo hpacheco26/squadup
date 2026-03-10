@@ -4,7 +4,7 @@ import HomePage from './pages/HomePage.jsx';
 import PlayersPage from './pages/PlayerPage.jsx';
 import GroupsPage from './pages/GroupsPage';
 import GroupPage from './pages/GroupPage';
-import SquadSettingsPage from './pages/SquadSettingsPage'; // Import new SquadSettingsPage
+import SquadSettingsPage from './pages/SquadSettingsPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import PregamePage from './pages/PreGamePage';

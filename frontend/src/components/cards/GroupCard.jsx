@@ -20,7 +20,7 @@ function GroupCard({ name, sport, id, rank }) {
 
       {/* Rank Icon at Bottom Right */}
       <div style={{ position: 'absolute', bottom: '10px', right: '10px' }}>
-        <RankIcon rank={rank} size={30} />
+        <RankIcon rank={rank} size={80} />
       </div>
     </div>
   );

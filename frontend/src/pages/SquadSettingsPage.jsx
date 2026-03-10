@@ -3,7 +3,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import useGroupStore from '../store/groupStore';
 import PlayerCard from '../components/cards/PlayerCard';
 import PlayerModal from '../components/modals/PlayerModal';
-import { Button } from 'react-bulma-components';
 import SquadSettingsHeaderBar from '../components/bars/SquadSettingsHeaderBar';
 
 function SquadSettingsPage() {
@@ -61,33 +60,40 @@ function SquadSettingsPage() {
                 navigate={navigate} 
             />
             
-            <div className="container p-4" style={{display: "flex", flexDirection: "column", height: "calc(100vh - 120px)" }}>
-                {/* Group Name Input */}
-                <div className="field" style={{height: "100px", borderBottom: "2px solid #e2e8f0"}} >
-                    {/* <label className="label">Group Name</label> */}
+            <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 120px)', padding: '20px' }}>
+                {/* Group Name */}
+                <div style={{ marginBottom: '20px' }}>
+                    <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
+                        Group Name
+                    </label>
                     <input
-                        className="input subtitle"
+                        className="input"
                         type="text"
                         placeholder="Enter group name"
                         value={groupName}
                         onChange={(e) => setGroupName(e.target.value)}
+                        style={{ borderRadius: '8px' }}
                     />
                 </div>
 
-                {/* Players List (Scrollable) */}
-                {/* <div style={{  overflowY: 'auto', border: '1px solid #ddd', borderRadius: '8px', padding: '10px' }}> */}
-                    {/* Single Column Layout , background: "#f3f4f6" */}
-                    <div className="columns is-multiline" style={{  overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px'}}>
-                        {(group.players ?? []).map((player) => (
-                            <div className="column is-full" style={{ padding: '5px 0px'}} key={player.id}>  
+                {/* Players */}
+                <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
+                    Players ({(group.players ?? []).length})
+                </label>
+                <div style={{ flex: 1, overflowY: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '8px', marginBottom: '16px' }}>
+                    {(group.players ?? []).length === 0 ? (
+                        <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px', fontSize: '0.9rem' }}>No players yet</p>
+                    ) : (
+                        (group.players ?? []).map((player) => (
+                            <div style={{ padding: '4px 0' }} key={player.id}>
                                 <PlayerCard 
                                     player={player}
                                     onRemovePlayer={handleRemovePlayer}
                                 />
                             </div>
-                        ))}
-                    </div>
-                {/* </div> */}
+                        ))
+                    )}
+                </div>
 
                 {/* Add Player Modal */}
                 <PlayerModal 
@@ -96,15 +102,22 @@ function SquadSettingsPage() {
                     onAddPlayer={handleAddPlayer} 
                 />
 
-                {/* Centered Buttons */}
-                <div className="buttons is-centered" style={{ display: "flex", gap: "20px" }}>
-                    <Button style={{background:"#5b7bb3", color:"#fff", flex:"1"}} onClick={() => setIsPlayerModalOpen(true)}>
+                {/* Actions */}
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <button
+                        className="button"
+                        style={{ flex: 1, background: '#5b7bb3', color: '#fff', borderRadius: '8px', fontWeight: 'bold', letterSpacing: '0.5px', border: 'none', padding: '10px' }}
+                        onClick={() => setIsPlayerModalOpen(true)}
+                    >
                         Add Player
-                    </Button>
-
-                    <Button style={{background:"#ef4444", color:"#fff", flex:"1"}} onClick={handleDeleteGroup}>
+                    </button>
+                    <button
+                        className="button"
+                        style={{ flex: 1, background: '#e07070', color: '#fff', borderRadius: '8px', fontWeight: 'bold', letterSpacing: '0.5px', border: 'none', padding: '10px' }}
+                        onClick={handleDeleteGroup}
+                    >
                         Delete Group
-                    </Button>
+                    </button>
                 </div>
             </div>
         </>
