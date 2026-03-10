@@ -33,16 +33,16 @@ const theme = {
   navText: '#94a3b8',       // Navbar icons default
   navTextActive: '#ffffff', // Navbar icons active
   
-  // Rank progression — gold gradient
+  // Rank progression — distinct tiers
   rank: {
-    0: '#d4c5a0',  // Unranked — pale gold
-    1: '#c9a84c',  // Bronze — light gold
-    2: '#b8922e',  // Silver — medium gold
-    3: '#a67c00',  // Gold — rich gold
-    4: '#8b6914',  // Diamond — deep gold
+    0: '#b0b8c4',  // Unranked — silver
+    1: '#cd7f32',  // Bronze — copper
+    2: '#9b59b6',  // Amethyst — purple
+    3: '#f0c832',  // Gold — bright gold
+    4: '#a8b4d4',  // Platinum — diamond
   },
-  rankDefault: '#d4c5a0',
-  rankAccent: '#a67c00',
+  rankDefault: '#b0b8c4',
+  rankAccent: '#f0c832',
 };
 
 export default theme;

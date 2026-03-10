@@ -16,27 +16,27 @@ const shapeStyles = {
 };
 
 const rankColors = {
-    0: '#d4c5a0', 
-    1: '#c9a84c', 
-    2: '#b8922e', 
-    3: '#a67c00', 
-    4: '#8b6914', 
+    0: '#b0b8c4', 
+    1: '#cd7f32', 
+    2: '#9b59b6', 
+    3: '#f0c832', 
+    4: '#a8b4d4', 
 };
 
 const rankGradients = {
-    0: 'linear-gradient(135deg, #d4c5a0, #c2b48e)',
-    1: 'linear-gradient(135deg, #e0c35a, #c9a84c, #b8922e)',
-    2: 'linear-gradient(135deg, #d4ab3a, #b8922e, #a67c00)',
-    3: 'linear-gradient(135deg, #d4a017, #a67c00, #8b6914)',
-    4: 'linear-gradient(135deg, #c9a84c, #8b6914, #6b5010, #8b6914, #c9a84c)',
+    0: 'linear-gradient(135deg, #c0c8d4, #b0b8c4, #a0a8b4)',
+    1: 'linear-gradient(135deg, #e0944a, #cd7f32, #b06a28)',
+    2: 'linear-gradient(135deg, #b06ec8, #9b59b6, #8344a0)',
+    3: 'linear-gradient(135deg, #f5dc78, #f0c832, #d4a017)',
+    4: 'linear-gradient(135deg, #c8d0e8, #a8b4d4, #8898c0, #a8b4d4, #c8d0e8)',
 };
 
 const rankGlow = {
     0: 'none',
-    1: '0 0 4px rgba(201, 168, 76, 0.3)',
-    2: '0 0 6px rgba(184, 146, 46, 0.4)',
-    3: '0 0 8px rgba(166, 124, 0, 0.5), 0 0 16px rgba(166, 124, 0, 0.2)',
-    4: '0 0 10px rgba(139, 105, 20, 0.6), 0 0 20px rgba(201, 168, 76, 0.3), 0 0 30px rgba(139, 105, 20, 0.15)',
+    1: '0 0 6px rgba(205, 127, 50, 0.4)',
+    2: '0 0 8px rgba(155, 89, 182, 0.5), 0 0 16px rgba(155, 89, 182, 0.2)',
+    3: '0 0 10px rgba(240, 200, 50, 0.5), 0 0 20px rgba(240, 200, 50, 0.25)',
+    4: '0 0 12px rgba(136, 152, 192, 0.6), 0 0 24px rgba(168, 180, 212, 0.3), 0 0 36px rgba(136, 152, 192, 0.2)',
 };
 
 

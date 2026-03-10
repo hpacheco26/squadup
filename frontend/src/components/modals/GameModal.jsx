@@ -82,42 +82,69 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
         <div className={`modal ${isOpen ? 'is-active' : ''}`} style={{ zIndex: 100 }}>
             <div className="modal-background" onClick={() => setIsOpen(false)}></div>
             <div className="modal-card p-2">
-                <header className="modal-card-head" style={{minHeight:"50px"}}>
-                    <p className="modal-card-title">{isEditMode ? 'Game Settings' : 'Create Game'}</p>
+                <header className="modal-card-head" style={{ minHeight: "50px", background: '#fff', borderBottom: '1px solid #e2e8f0' }}>
+                    <p className="modal-card-title" style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{isEditMode ? 'Game Settings' : 'Create Game'}</p>
                     <button className="delete" aria-label="close" onClick={() => setIsOpen(false)}></button>
                 </header>
-                <section className="modal-card-body">
-                    <div className="field" style={{ display:"flex", gap:"10px" }}>
-                        <input className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-                        <input className="input" type="time" value={time} onChange={(e) => setTime(e.target.value)} />
-                    </div>
-                    <div className="field">
-                        <label className="label">Location</label>
-                        <div className="control">
-                            <input className="input" type="text" placeholder="Enter location" value={location} onChange={(e) => setLocation(e.target.value)} />
+                <section className="modal-card-body" style={{ padding: '20px' }}>
+                    {/* Date & Time */}
+                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>When</label>
+                    <div className="field" style={{ display: "flex", gap: "10px", marginBottom: '16px' }}>
+                        <div className="control" style={{ flex: 1 }}>
+                            <input className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ borderRadius: '8px' }} />
+                        </div>
+                        <div className="control" style={{ flex: 1 }}>
+                            <input className="input" type="time" value={time} onChange={(e) => setTime(e.target.value)} style={{ borderRadius: '8px' }} />
                         </div>
                     </div>
 
-                    <label className="label">Players</label>
-                    <div className="field"  style={{ display:"flex", gap:"10px" }}>
-                        <input className="input" type="number" min="1" value={minPlayers} onChange={(e) => setMinPlayers(e.target.value)} placeholder='min'/>
-                        <div style={{alignSelf: "center"}}>to</div>
-                        <input className="input" type="number" min="1" value={maxPlayers} onChange={(e) => setMaxPlayers(e.target.value)} placeholder='max' />
+                    {/* Location */}
+                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Location</label>
+                    <div className="field" style={{ marginBottom: '16px' }}>
+                        <div className="control">
+                            <input className="input" type="text" placeholder="e.g. Urban Soccer, Field 3" value={location} onChange={(e) => setLocation(e.target.value)} style={{ borderRadius: '8px' }} />
+                        </div>
                     </div>
-                    <div className="field" >
-                        <label className="label">Sub Time</label>
-                        <input className="input" type="number" min="1" value={subTime} onChange={(e) => setSubTime(e.target.value)} />
+
+                    {/* Player Count */}
+                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Players</label>
+                    <div className="field" style={{ display: "flex", gap: "10px", alignItems: 'center', marginBottom: '16px' }}>
+                        <div className="control" style={{ flex: 1 }}>
+                            <input className="input has-text-centered" type="number" min="1" value={minPlayers} onChange={(e) => setMinPlayers(e.target.value)} placeholder="min" style={{ borderRadius: '8px' }} />
+                        </div>
+                        <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>to</span>
+                        <div className="control" style={{ flex: 1 }}>
+                            <input className="input has-text-centered" type="number" min="1" value={maxPlayers} onChange={(e) => setMaxPlayers(e.target.value)} placeholder="max" style={{ borderRadius: '8px' }} />
+                        </div>
+                    </div>
+
+                    {/* Sub Time */}
+                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Sub Timer (minutes)</label>
+                    <div className="field">
+                        <div className="control">
+                            <input className="input has-text-centered" type="number" min="1" value={subTime} onChange={(e) => setSubTime(e.target.value)} style={{ borderRadius: '8px', maxWidth: '120px' }} />
+                        </div>
                     </div>
                 </section>
-                <footer className="modal-card-foot" style={{ minHeight: "50px", display: "flex", flexDirection: "column", gap: "10px" }}>
-                    <button className="button is-fullwidth" style={{ maxWidth: '100%', background: "#5b7bb3", color: "#fff" }} onClick={handleSubmit} disabled={loading}>
-                        {loading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Game' : 'Create Game')}
-                    </button>
+                <footer className="modal-card-foot" style={{ minHeight: "50px", display: "flex", gap: "10px", background: '#fff', borderTop: '1px solid #e2e8f0', padding: '16px 20px' }}>
                     {isEditMode && (
-                        <button className="button is-fullwidth is-danger is-outlined" style={{ maxWidth: '100%' }} onClick={handleCancelGame} disabled={loading}>
+                        <button
+                            className="button"
+                            style={{ flex: 1, borderRadius: '8px', fontWeight: 'bold', background: '#e07070', color: '#fff', border: 'none' }}
+                            onClick={handleCancelGame}
+                            disabled={loading}
+                        >
                             Cancel Game
                         </button>
                     )}
+                    <button
+                        className="button"
+                        style={{ flex: 1, background: "#5b7bb3", color: "#fff", borderRadius: '8px', fontWeight: 'bold', letterSpacing: '0.5px', border: 'none' }}
+                        onClick={handleSubmit}
+                        disabled={loading}
+                    >
+                        {loading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Game' : 'Create Game')}
+                    </button>
                 </footer>
             </div>
         </div>,
