@@ -24,23 +24,19 @@ function GroupsPage() {
     return (
         <>
         <SquadsHeaderBar />
-            <div className="container p-4">
-                <div className="columns is-multiline">
+            <div className="p-4" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {groups.length > 0 ? (
                         groups.map((group) => (
                             <div
-                                className="column is-one-third"
-                                key={group.id} // Ensure this is unique for each group
-                                onClick={() => navigate(`/groups/${group.id}`)} // Using groupId for navigation
+                                key={group.id}
+                                onClick={() => navigate(`/groups/${group.id}`)}
                             >
                                 <GroupCard name={group.name} sport={group.sport} rank={getGroupRank(group, user.uid)} />
-                                
                             </div>
                         ))
                     ) : (
                         <p>No groups available.</p>
                     )}
-                </div>
 
                 {/* Group Creation Modal */}
                 <CreateGroupModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} />

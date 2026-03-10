@@ -1,12 +1,12 @@
-import axios from 'axios';
+import api from './axiosInstance';
 
-const API_URL = 'http://localhost:3000/api/players';
+const API_URL = `${import.meta.env.VITE_API_URL}/players`;
 
 const PlayerService = {
     // Fetch all players
     getAllPlayers: async () => {
         try {
-            const response = await axios.get(API_URL);
+            const response = await api.get(API_URL);
             return response.data;
         } catch (error) {
             console.error('Error fetching players:', error);
@@ -17,7 +17,7 @@ const PlayerService = {
     // Fetch a player by ID
     getPlayerById: async (id) => {
         try {
-            const response = await axios.get(`${API_URL}/${id}`);
+            const response = await api.get(`${API_URL}/${id}`);
             return response.data;
         } catch (error) {
             console.error('Error fetching player:', error);
@@ -28,7 +28,7 @@ const PlayerService = {
     // Fetch a player by userId
     getPlayerByUserId: async (userId) => {
         try {
-            const response = await axios.get(`${API_URL}/user/${userId}`);
+            const response = await api.get(`${API_URL}/user/${userId}`);
             return response.data;
         } catch (error) {
             console.error('Error fetching player by userId:', error);
@@ -39,7 +39,7 @@ const PlayerService = {
     // Create a new player
     createPlayer: async (playerData) => {
         try {
-            const response = await axios.post(API_URL, playerData);
+            const response = await api.post(API_URL, playerData);
             return response.data;
         } catch (error) {
             console.error('Error creating player:', error);
@@ -50,7 +50,7 @@ const PlayerService = {
     // Check if a player exists by userId
     checkPlayerExists: async (userId) => {
         try {
-            const response = await axios.get(`${API_URL}/user/${userId}`);
+            const response = await api.get(`${API_URL}/user/${userId}`);
             return !!response.data; // Returns true if player exists, false otherwise
         } catch (error) {
             if (error.response && error.response.status === 404) {
@@ -64,7 +64,7 @@ const PlayerService = {
     // Update player details
     updatePlayer: async (id, updatedData) => {
         try {
-            const response = await axios.put(`${API_URL}/${id}`, updatedData);
+            const response = await api.put(`${API_URL}/${id}`, updatedData);
             return response.data;
         } catch (error) {
             console.error('Error updating player:', error);
@@ -75,7 +75,7 @@ const PlayerService = {
     // Delete a player
     deletePlayer: async (id) => {
         try {
-            await axios.delete(`${API_URL}/${id}`);
+            await api.delete(`${API_URL}/${id}`);
         } catch (error) {
             console.error('Error deleting player:', error);
             throw error;

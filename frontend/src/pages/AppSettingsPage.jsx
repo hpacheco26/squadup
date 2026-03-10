@@ -3,12 +3,12 @@ import useAuthStore from '../store/authStore'; // Import auth store
 import { useNavigate } from 'react-router-dom';
 
 function AppSettingsPage() {
-    const { user, updateUser, logout } = useAuthStore(); // Get user & logout function
+    const { user, playerData, updateUser, logout } = useAuthStore();
     const navigate = useNavigate();
 
     // Local state for form fields
-    const [firstName, setFirstName] = useState(user?.firstName || '');
-    const [lastName, setLastName] = useState(user?.lastName || '');
+    const [firstName, setFirstName] = useState(playerData?.firstName || '');
+    const [lastName, setLastName] = useState(playerData?.lastName || '');
 
     // Handle form submission
     const handleSubmit = (e) => {

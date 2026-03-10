@@ -147,9 +147,10 @@ const styles = {
         fontFamily: 'Racing Sans One, sans-serif',
         fontSize: "30px",
         fontWeight: "bold",
-        position: "fixed",
+        position: "absolute",
         right: "15px",
-        top: "10px",
+        top: "50%",
+        transform: "translateY(-50%)",
     },
 
     leftSide: {

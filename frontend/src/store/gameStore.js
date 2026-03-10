@@ -11,7 +11,7 @@ const useGameStore = create((set) => ({
     fetchGames: async () => {
         set({ loading: true, error: null });
         try {
-            const games = await GameService.getAllGames();
+            const games = await GameService.getGames();
             set({ games, loading: false });
         } catch (error) {
             set({ error: error.message, loading: false });
@@ -110,11 +110,14 @@ const useGameStore = create((set) => ({
             };
         });
 
-        await GameService.updateGame(gameId, {
-            playersIn: updatedPlayersIn,
-            playersOut: updatedPlayersOut,
-            playersInvited: updatedPlayersInvited
-        });
+        const { game } = useGameStore.getState();
+        if (game) {
+            await GameService.updateGame(gameId, {
+                playersIn: game.playersIn,
+                playersOut: game.playersOut,
+                playersInvited: game.playersInvited
+            });
+        }
     },
 
     handlePlayerOut: async (gameId, playerId) => {
@@ -142,11 +145,14 @@ const useGameStore = create((set) => ({
             };
         });
 
-        await GameService.updateGame(gameId, {
-            playersIn: updatedPlayersIn,
-            playersInvited: updatedPlayersInvited,
-            playersOut: updatedPlayersOut
-        });
+        const { game } = useGameStore.getState();
+        if (game) {
+            await GameService.updateGame(gameId, {
+                playersIn: game.playersIn,
+                playersInvited: game.playersInvited,
+                playersOut: game.playersOut
+            });
+        }
     },
 
 }));

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Columns, Card } from 'react-bulma-components';
+import { Card } from 'react-bulma-components';
 import { useParams } from 'react-router-dom';
 import { balanceTeams } from '../utils/teamBalancer';
 import useGameStore from '../store/gameStore'; 
@@ -52,39 +52,33 @@ const GamePage = () => {
     return (
         <>
             <GameHeaderBar gameId={gameId} />
-            <div className="container p-6">
-                <div className="columns is-centered">
-                    <Columns.Column size={4} className="has-text-centered">
-                        <SubTimer team1={team1} team2={team2} onSubstitution={handleSubstitution} /> {/* Correct the function prop */}
-                    </Columns.Column>
-                    <Columns.Column size={2} className="has-text-centered">
-                        <EndGame team1={team1} team2={team2} /> {/* Add EndGame Button */}
-                    </Columns.Column>
+            <div className="p-4" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', alignItems: 'center' }}>
+                    <div style={{ flex: 1, textAlign: 'center' }}>
+                        <SubTimer team1={team1} team2={team2} onSubstitution={handleSubstitution} />
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                        <EndGame team1={team1} team2={team2} />
+                    </div>
                 </div>
 
-                <section className="section">
-                    <div className="columns is-multiline">
-                        {/* Team 1 */}
-                        <Columns.Column size={6}>
-                            <Card>
-                                <Card.Content>
-                                    <h2 className="title is-4">Team 1</h2>
-                                    <TeamList team={team1} />  {/* Render Team 1 with statuses */}
-                                </Card.Content>
-                            </Card>
-                        </Columns.Column>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {/* Team 1 */}
+                    <Card>
+                        <Card.Content>
+                            <h2 className="title is-4">Team 1</h2>
+                            <TeamList team={team1} />
+                        </Card.Content>
+                    </Card>
 
-                        {/* Team 2 */}
-                        <Columns.Column size={6}>
-                            <Card>
-                                <Card.Content>
-                                    <h2 className="title is-4">Team 2</h2>
-                                    <TeamList team={team2} />  {/* Render Team 2 with statuses */}
-                                </Card.Content>
-                            </Card>
-                        </Columns.Column>
-                    </div>
-                </section>
+                    {/* Team 2 */}
+                    <Card>
+                        <Card.Content>
+                            <h2 className="title is-4">Team 2</h2>
+                            <TeamList team={team2} />
+                        </Card.Content>
+                    </Card>
+                </div>
             </div>
         </>
     );

@@ -52,7 +52,7 @@ class Game {
             location: this.location,
             maxPlayers: this.maxPlayers,
             minPlayers: this.minPlayers,
-            invitedPlayers: this.invitedPlayers,
+            playersInvited: this.playersInvited,
             playersIn: this.playersIn,
             playersOut: this.playersOut,
             subTime: this.subTime,

@@ -129,6 +129,22 @@ const useAuthStore = create((set) => ({
             console.error("Logout Error:", error);
         }
     },
+
+    // 🔹 Update user profile (first/last name)
+    updateUser: async (updates) => {
+        try {
+            const { playerData } = useAuthStore.getState();
+            if (!playerData) return;
+
+            const updatedPlayer = { ...playerData, ...updates };
+            await PlayerService.updatePlayer(playerData.id, updates);
+
+            set({ playerData: updatedPlayer });
+            localStorage.setItem('playerData', JSON.stringify(updatedPlayer));
+        } catch (error) {
+            console.error("Update User Error:", error);
+        }
+    },
 }));
 
 export default useAuthStore;

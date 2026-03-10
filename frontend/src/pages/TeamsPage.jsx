@@ -1,61 +1,48 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Button, Columns, Card } from 'react-bulma-components';
-import PlayersList from '../components/lists/PlayersList';
-import { useNavigate } from 'react-router-dom';
+import { Columns } from 'react-bulma-components';
+import TeamList from '../components/lists/TeamList';
 import useGameStore from '../store/gameStore';
-import useGroupStore from '../store/groupStore';
-import useAuthStore from '../store/authStore'; // Assuming there's an auth store to get user info
 import GameHeaderBar from '../components/bars/GameHeaderBar';
 
 const TeamsPage = () => {
+    const { gameId } = useParams();
+    const { game, fetchGameById, loading } = useGameStore();
 
+    useEffect(() => {
+        if (gameId) {
+            fetchGameById(gameId);
+        }
+    }, [gameId, fetchGameById]);
 
-    const handleTeamSelectA = async (playerId) => {
-        
-    };
+    if (loading || !game) {
+        return <p>Loading teams...</p>;
+    }
 
-    const handleTeamSelectB = async (playerId) => {
-        
-    };
-
+    const teamA = game.teamA || [];
+    const teamB = game.teamB || [];
+    const invited = game.playersInvited || [];
 
     return (
         <>
             <GameHeaderBar gameId={gameId} />
             <div className="container p-2" style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
                 <Columns.Column size={4} style={{ padding: '0px'}}>
-                    <PlayersList 
-                        players={teamA}
-                        onSelectTeamB={handleSelectTeamB}
-                        statusLabel="Team A"
-                        user={user}
-                        isAdmin={game.adminId === user.id}
-                    />
+                    <h3 className="title is-5">Team A</h3>
+                    <TeamList team={teamA} />
                 </Columns.Column>
 
                 <Columns.Column size={4} style={{ padding: '0px'}}>
-                    <PlayersList
-                        players={teamB}
-                        onSelectTeamA={handleSelectTeamA}
-                        statusLabel="Team B"
-                        user={user}
-                        isAdmin={game.adminId === user.id}
-                    />
+                    <h3 className="title is-5">Team B</h3>
+                    <TeamList team={teamB} />
                 </Columns.Column>
 
-                <Columns.Column size={4} style={{ padding: '0px'}}>
-                    <PlayersList
-                        players={invited}
-                        onSelectTeamA={handleSelectTeamA}
-                        onSelectTeamB={handleSelectTeamB}
-                        statusLabel="?"
-                        user={user}
-                        isAdmin={game.adminId === user.id}
-                        
-                    />
-                </Columns.Column>
-
+                {invited.length > 0 && (
+                    <Columns.Column size={4} style={{ padding: '0px'}}>
+                        <h3 className="title is-5">Unassigned</h3>
+                        <TeamList team={invited} />
+                    </Columns.Column>
+                )}
             </div>
         </>
     );

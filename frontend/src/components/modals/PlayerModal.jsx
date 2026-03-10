@@ -19,7 +19,7 @@ function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
     const handleSubmit = () => {
 
         const newPlayer = {
-            id: Date.now(),
+            id: crypto.randomUUID(),
             firstName,
             lastName,
             rank,
@@ -39,7 +39,7 @@ function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
     return (
         <div className={`modal ${isOpen ? 'is-active' : ''}`}>
             <div className="modal-background" onClick={() => setIsOpen(false)}></div>
-            <div className="modal-card">
+            <div className="modal-card p-2">
                 <header className="modal-card-head">
                     <p className="modal-card-title">Add Player</p>
                     <button className="delete" aria-label="close" onClick={() => setIsOpen(false)}></button>

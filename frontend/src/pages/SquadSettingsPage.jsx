@@ -27,12 +27,12 @@ function SquadSettingsPage() {
         }
     }, [group]);
 
-    // const handleUpdateGroup = () => {
-    //     if (groupName.trim()) {
-    //         updateGroup(group.id, { ...group, name: groupName });
-    //         navigate(`/groups/${group.id}`);
-    //     }
-    // };
+    const handleUpdateGroup = () => {
+        if (groupName.trim()) {
+            updateGroup(group.id, { ...group, name: groupName });
+            navigate(`/groups/${group.id}`);
+        }
+    };
 
     const handleDeleteGroup = () => {
         deleteGroup(group.id);
@@ -61,7 +61,7 @@ function SquadSettingsPage() {
                 navigate={navigate} 
             />
             
-            <div className="container p-4" style={{display: "flex", flexDirection: "column", height: "calc(100vh - 120px" }}>
+            <div className="container p-4" style={{display: "flex", flexDirection: "column", height: "calc(100vh - 120px)" }}>
                 {/* Group Name Input */}
                 <div className="field" style={{height: "100px", borderBottom: "2px solid #e2e8f0"}} >
                     {/* <label className="label">Group Name</label> */}

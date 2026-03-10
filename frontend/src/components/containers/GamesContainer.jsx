@@ -16,15 +16,14 @@ const GamesContainer = ({ games }) => {
       {games.length === 0 ? (
         <p className="has-text-centered has-text-grey">No games scheduled</p>
       ) : (
-        <div className="columns is-multiline">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {games.map((game) => (
             <div
-              className="column is-one-third"
               key={game.id}
               onClick={() => handleGameClick(game.id)}
-              onMouseEnter={() => handleMouseEnter(game.id)}  // Pass game ID to the hover effect
+              onMouseEnter={() => handleMouseEnter(game.id)}
               onMouseLeave={handleMouseLeave}
-              style={getStyle(game.id)}  // Apply dynamic hover style based on hoveredId
+              style={getStyle(game.id)}
             >
               <GameCard game={game} />
             </div>

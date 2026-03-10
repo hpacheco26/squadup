@@ -24,7 +24,7 @@ function GroupPage() {
     return (
         <>
             <SquadHeaderBar />
-            <div className="container p-4" style={{ maxHeight: "100vh", overflowY: "auto" }}>
+            <div className="p-4" style={{ maxHeight: "100vh", overflowY: "auto" }}>
                 {/* Create Game Modal */}
                 <GameModal 
                     isOpen={isGameCreateModalOpen} 

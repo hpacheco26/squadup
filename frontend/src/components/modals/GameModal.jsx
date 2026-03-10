@@ -52,7 +52,7 @@ function GameModal({ isOpen, setIsOpen, group }) {
         <div className={`modal ${isOpen ? 'is-active' : ''}`} >
             <div className="modal-background" onClick={() => setIsOpen(false)}></div>
             <div className="modal-card p-2">
-                <header className="modal-card-head" style={{height:"50px"}}>
+                <header className="modal-card-head" style={{minHeight:"50px"}}>
                     <p className="modal-card-title">Create Game</p>
                     <button className="delete" aria-label="close" onClick={() => setIsOpen(false)}></button>
                 </header>
@@ -91,7 +91,7 @@ function GameModal({ isOpen, setIsOpen, group }) {
                         <input className="input" type="number" min="1" value={subTime} onChange={(e) => setSubTime(e.target.value)} />
                     </div>
                 </section>
-                <footer className="modal-card-foot is-flex is-justify-content-space-around" style={{height:"50px"}}>
+                <footer className="modal-card-foot is-flex is-justify-content-space-around" style={{minHeight:"50px"}}>
                     <button className="button is-fullwidth" style={{ maxWidth: '100%',background:"#0d9488", color:"#fff" }} onClick={handleSubmit} disabled={loading}>
                         {loading ? 'Creating...' : 'Create Game'}
                     </button>

@@ -27,8 +27,8 @@ const TeamList = ({ team }) => {
                 onClick={handleToggle}
                 style={{
                     position: 'absolute',
-                    top: -50,
-                    right: -10,
+                    top: 0,
+                    right: 0,
                     fontSize: '18px',
                     padding: '5px',
                 }}
@@ -38,7 +38,7 @@ const TeamList = ({ team }) => {
 
             {/* Render Players */}
             {displayedPlayers.map((player, index) => (
-                <div key={index} style={{ alignItems: 'center', marginBottom: '10px' }}>
+                <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                     <PlayerCardMini player={player} status={getPlayerStatus(index)} />
                 </div>
             ))}

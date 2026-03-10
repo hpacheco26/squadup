@@ -39,8 +39,8 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="container is-fluid">
-            <div className="columns is-centered">
+        <div className="container is-fluid" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%' }}>
+            <div className="columns is-centered" style={{ width: '100%' }}>
                 <div className="column is-half">
                     <div className="box">
                         <h2 className="title is-4 has-text-centered">Login</h2>
@@ -86,7 +86,7 @@ const LoginPage = () => {
                         </form>
 
                         {/* Google Login Button */}
-                        <div className="field">
+                        <div className="field mt-4">
                             <div className="control">
                                 <button
                                     className="button is-light is-fullwidth"

@@ -38,8 +38,8 @@ const PreGamePage = () => {
     return (
         <>
             <GameHeaderBar gameId={gameId} />
-            <div className="container p-2" style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
-                <Columns.Column size={4} style={{ padding: '0px'}}>
+            <div className="p-2" style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflowY: 'auto', gap: '12px' }}>
+                <div>
                     <PlayersList 
                         players={playersIn}
                         leftSwipe={handlePlayerOut}
@@ -47,9 +47,9 @@ const PreGamePage = () => {
                         user={user}
                         isAdmin={game.adminId === user.id}
                     />
-                </Columns.Column>
+                </div>
 
-                <Columns.Column size={4} style={{ padding: '0px'}}>
+                <div>
                     <PlayersList
                         players={playersOut}
                         rightSwipe={handlePlayerIn}
@@ -57,9 +57,9 @@ const PreGamePage = () => {
                         user={user}
                         isAdmin={game.adminId === user.id}
                     />
-                </Columns.Column>
+                </div>
 
-                <Columns.Column size={4} style={{ padding: '0px'}}>
+                <div>
                     <PlayersList
                         players={playersInvited}
                         rightSwipe={handlePlayerIn}
@@ -69,7 +69,7 @@ const PreGamePage = () => {
                         isAdmin={game.adminId === user.id}
                         
                     />
-                </Columns.Column>
+                </div>
 
             </div>
         </>
