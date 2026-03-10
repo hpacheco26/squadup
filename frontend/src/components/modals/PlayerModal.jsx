@@ -41,7 +41,7 @@ function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
             <div className="modal-background" onClick={() => setIsOpen(false)}></div>
             <div className="modal-card p-2">
                 <header className="modal-card-head" style={{ minHeight: '50px', background: '#fff', borderBottom: '1px solid #e2e8f0' }}>
-                    <p className="modal-card-title" style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>Add Player</p>
+                    <p className="modal-card-title" style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>New Player</p>
                     <button className="delete" aria-label="close" onClick={() => setIsOpen(false)}></button>
                 </header>
                 <section className="modal-card-body" style={{ padding: '20px' }}>

@@ -1,4 +1,5 @@
 import React from 'react';
+import logo from '../../assets/logo.png';
 
 
 
@@ -7,8 +8,8 @@ const HeaderBar = () => {
     
     return (
         <header style={styles.header}>
-            {/* App Name */}
-            <h1 style={styles.title}>SquadUp</h1>
+            {/* App Logo */}
+            <img src={logo} alt="SquadUp" style={styles.logo} />
             
            
         </header>
@@ -18,15 +19,14 @@ const HeaderBar = () => {
 const styles = {
     header: {
         display: 'flex',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         alignItems: 'center',
         padding: '10px',
         backgroundColor: '#ffffff',
         borderBottom: '1px solid #e2e8f0',
     },
-    title: {
-        fontSize: '1.5rem',
-        fontWeight: 'bold',
+    logo: {
+        height: '36px',
     },
     
 };

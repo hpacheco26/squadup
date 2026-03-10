@@ -35,7 +35,15 @@ function GroupsPage() {
                             </div>
                         ))
                     ) : (
-                        <p>No groups available.</p>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 20px' }}>
+                            <p style={{ color: '#94a3b8', fontSize: '0.95rem', marginBottom: '8px' }}>No groups yet</p>
+                            <button
+                                onClick={() => setIsModalOpen(true)}
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5b7bb3', fontSize: '1rem', fontWeight: '600', textDecoration: 'underline', padding: 0 }}
+                            >
+                                Create First Group
+                            </button>
+                        </div>
                     )}
 
                 {/* Group Creation Modal */}

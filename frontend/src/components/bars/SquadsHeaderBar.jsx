@@ -9,7 +9,7 @@ const SquadsHeaderBar = () => {
         <>
             <header style={styles.header}>
                 {/* App Name */}
-                <h1 style={styles.title}>Squads</h1>
+                <h1 style={styles.title}>Groups</h1>
                 
                 {/* New Group Button */}
                 <button 
@@ -45,6 +45,7 @@ const styles = {
         border: 'none',
         cursor: 'pointer',
         padding: '5px',
+        color: '#6b7280',
     }
 };
 

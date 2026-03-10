@@ -32,11 +32,11 @@ function AppSettingsPage() {
                 backgroundColor: '#ffffff',
                 borderBottom: '1px solid #e2e8f0',
             }}>
-                <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', display: 'flex', alignItems: 'center' }}>
+                <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', display: 'flex', alignItems: 'center', color: '#6b7280' }}>
                     <IoIosArrowBack size={24} />
                 </button>
                 <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>Settings</h1>
-                <button onClick={handleSave} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', display: 'flex', alignItems: 'center' }} aria-label="Save">
+                <button onClick={handleSave} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', display: 'flex', alignItems: 'center', color: '#6b7280' }} aria-label="Save">
                     <FiSave size={24} />
                 </button>
             </header>

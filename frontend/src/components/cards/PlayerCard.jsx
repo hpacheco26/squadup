@@ -55,12 +55,12 @@ function PlayerCard({ player, onRemovePlayer, onUpdatePlayer }) {
                         <h2 className="subtitle is-5" style={{ margin: '0px'}}>
                             {editedName}
                             {!isCollapsed && (
-                                <button  onClick={handleEditClick} className="ml-2" style={{fontSize:"15px", color:"gray"}}>
+                                <button  onClick={handleEditClick} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', fontSize: '15px', color: '#6b7280', marginLeft: '8px' }}>
                                     <FaEdit />
                                 </button>
                             )}
                         </h2>
-                        <button className='mr-2' onClick={toggleCollapse}>
+                        <button onClick={toggleCollapse} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', color: '#6b7280' }}>
                             {isCollapsed ? <FaChevronDown /> : <FaChevronUp />}
                         </button>
                     </>
@@ -111,7 +111,7 @@ function PlayerCard({ player, onRemovePlayer, onUpdatePlayer }) {
                                 </div>
                             </div>
 
-                            <button className="button" style={{background:"#ef4444", color:"#fff", zIndex: 1, position: "relative"}} onClick={handleRemove}>
+                            <button className="button" style={{ background: '#e07070', color: '#fff', borderRadius: '8px', fontWeight: 'bold', letterSpacing: '0.5px', border: 'none', padding: '8px 16px', zIndex: 1, position: 'relative' }} onClick={handleRemove}>
                                 Remove Player
                             </button>
 

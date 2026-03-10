@@ -115,6 +115,7 @@ const useAuthStore = create((set) => ({
             localStorage.setItem('playerData', JSON.stringify(playerData));
         } catch (error) {
             console.error("Signup Error:", error);
+            throw error;
         }
     },
 

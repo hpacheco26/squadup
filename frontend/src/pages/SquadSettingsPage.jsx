@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 import useGroupStore from '../store/groupStore';
 import PlayerCard from '../components/cards/PlayerCard';
 import PlayerModal from '../components/modals/PlayerModal';
@@ -77,9 +78,18 @@ function SquadSettingsPage() {
                 </div>
 
                 {/* Players */}
-                <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-                    Players ({(group.players ?? []).length})
-                </label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
+                        Players ({(group.players ?? []).length})
+                    </label>
+                    <button
+                        onClick={() => setIsPlayerModalOpen(true)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', color: '#6b7280', display: 'flex', alignItems: 'center' }}
+                        aria-label="Add Player"
+                    >
+                        <Plus size={20} />
+                    </button>
+                </div>
                 <div style={{ flex: 1, overflowY: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '8px', marginBottom: '16px' }}>
                     {(group.players ?? []).length === 0 ? (
                         <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px', fontSize: '0.9rem' }}>No players yet</p>
@@ -104,13 +114,6 @@ function SquadSettingsPage() {
 
                 {/* Actions */}
                 <div style={{ display: 'flex', gap: '12px' }}>
-                    <button
-                        className="button"
-                        style={{ flex: 1, background: '#5b7bb3', color: '#fff', borderRadius: '8px', fontWeight: 'bold', letterSpacing: '0.5px', border: 'none', padding: '10px' }}
-                        onClick={() => setIsPlayerModalOpen(true)}
-                    >
-                        Add Player
-                    </button>
                     <button
                         className="button"
                         style={{ flex: 1, background: '#e07070', color: '#fff', borderRadius: '8px', fontWeight: 'bold', letterSpacing: '0.5px', border: 'none', padding: '10px' }}

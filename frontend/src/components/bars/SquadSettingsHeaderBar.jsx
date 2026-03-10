@@ -49,6 +49,7 @@ const styles = {
         padding: '5px',
         display: 'flex',
         alignItems: 'center',
+        color: '#6b7280',
     },
     saveButton: {
         background: 'none',
@@ -57,6 +58,7 @@ const styles = {
         padding: '5px',
         display: 'flex',
         alignItems: 'center',
+        color: '#6b7280',
     },
 };
 

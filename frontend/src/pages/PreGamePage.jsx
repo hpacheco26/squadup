@@ -12,7 +12,7 @@ const PreGamePage = () => {
     const { gameId } = useParams();
     const navigate = useNavigate();
     const { game, fetchGameById, handlePlayerOut, handlePlayerIn } = useGameStore();
-    const { group } = useGroupStore();
+    const { group, fetchGroupById } = useGroupStore();
     const { user } = useAuthStore(); // Get logged-in user info
     const [playersIn, setPlayersIn] = useState([]);
     const [playersOut, setPlayersOut] = useState([]);
@@ -24,6 +24,13 @@ const PreGamePage = () => {
         };
         fetchGameData();
     }, [gameId, fetchGameById]);
+
+    // Ensure the correct group is loaded for the back button
+    useEffect(() => {
+        if (game?.groupId && game.groupId !== group?.id) {
+            fetchGroupById(game.groupId);
+        }
+    }, [game, group?.id, fetchGroupById]);
 
     useEffect(() => {
         if (game) {

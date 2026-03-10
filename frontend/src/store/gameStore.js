@@ -4,6 +4,7 @@ import GameService from '../api/gameService';
 const useGameStore = create((set) => ({
     games: [],
     game: null,
+    upcomingGames: [],
     loading: false,
     error: null,
 
@@ -62,6 +63,30 @@ const useGameStore = create((set) => ({
             set({ games: fetchedGames, loading: false });
         } catch (error) {
             set({ error: 'Failed to fetch games for this group', loading: false });
+        }
+    },
+
+    // Fetch upcoming games across all groups (skips if already loaded)
+    fetchUpcomingGames: async (groups) => {
+        if (useGameStore.getState().upcomingGames.length > 0) return;
+        if (!groups || groups.length === 0) return;
+        try {
+            const results = await Promise.all(
+                groups.map(group =>
+                    GameService.getGamesByGroup(group.id).then(games =>
+                        games.map(g => ({ ...g, groupName: group.name }))
+                    )
+                )
+            );
+            const allGames = results.flat();
+            allGames.sort((a, b) => {
+                const dateA = new Date(`${a.date}T${a.time || '00:00'}`);
+                const dateB = new Date(`${b.date}T${b.time || '00:00'}`);
+                return dateA - dateB;
+            });
+            set({ upcomingGames: allGames });
+        } catch (error) {
+            console.error('Failed to fetch upcoming games:', error);
         }
     },
 

@@ -52,7 +52,7 @@ export default function CreateGroupModal({ isOpen, setIsOpen }) {
                     <button className="delete" aria-label="close" onClick={() => setIsOpen(false)}></button>
                 </header>
                 <section className="modal-card-body" style={{ padding: '20px' }}>
-                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Squad Name</label>
+                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Group Name</label>
                     <div className="field" style={{ marginBottom: '16px' }}>
                         <div className="control">
                             <input

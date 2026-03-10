@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/authStore'; // Import the auth store
 import { FaGoogle } from 'react-icons/fa'; // Google icon
+import logo from '../assets/logo.png';
 
 const LoginPage = () => {
     const { login, loginWithGoogle } = useAuthStore(); // Get auth functions from the store
@@ -43,7 +44,9 @@ const LoginPage = () => {
             <div className="columns is-centered" style={{ width: '100%' }}>
                 <div className="column is-half">
                     <div className="box">
-                        <h2 className="title is-4 has-text-centered">Login</h2>
+                        <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                            <img src={logo} alt="SquadUp" style={{ height: '48px' }} />
+                        </div>
                         {error && <p className="has-text-danger">{error}</p>}
                         <form onSubmit={handleSubmit}>
                             <div className="field">
@@ -75,9 +78,10 @@ const LoginPage = () => {
                             <div className="field">
                                 <div className="control">
                                     <button
-                                        className={`button is-primary is-fullwidth ${loading ? 'is-loading' : ''}`}
+                                        className={`button is-fullwidth ${loading ? 'is-loading' : ''}`}
                                         type="submit"
                                         disabled={loading}
+                                        style={{ background: '#5b7bb3', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold' }}
                                     >
                                         Login
                                     </button>
