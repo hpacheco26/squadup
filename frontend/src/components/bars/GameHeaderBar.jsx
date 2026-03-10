@@ -18,6 +18,7 @@ const GameHeaderBar = ({ gameId }) => {
 
     // Active tab detection (ensures correct tab is highlighted)
     const isPreGameActive = location.pathname.includes(`/pregame/${gameId}`);
+    const isTeamsActive = location.pathname.includes(`/teams/${gameId}`);
     const isGameActive = location.pathname.includes(`/game/${gameId}`);
 
     return (
@@ -39,6 +40,15 @@ const GameHeaderBar = ({ gameId }) => {
                         }}
                     >
                         PreGame
+                    </button>
+                    <button 
+                        onClick={() => navigate(`/teams/${gameId}`)} 
+                        style={{ 
+                            ...styles.tab, 
+                            ...(isTeamsActive ? styles.activeTab : {}) 
+                        }}
+                    >
+                        Teams
                     </button>
                     <button 
                         onClick={() => navigate(`/game/${gameId}`)} 

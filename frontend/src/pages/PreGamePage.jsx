@@ -42,7 +42,7 @@ const PreGamePage = () => {
                 <div>
                     <PlayersList 
                         players={playersIn}
-                        leftSwipe={handlePlayerOut}
+                        leftSwipe={(playerId) => handlePlayerOut(gameId, playerId)}
                         statusLabel="IN"
                         user={user}
                         isAdmin={game.adminId === user.uid}
@@ -52,7 +52,7 @@ const PreGamePage = () => {
                 <div>
                     <PlayersList
                         players={playersOut}
-                        rightSwipe={handlePlayerIn}
+                        rightSwipe={(playerId) => handlePlayerIn(gameId, playerId)}
                         statusLabel="OUT"
                         user={user}
                         isAdmin={game.adminId === user.uid}
@@ -62,8 +62,8 @@ const PreGamePage = () => {
                 <div>
                     <PlayersList
                         players={playersInvited}
-                        rightSwipe={handlePlayerIn}
-                        leftSwipe={handlePlayerOut}
+                        rightSwipe={(playerId) => handlePlayerIn(gameId, playerId)}
+                        leftSwipe={(playerId) => handlePlayerOut(gameId, playerId)}
                         statusLabel="?"
                         user={user}
                         isAdmin={game.adminId === user.uid}

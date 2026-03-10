@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Card } from 'react-bulma-components';
 import { useParams } from 'react-router-dom';
 import { balanceTeams } from '../utils/teamBalancer';
 import useGameStore from '../store/gameStore'; 
-import TeamList from '../components/lists/TeamList';
 import SubTimer from '../components/SubTimer'; 
 import EndGame from '../components/EndGame';
 import GameHeaderBar from '../components/bars/GameHeaderBar';
@@ -60,24 +58,6 @@ const GamePage = () => {
                     <div style={{ textAlign: 'center' }}>
                         <EndGame team1={team1} team2={team2} />
                     </div>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {/* Team 1 */}
-                    <Card>
-                        <Card.Content>
-                            <h2 className="title is-4">Team 1</h2>
-                            <TeamList team={team1} />
-                        </Card.Content>
-                    </Card>
-
-                    {/* Team 2 */}
-                    <Card>
-                        <Card.Content>
-                            <h2 className="title is-4">Team 2</h2>
-                            <TeamList team={team2} />
-                        </Card.Content>
-                    </Card>
                 </div>
             </div>
         </>

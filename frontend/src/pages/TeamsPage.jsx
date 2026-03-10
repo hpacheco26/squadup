@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Columns } from 'react-bulma-components';
+import { Card } from 'react-bulma-components';
+import { balanceTeams } from '../utils/teamBalancer';
 import TeamList from '../components/lists/TeamList';
 import useGameStore from '../store/gameStore';
 import GameHeaderBar from '../components/bars/GameHeaderBar';
@@ -8,6 +9,8 @@ import GameHeaderBar from '../components/bars/GameHeaderBar';
 const TeamsPage = () => {
     const { gameId } = useParams();
     const { game, fetchGameById, loading } = useGameStore();
+    const [team1, setTeam1] = useState([]);
+    const [team2, setTeam2] = useState([]);
 
     useEffect(() => {
         if (gameId) {
@@ -15,34 +18,35 @@ const TeamsPage = () => {
         }
     }, [gameId, fetchGameById]);
 
+    useEffect(() => {
+        if (game?.playersIn?.length > 0) {
+            const { team1, team2 } = balanceTeams(game.playersIn);
+            setTeam1(team1);
+            setTeam2(team2);
+        }
+    }, [game]);
+
     if (loading || !game) {
         return <p>Loading teams...</p>;
     }
 
-    const teamA = game.teamA || [];
-    const teamB = game.teamB || [];
-    const invited = game.playersInvited || [];
-
     return (
         <>
             <GameHeaderBar gameId={gameId} />
-            <div className="container p-2" style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
-                <Columns.Column size={4} style={{ padding: '0px'}}>
-                    <h3 className="title is-5">Team A</h3>
-                    <TeamList team={teamA} />
-                </Columns.Column>
+            <div className="p-4" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <Card>
+                    <Card.Content>
+                        <h2 className="title is-4">Team 1</h2>
+                        <TeamList team={team1} />
+                    </Card.Content>
+                </Card>
 
-                <Columns.Column size={4} style={{ padding: '0px'}}>
-                    <h3 className="title is-5">Team B</h3>
-                    <TeamList team={teamB} />
-                </Columns.Column>
-
-                {invited.length > 0 && (
-                    <Columns.Column size={4} style={{ padding: '0px'}}>
-                        <h3 className="title is-5">Unassigned</h3>
-                        <TeamList team={invited} />
-                    </Columns.Column>
-                )}
+                <Card>
+                    <Card.Content>
+                        <h2 className="title is-4">Team 2</h2>
+                        <TeamList team={team2} />
+                    </Card.Content>
+                </Card>
             </div>
         </>
     );

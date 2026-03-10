@@ -9,6 +9,7 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import PregamePage from './pages/PreGamePage';
 import GamePage from './pages/GamePage';
+import TeamsPage from './pages/TeamsPage';
 import RankPage from './pages/RankPage.jsx';
 import AppSettingsPage from './pages/AppSettingsPage.jsx';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -40,6 +41,7 @@ function App() {
         <Route path="/groups/:id/settings" element={<ProtectedRoute><SquadSettingsPage /></ProtectedRoute>} /> 
         <Route path="/players" element={<ProtectedRoute><PlayersPage /></ProtectedRoute>} />
         <Route path="/pregame/:gameId" element={<ProtectedRoute><PregamePage /></ProtectedRoute>} />
+        <Route path="/teams/:gameId" element={<ProtectedRoute><TeamsPage /></ProtectedRoute>} />
         <Route path="/game/:gameId" element={<ProtectedRoute><GamePage /></ProtectedRoute>} />
         <Route path="/rank" element={<ProtectedRoute><RankPage /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><AppSettingsPage /></ProtectedRoute>} />
