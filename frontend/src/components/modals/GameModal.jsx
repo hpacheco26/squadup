@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
+import { useNavigate } from 'react-router-dom';
 import useGameStore from '../../store/gameStore';
 
-function GameModal({ isOpen, setIsOpen, group }) {
+function GameModal({ isOpen, setIsOpen, group, game }) {
     const [date, setDate] = useState('');
     const [time, setTime] = useState('');
     const [location, setLocation] = useState('');
@@ -11,49 +13,77 @@ function GameModal({ isOpen, setIsOpen, group }) {
     const [invitedPlayers, setInvitedPlayers] = useState(group?.players || []);
     const [groupId, setGroupId] = useState('');
 
-    const { createGame, loading } = useGameStore(); // Zustand store for game actions
+    const { createGame, updateGame, deleteGame, loading } = useGameStore();
+    const navigate = useNavigate();
+
+    const isEditMode = !!game;
 
     useEffect(() => {
         if (isOpen) {
-            setDate('');
-            setTime('');
-            setLocation('');
-            setMaxPlayers(12);
-            setMinPlayers(10);
-            setSubTime(5);
-            setInvitedPlayers(group?.players || []);
-            setGroupId(group?.id || '');
+            if (isEditMode) {
+                setDate(game.date || '');
+                setTime(game.time || '');
+                setLocation(game.location || '');
+                setMaxPlayers(game.maxPlayers || 10);
+                setMinPlayers(game.minPlayers || 5);
+                setSubTime(game.subTime || 5);
+                setInvitedPlayers(game.playersInvited || []);
+                setGroupId(game.groupId || group?.id || '');
+            } else {
+                setDate('');
+                setTime('');
+                setLocation('');
+                setMaxPlayers(12);
+                setMinPlayers(10);
+                setSubTime(5);
+                setInvitedPlayers(group?.players || []);
+                setGroupId(group?.id || '');
+            }
         }
-    }, [isOpen, group]);
+    }, [isOpen, group, game, isEditMode]);
 
     const handleSubmit = async () => {
-        const newGame = {
-            status: 'open',
+        const gameData = {
+            status: isEditMode ? game.status : 'open',
             date,
             time,
             location,
             maxPlayers,
             minPlayers,
             playersInvited: invitedPlayers,
-            playersIn: [],
-            playersOut: [],
-            teamA:[],
-            teamB:[],
+            playersIn: isEditMode ? game.playersIn : [],
+            playersOut: isEditMode ? game.playersOut : [],
+            teamA: isEditMode ? game.teamA : [],
+            teamB: isEditMode ? game.teamB : [],
             subTime,
             groupId
         };
 
-        await createGame(newGame); // Store handles game creation
+        if (isEditMode) {
+            await updateGame(game.id, gameData);
+        } else {
+            await createGame(gameData);
+        }
 
         setIsOpen(false);
     };
 
-    return (
-        <div className={`modal ${isOpen ? 'is-active' : ''}`} >
+    const handleCancelGame = async () => {
+        if (!game) return;
+        const gameGroupId = game.groupId || group?.id;
+        await deleteGame(game.id);
+        setIsOpen(false);
+        if (gameGroupId) {
+            navigate(`/groups/${gameGroupId}`);
+        }
+    };
+
+    return ReactDOM.createPortal(
+        <div className={`modal ${isOpen ? 'is-active' : ''}`} style={{ zIndex: 100 }}>
             <div className="modal-background" onClick={() => setIsOpen(false)}></div>
             <div className="modal-card p-2">
                 <header className="modal-card-head" style={{minHeight:"50px"}}>
-                    <p className="modal-card-title">Create Game</p>
+                    <p className="modal-card-title">{isEditMode ? 'Game Settings' : 'Create Game'}</p>
                     <button className="delete" aria-label="close" onClick={() => setIsOpen(false)}></button>
                 </header>
                 <section className="modal-card-body">
@@ -61,18 +91,6 @@ function GameModal({ isOpen, setIsOpen, group }) {
                         <input className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
                         <input className="input" type="time" value={time} onChange={(e) => setTime(e.target.value)} />
                     </div>
-                    {/* <div className="field">
-                        <label className="label">Date</label>
-                        <div className="control">
-                            <input className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-                        </div>
-                    </div>
-                    <div className="field">
-                        <label className="label">Time</label>
-                        <div className="control">
-                            <input className="input" type="time" value={time} onChange={(e) => setTime(e.target.value)} />
-                        </div>
-                    </div> */}
                     <div className="field">
                         <label className="label">Location</label>
                         <div className="control">
@@ -91,14 +109,19 @@ function GameModal({ isOpen, setIsOpen, group }) {
                         <input className="input" type="number" min="1" value={subTime} onChange={(e) => setSubTime(e.target.value)} />
                     </div>
                 </section>
-                <footer className="modal-card-foot is-flex is-justify-content-space-around" style={{minHeight:"50px"}}>
-                    <button className="button is-fullwidth" style={{ maxWidth: '100%',background:"#0d9488", color:"#fff" }} onClick={handleSubmit} disabled={loading}>
-                        {loading ? 'Creating...' : 'Create Game'}
+                <footer className="modal-card-foot" style={{ minHeight: "50px", display: "flex", flexDirection: "column", gap: "10px" }}>
+                    <button className="button is-fullwidth" style={{ maxWidth: '100%', background: "#0d9488", color: "#fff" }} onClick={handleSubmit} disabled={loading}>
+                        {loading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Game' : 'Create Game')}
                     </button>
-                   
+                    {isEditMode && (
+                        <button className="button is-fullwidth is-danger is-outlined" style={{ maxWidth: '100%' }} onClick={handleCancelGame} disabled={loading}>
+                            Cancel Game
+                        </button>
+                    )}
                 </footer>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
 

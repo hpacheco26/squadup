@@ -24,8 +24,8 @@ const GamePage = () => {
 
     // Balance teams when the game data is loaded
     useEffect(() => {
-        if (game?.goingPlayers?.length > 0) {
-            const { team1, team2 } = balanceTeams(game.goingPlayers);
+        if (game?.playersIn?.length > 0) {
+            const { team1, team2 } = balanceTeams(game.playersIn);
             setTeam1(team1);
             setTeam2(team2);
         }

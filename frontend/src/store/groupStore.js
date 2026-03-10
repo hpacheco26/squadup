@@ -45,12 +45,12 @@ const useGroupStore = create(
 
                     const ranks = groups.map(group => {
                         const player = group.players.find(p => p.id === playerId);
-                        const rank = {
+                        if (!player) return null;
+                        return {
                             groupName: group.name,
                             groupRank: player.rank,
                             groupStats: player.stats
-                        }
-                        return player ? rank : null;
+                        };
                     });
 
                     set({ groups, ranks });

@@ -3,11 +3,13 @@ import { FiSettings, FiArrowLeft } from "react-icons/fi";
 import { IoIosArrowBack } from "react-icons/io";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import useGroupStore from "../../store/groupStore";
+import useGameStore from "../../store/gameStore";
 import GameModal from "../modals/GameModal";
 
 const GameHeaderBar = ({ gameId }) => {
     const [isGameModalOpen, setIsGameModalOpen] = useState(false);
     const { group, updateGroup } = useGroupStore();
+    const { game } = useGameStore();
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -64,7 +66,7 @@ const GameHeaderBar = ({ gameId }) => {
                 isOpen={isGameModalOpen} 
                 setIsOpen={setIsGameModalOpen} 
                 group={group}
-                updateGroup={updateGroup} 
+                game={game}
             />
         </>
     );

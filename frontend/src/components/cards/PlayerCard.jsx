@@ -26,7 +26,9 @@ function PlayerCard({ player, onRemovePlayer, onUpdatePlayer }) {
 
     const handleNameBlur = () => {
         setIsEditing(false);
-        const [newFirstName, newLastName] = editedName.split(' ');
+        const nameParts = editedName.trim().split(' ');
+        const newFirstName = nameParts[0] || '';
+        const newLastName = nameParts.slice(1).join(' ') || '';
         if (onUpdatePlayer) {
             onUpdatePlayer(id, newFirstName, newLastName);
         }

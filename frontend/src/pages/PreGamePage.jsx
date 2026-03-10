@@ -45,7 +45,7 @@ const PreGamePage = () => {
                         leftSwipe={handlePlayerOut}
                         statusLabel="IN"
                         user={user}
-                        isAdmin={game.adminId === user.id}
+                        isAdmin={game.adminId === user.uid}
                     />
                 </div>
 
@@ -55,7 +55,7 @@ const PreGamePage = () => {
                         rightSwipe={handlePlayerIn}
                         statusLabel="OUT"
                         user={user}
-                        isAdmin={game.adminId === user.id}
+                        isAdmin={game.adminId === user.uid}
                     />
                 </div>
 
@@ -66,7 +66,7 @@ const PreGamePage = () => {
                         leftSwipe={handlePlayerOut}
                         statusLabel="?"
                         user={user}
-                        isAdmin={game.adminId === user.id}
+                        isAdmin={game.adminId === user.uid}
                         
                     />
                 </div>

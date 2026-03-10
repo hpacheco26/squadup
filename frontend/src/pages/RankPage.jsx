@@ -30,7 +30,7 @@ const RankPage = () => {
       />
 
       {/* Continue Button */}
-      <button className="button is-primary is-large" onClick={() => navigate(`/groups/${group.id}`)}>
+      <button className="button is-primary is-large" onClick={() => group?.id && navigate(`/groups/${group.id}`)}>
         Continue
       </button>
     </div>
