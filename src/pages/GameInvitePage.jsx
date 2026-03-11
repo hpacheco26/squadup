@@ -24,7 +24,7 @@ function GameInvitePage() {
                 }
                 const gameData = await GameService.getGameById(gameId);
                 if (!gameData) {
-                    setError('Game not found');
+                    setError('This game has ended or no longer exists.');
                     setLoading(false);
                     return;
                 }

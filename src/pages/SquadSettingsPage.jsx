@@ -20,6 +20,8 @@ function SquadSettingsPage() {
     const { user } = useAuthStore();
     const { createInvite } = useInviteStore();
 
+    const isAdmin = group?.adminId === user?.uid;
+
     // Subscribe to group for real-time updates
     useEffect(() => {
         const unsub = subscribeToGroup(id);
@@ -41,6 +43,13 @@ function SquadSettingsPage() {
 
     const handleDeleteGroup = () => {
         deleteGroup(group.id);
+        navigate('/groups');
+    };
+
+    const handleLeaveGroup = () => {
+        if (!group || !user) return;
+        const updatedPlayers = (group.players ?? []).filter(player => player.userId !== user.uid);
+        updateGroup(group.id, { ...group, players: updatedPlayers });
         navigate('/groups');
     };
 
@@ -93,33 +102,37 @@ function SquadSettingsPage() {
             />
             
             <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 120px)', padding: '20px' }}>
-                {/* Group Name */}
-                <div style={{ marginBottom: '20px' }}>
-                    <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-                        Group Name
-                    </label>
-                    <input
-                        className="input"
-                        type="text"
-                        placeholder="Enter group name"
-                        value={groupName}
-                        onChange={(e) => setGroupName(e.target.value)}
-                        style={{ borderRadius: '8px' }}
-                    />
-                </div>
+                {/* Group Name - admin only */}
+                {isAdmin && (
+                    <div style={{ marginBottom: '20px' }}>
+                        <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
+                            Group Name
+                        </label>
+                        <input
+                            className="input"
+                            type="text"
+                            placeholder="Enter group name"
+                            value={groupName}
+                            onChange={(e) => setGroupName(e.target.value)}
+                            style={{ borderRadius: '8px' }}
+                        />
+                    </div>
+                )}
 
                 {/* Players */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                     <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
                         Players ({(group.players ?? []).length})
                     </label>
-                    <button
-                        onClick={() => setIsPlayerModalOpen(true)}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', color: '#6b7280', display: 'flex', alignItems: 'center' }}
-                        aria-label="Add Player"
-                    >
-                        <Plus size={20} />
-                    </button>
+                    {isAdmin && (
+                        <button
+                            onClick={() => setIsPlayerModalOpen(true)}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', color: '#6b7280', display: 'flex', alignItems: 'center' }}
+                            aria-label="Add Player"
+                        >
+                            <Plus size={20} />
+                        </button>
+                    )}
                 </div>
                 <div style={{ flex: 1, overflowY: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '8px', marginBottom: '16px' }}>
                     {(group.players ?? []).length === 0 ? (
@@ -129,7 +142,7 @@ function SquadSettingsPage() {
                             <div style={{ padding: '4px 0' }} key={player.id}>
                                 <PlayerCard 
                                     player={player}
-                                    onRemovePlayer={handleRemovePlayer}
+                                    onRemovePlayer={isAdmin ? handleRemovePlayer : undefined}
                                 />
                             </div>
                         ))
@@ -143,56 +156,52 @@ function SquadSettingsPage() {
                     onAddPlayer={handleAddPlayer} 
                 />
 
-                {/* Invite Section */}
-                <div style={{ marginBottom: '16px' }}>
-                    <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-                        Invite Players
-                    </label>
-                    {!inviteLink ? (
-                        <button
-                            className="button"
-                            style={{ width: '100%', background: '#5b7bb3', color: '#fff', borderRadius: '8px', fontWeight: 'bold', border: 'none', padding: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                            onClick={handleGenerateInvite}
-                        >
-                            <Link size={16} /> Generate Invite Link
-                        </button>
-                    ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <div style={{ display: 'flex', gap: '8px' }}>
-                                <input
-                                    className="input"
-                                    type="text"
-                                    value={inviteLink}
-                                    readOnly
-                                    style={{ borderRadius: '8px', flex: 1, fontSize: '0.85rem' }}
-                                />
+                {/* Bottom actions - always visible, side by side */}
+                <div style={{ flexShrink: 0, display: 'flex', gap: '12px' }}>
+                    {isAdmin ? (
+                        <>
+                            {!inviteLink ? (
                                 <button
-                                    style={{ background: 'none', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                                    onClick={handleCopyLink}
+                                    className="button"
+                                    style={{ flex: 1, background: '#5b7bb3', color: '#fff', borderRadius: '8px', fontWeight: 'bold', border: 'none', padding: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                    onClick={handleGenerateInvite}
                                 >
-                                    {copied ? <Check size={16} color="#16a34a" /> : <Copy size={16} />}
+                                    <Link size={16} /> Invite
                                 </button>
-                            </div>
+                            ) : (
+                                <>
+                                    <button
+                                        style={{ flex: 1, background: 'none', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontWeight: 'bold', color: '#64748b' }}
+                                        onClick={handleCopyLink}
+                                    >
+                                        {copied ? <Check size={16} color="#16a34a" /> : <Copy size={16} />} {copied ? 'Copied' : 'Copy'}
+                                    </button>
+                                    <button
+                                        className="button"
+                                        style={{ flex: 1, background: '#4CAF7D', color: '#fff', borderRadius: '8px', fontWeight: 'bold', border: 'none', padding: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                        onClick={handleShareWhatsApp}
+                                    >
+                                        <Share2 size={16} /> WhatsApp
+                                    </button>
+                                </>
+                            )}
                             <button
                                 className="button"
-                                style={{ width: '100%', background: '#4CAF7D', color: '#fff', borderRadius: '8px', fontWeight: 'bold', border: 'none', padding: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                                onClick={handleShareWhatsApp}
+                                style={{ flex: 1, background: '#e07070', color: '#fff', borderRadius: '8px', fontWeight: 'bold', letterSpacing: '0.5px', border: 'none', padding: '10px' }}
+                                onClick={handleDeleteGroup}
                             >
-                                <Share2 size={16} /> Share via WhatsApp
+                                Delete
                             </button>
-                        </div>
+                        </>
+                    ) : (
+                        <button
+                            className="button"
+                            style={{ flex: 1, background: '#e07070', color: '#fff', borderRadius: '8px', fontWeight: 'bold', letterSpacing: '0.5px', border: 'none', padding: '10px' }}
+                            onClick={handleLeaveGroup}
+                        >
+                            Leave Group
+                        </button>
                     )}
-                </div>
-
-                {/* Actions */}
-                <div style={{ display: 'flex', gap: '12px' }}>
-                    <button
-                        className="button"
-                        style={{ flex: 1, background: '#e07070', color: '#fff', borderRadius: '8px', fontWeight: 'bold', letterSpacing: '0.5px', border: 'none', padding: '10px' }}
-                        onClick={handleDeleteGroup}
-                    >
-                        Delete Group
-                    </button>
                 </div>
             </div>
         </>
