@@ -12,13 +12,14 @@ const GameList = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { groups } = useGroupStore();
-  const { upcomingGames, fetchUpcomingGames } = useGameStore();
+  const { upcomingGames, subscribeToUpcomingGames } = useGameStore();
 
   useEffect(() => {
     if (user && groups && groups.length > 0) {
-      fetchUpcomingGames(groups);
+      const unsub = subscribeToUpcomingGames(groups);
+      return unsub;
     }
-  }, [user, groups, fetchUpcomingGames]);
+  }, [user, groups, subscribeToUpcomingGames]);
 
   if (!upcomingGames.length) return null;
 

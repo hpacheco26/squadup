@@ -14,16 +14,17 @@ const getPlayerStatus = (index) => {
 
 const TeamsPage = () => {
     const { gameId } = useParams();
-    const { game, fetchGameById, updateGame, loading } = useGameStore();
+    const { game, subscribeToGame, updateGame, loading } = useGameStore();
     const [pressed, setPressed] = useState(false);
     const [shuffling, setShuffling] = useState(false);
     const [animateIn, setAnimateIn] = useState(false);
 
     useEffect(() => {
         if (gameId) {
-            fetchGameById(gameId);
+            const unsub = subscribeToGame(gameId);
+            return unsub;
         }
-    }, [gameId, fetchGameById]);
+    }, [gameId, subscribeToGame]);
 
     const handleSquadUp = async () => {
         if (game?.playersIn?.length > 0) {

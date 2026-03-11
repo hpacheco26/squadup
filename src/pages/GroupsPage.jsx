@@ -8,7 +8,7 @@ import { getGroupRank } from "../utils/groupRank";
 import SquadsHeaderBar from "../components/bars/SquadsHeaderBar";
 
 function GroupsPage() {
-    const { groups, fetchGroupsByPlayer } = useGroupStore();
+    const { groups, subscribeToGroupsByPlayer } = useGroupStore();
     const navigate = useNavigate();
     const { user, playerData } = useAuthStore();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,7 +18,8 @@ function GroupsPage() {
             navigate("/login");
             return;
         }
-        fetchGroupsByPlayer(playerData.id);
+        const unsub = subscribeToGroupsByPlayer(playerData.id);
+        return unsub;
     }, [user, navigate]);
 
     return (

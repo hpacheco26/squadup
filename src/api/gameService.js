@@ -1,5 +1,5 @@
 import { db } from '../config/firebase';
-import { collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, query, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, query, where, onSnapshot } from 'firebase/firestore';
 
 const gamesRef = collection(db, 'games');
 
@@ -35,6 +35,24 @@ const GameService = {
 
     deleteGame: async (id) => {
         await deleteDoc(doc(db, 'games', id));
+    },
+
+    subscribeToGame: (id, callback) => {
+        return onSnapshot(doc(db, 'games', id), (docSnap) => {
+            if (docSnap.exists()) {
+                callback({ id: docSnap.id, ...docSnap.data() });
+            } else {
+                callback(null);
+            }
+        });
+    },
+
+    subscribeToGamesByGroup: (groupId, callback) => {
+        const q = query(gamesRef, where('groupId', '==', groupId));
+        return onSnapshot(q, (snapshot) => {
+            const games = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            callback(games);
+        });
     },
 };
 

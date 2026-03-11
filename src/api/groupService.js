@@ -1,5 +1,5 @@
 import { db } from '../config/firebase';
-import { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
 
 const groupsRef = collection(db, 'groups');
 
@@ -37,6 +37,25 @@ const GroupService = {
 
     deleteGroup: async (id) => {
         await deleteDoc(doc(db, 'groups', id));
+    },
+
+    subscribeToGroup: (id, callback) => {
+        return onSnapshot(doc(db, 'groups', id), (docSnap) => {
+            if (docSnap.exists()) {
+                callback({ id: docSnap.id, ...docSnap.data() });
+            } else {
+                callback(null);
+            }
+        });
+    },
+
+    subscribeToGroupsByPlayer: (playerId, callback) => {
+        return onSnapshot(groupsRef, (snapshot) => {
+            const groups = snapshot.docs
+                .map(doc => ({ id: doc.id, ...doc.data() }))
+                .filter(group => group.players.some(player => player.id === playerId));
+            callback(groups);
+        });
     },
 };
 

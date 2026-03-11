@@ -9,15 +9,16 @@ import SquadHeaderBar from '../components/bars/SquadHeaderBar';
 
 function GroupPage() {
     const { id } = useParams();
-    const { group, fetchGroupById } = useGroupStore();
-    const { games, fetchGamesByGroup, loading, error } = useGameStore();
+    const { group, subscribeToGroup } = useGroupStore();
+    const { games, subscribeToGamesByGroup, loading, error } = useGameStore();
 
     const [isGameCreateModalOpen, setIsGameCreateModalOpen] = useState(false); 
 
     useEffect(() => {
-        fetchGroupById(id);
-        fetchGamesByGroup(id);
-    }, [id, fetchGroupById, fetchGamesByGroup]);
+        const unsubGroup = subscribeToGroup(id);
+        const unsubGames = subscribeToGamesByGroup(id);
+        return () => { unsubGroup(); unsubGames(); };
+    }, [id, subscribeToGroup, subscribeToGamesByGroup]);
 
     if (!group || loading || group.id !== id) return <Loader />;
 

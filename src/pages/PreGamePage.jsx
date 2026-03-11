@@ -13,8 +13,8 @@ import { Share2, UserPlus, Link as LinkIcon } from 'lucide-react';
 const PreGamePage = () => {
     const { gameId } = useParams();
     const navigate = useNavigate();
-    const { game, fetchGameById, handlePlayerOut, handlePlayerIn, updateGame } = useGameStore();
-    const { group, fetchGroupById } = useGroupStore();
+    const { game, subscribeToGame, handlePlayerOut, handlePlayerIn, updateGame } = useGameStore();
+    const { group, subscribeToGroup } = useGroupStore();
     const { user } = useAuthStore();
     const [playersIn, setPlayersIn] = useState([]);
     const [playersOut, setPlayersOut] = useState([]);
@@ -22,18 +22,17 @@ const PreGamePage = () => {
     const [isGuestModalOpen, setIsGuestModalOpen] = useState(false);
 
     useEffect(() => {
-        const fetchGameData = async () => {
-            await fetchGameById(gameId);
-        };
-        fetchGameData();
-    }, [gameId, fetchGameById]);
+        const unsub = subscribeToGame(gameId);
+        return unsub;
+    }, [gameId, subscribeToGame]);
 
     // Ensure the correct group is loaded for the back button
     useEffect(() => {
-        if (game?.groupId && game.groupId !== group?.id) {
-            fetchGroupById(game.groupId);
+        if (game?.groupId) {
+            const unsub = subscribeToGroup(game.groupId);
+            return unsub;
         }
-    }, [game, group?.id, fetchGroupById]);
+    }, [game?.groupId, subscribeToGroup]);
 
     useEffect(() => {
         if (game) {

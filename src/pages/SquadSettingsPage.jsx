@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Plus, Link, Share2, Copy, Check } from 'lucide-react';
 import useGroupStore from '../store/groupStore';
@@ -11,7 +11,7 @@ import SquadSettingsHeaderBar from '../components/bars/SquadSettingsHeaderBar';
 function SquadSettingsPage() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { group, fetchGroupById, updateGroup, deleteGroup } = useGroupStore();
+    const { group, subscribeToGroup, updateGroup, deleteGroup } = useGroupStore();
 
     const [groupName, setGroupName] = useState('');
     const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
@@ -20,12 +20,11 @@ function SquadSettingsPage() {
     const { user } = useAuthStore();
     const { createInvite } = useInviteStore();
 
-    // Ensure `fetchGroupById` doesn't trigger unnecessary renders
-    const fetchGroup = useCallback(() => fetchGroupById(id), [id, fetchGroupById]);
-
+    // Subscribe to group for real-time updates
     useEffect(() => {
-        fetchGroup();
-    }, [fetchGroup]);
+        const unsub = subscribeToGroup(id);
+        return unsub;
+    }, [id, subscribeToGroup]);
 
     useEffect(() => {
         if (group?.name) {
@@ -48,13 +47,13 @@ function SquadSettingsPage() {
     const handleAddPlayer = (newPlayer) => {
         if (!group) return;
         const updatedPlayers = [...(group.players ?? []), newPlayer];
-        updateGroup(group.id, { ...group, players: updatedPlayers }).then(fetchGroup);
+        updateGroup(group.id, { ...group, players: updatedPlayers });
     };
 
     const handleRemovePlayer = (playerId) => {
         if (!group) return;
         const updatedPlayers = (group.players ?? []).filter(player => player.id !== playerId);
-        updateGroup(group.id, { ...group, players: updatedPlayers }).then(fetchGroup);
+        updateGroup(group.id, { ...group, players: updatedPlayers });
     };
 
     const handleGenerateInvite = async () => {

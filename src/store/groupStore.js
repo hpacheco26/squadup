@@ -13,7 +13,63 @@ const useGroupStore = create(
             myPlayer: null,
             ranks: [],
 
-            // 🔹 Fetch all groups and update ranks
+            // Internal unsubscribe references
+            _unsubGroup: null,
+            _unsubGroups: null,
+
+            // � Real-time subscriptions
+
+            subscribeToGroup: (id) => {
+                const prev = useGroupStore.getState()._unsubGroup;
+                if (prev) prev();
+
+                const playerId = useAuthStore.getState().playerData?.id;
+                const unsub = GroupService.subscribeToGroup(id, (group) => {
+                    if (group) {
+                        const myPlayer = group.players.find(player => player.id === playerId) || null;
+                        set({ group, myPlayer, loading: false });
+                    } else {
+                        set({ group: null, myPlayer: null, loading: false, error: 'Group not found' });
+                    }
+                });
+                set({ _unsubGroup: unsub, group: null, myPlayer: null, loading: true });
+                return unsub;
+            },
+
+            unsubscribeGroup: () => {
+                const unsub = useGroupStore.getState()._unsubGroup;
+                if (unsub) unsub();
+                set({ _unsubGroup: null });
+            },
+
+            subscribeToGroupsByPlayer: (playerId) => {
+                const prev = useGroupStore.getState()._unsubGroups;
+                if (prev) prev();
+
+                const unsub = GroupService.subscribeToGroupsByPlayer(playerId, (groups) => {
+                    const ranks = groups.map(group => {
+                        const player = group.players.find(p => p.id === playerId);
+                        if (!player) return null;
+                        return {
+                            groupId: group.id,
+                            groupName: group.name,
+                            groupRank: player.rank,
+                            stats: player.stats
+                        };
+                    }).filter(Boolean);
+                    set({ groups, ranks });
+                });
+                set({ _unsubGroups: unsub });
+                return unsub;
+            },
+
+            unsubscribeGroups: () => {
+                const unsub = useGroupStore.getState()._unsubGroups;
+                if (unsub) unsub();
+                set({ _unsubGroups: null });
+            },
+
+            // �🔹 Fetch all groups and update ranks
             fetchGroups: async () => {
                 try {
                     const groups = await GroupService.getGroups();

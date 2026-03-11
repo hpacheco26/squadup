@@ -13,7 +13,7 @@ const GamePage = () => {
     const { gameId } = useParams();
     const navigate = useNavigate();
     const {
-        game, fetchGameById, loading,
+        game, subscribeToGame, loading,
         createGame, deleteGame,
         team1Goals, setTeam1Goals,
         team2Goals, setTeam2Goals,
@@ -26,8 +26,11 @@ const GamePage = () => {
     const intervalRef = useRef(null);
 
     useEffect(() => {
-        if (gameId) fetchGameById(gameId);
-    }, [gameId, fetchGameById]);
+        if (gameId) {
+            const unsub = subscribeToGame(gameId);
+            return unsub;
+        }
+    }, [gameId, subscribeToGame]);
 
     // Set initial timer from game settings (only if timer hasn't been initialized)
     useEffect(() => {

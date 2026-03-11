@@ -8,6 +8,11 @@ const useGameStore = create((set) => ({
     loading: false,
     error: null,
 
+    // Internal unsubscribe references
+    _unsubGame: null,
+    _unsubGames: null,
+    _unsubUpcoming: [],
+
     // Game session state (persists across tab switches)
     team1Goals: 0,
     team2Goals: 0,
@@ -34,6 +39,76 @@ const useGameStore = create((set) => ({
         timer: null,
         isRunning: false,
     }),
+
+    // 🔴 Real-time subscriptions
+
+    subscribeToGame: (gameId) => {
+        const prev = useGameStore.getState()._unsubGame;
+        if (prev) prev();
+
+        const unsub = GameService.subscribeToGame(gameId, (game) => {
+            set({ game, loading: false });
+        });
+        set({ _unsubGame: unsub, loading: true });
+        return unsub;
+    },
+
+    unsubscribeGame: () => {
+        const unsub = useGameStore.getState()._unsubGame;
+        if (unsub) unsub();
+        set({ _unsubGame: null });
+    },
+
+    subscribeToGamesByGroup: (groupId) => {
+        const prev = useGameStore.getState()._unsubGames;
+        if (prev) prev();
+
+        const unsub = GameService.subscribeToGamesByGroup(groupId, (games) => {
+            set({ games, loading: false });
+        });
+        set({ _unsubGames: unsub, loading: true });
+        return unsub;
+    },
+
+    unsubscribeGames: () => {
+        const unsub = useGameStore.getState()._unsubGames;
+        if (unsub) unsub();
+        set({ _unsubGames: null });
+    },
+
+    subscribeToUpcomingGames: (groups) => {
+        const prev = useGameStore.getState()._unsubUpcoming;
+        if (prev.length) prev.forEach(fn => fn());
+
+        if (!groups || groups.length === 0) {
+            set({ upcomingGames: [], _unsubUpcoming: [] });
+            return () => {};
+        }
+
+        const gamesByGroup = {};
+
+        const unsubs = groups.map(group =>
+            GameService.subscribeToGamesByGroup(group.id, (games) => {
+                gamesByGroup[group.id] = games.map(g => ({ ...g, groupName: group.name }));
+                const allGames = Object.values(gamesByGroup).flat();
+                allGames.sort((a, b) => {
+                    const dateA = new Date(`${a.date}T${a.time || '00:00'}`);
+                    const dateB = new Date(`${b.date}T${b.time || '00:00'}`);
+                    return dateA - dateB;
+                });
+                set({ upcomingGames: allGames });
+            })
+        );
+
+        set({ _unsubUpcoming: unsubs });
+        return () => unsubs.forEach(fn => fn());
+    },
+
+    unsubscribeUpcoming: () => {
+        const unsubs = useGameStore.getState()._unsubUpcoming;
+        unsubs.forEach(fn => fn());
+        set({ _unsubUpcoming: [] });
+    },
 
     // Fetch all games
     fetchGames: async () => {
