@@ -19,7 +19,7 @@ function HomePage() {
         <div style={{ width: "100%", flex: 'none' }}>
           <GameList />
         </div>
-        <div style={{ width: "100%", flex: 1, minHeight: 0 }}>
+        <div style={{ width: "100%", flex: 1, minHeight: 0, overflow: 'auto' }}>
           <RankList />
         </div>
       </div>

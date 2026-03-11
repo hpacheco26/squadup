@@ -26,10 +26,14 @@ const useGroupStore = create(
 
             // 🔹 Fetch a single group by ID
             fetchGroupById: async (id) => {
-                const playerId = useAuthStore.getState().playerData?.id; // Get player ID from store
-                set({ loading: true });
+                const playerId = useAuthStore.getState().playerData?.id;
+                set({ group: null, myPlayer: null, loading: true });
                 try {
                     const group = await GroupService.getGroupById(id);
+                    if (!group) {
+                        set({ group: null, myPlayer: null, loading: false, error: 'Group not found' });
+                        return;
+                    }
                     const myPlayer = group.players.find(player => player.id === playerId) || null;
                     set({ group, myPlayer, loading: false });
                 } catch (error) {
@@ -162,8 +166,9 @@ const useGroupStore = create(
             }
         }),
         {
-            name: 'group-store', // Key for localStorage
-            getStorage: () => localStorage, // Use localStorage for persistence
+            name: 'group-store',
+            getStorage: () => localStorage,
+            partialize: (state) => ({ groups: state.groups, ranks: state.ranks }),
         }
     )
 );

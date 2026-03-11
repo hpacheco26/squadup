@@ -19,7 +19,7 @@ function GroupPage() {
         fetchGamesByGroup(id);
     }, [id, fetchGroupById, fetchGamesByGroup]);
 
-    if (!group || loading) return <Loader />;
+    if (!group || loading || group.id !== id) return <Loader />;
 
     return (
         <>

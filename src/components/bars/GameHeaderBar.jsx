@@ -27,7 +27,7 @@ const GameHeaderBar = ({ gameId }) => {
                 {/* Tabs: PreGame & Game */}
                 <div style={styles.tabsContainer}>
                     <button 
-                        onClick={() => navigate(`/groups/${group.id}`)}
+                        onClick={() => navigate(`/groups/${game?.groupId || group?.id}`)}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: '#6b7280' }}
                     >
                         <IoIosArrowBack size={24} />

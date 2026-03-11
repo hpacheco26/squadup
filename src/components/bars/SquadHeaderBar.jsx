@@ -14,7 +14,7 @@ const SquadHeaderBar = () => {
 
             {/* Group Settings Button */}
             <button 
-                onClick={() => navigate(`/groups/${group.id}/settings`)} 
+                onClick={() => group?.id && navigate(`/groups/${group.id}/settings`)} 
                 style={styles.settingsButton}
                 aria-label="Go to Group Settings"
             >

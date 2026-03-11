@@ -32,10 +32,22 @@ const SubTimerModal = ({ team1, team2, isOpen, onClose, onAcceptSub }) => {
                         </div>
                     </motion.div>
                 </Modal.Card.Body>
-                <Modal.Card.Footer className="has-text-centered">
-                    <Button color="primary" onClick={onAcceptSub} style={{ cursor: 'pointer' }}>
+                <Modal.Card.Footer style={{ justifyContent: 'center' }}>
+                    <button
+                        onClick={onAcceptSub}
+                        style={{
+                            background: '#5b7bb3',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '10px',
+                            padding: '10px 32px',
+                            fontSize: '1rem',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                        }}
+                    >
                         Accept Sub
-                    </Button>
+                    </button>
                 </Modal.Card.Footer>
             </Modal.Card>
         </Modal>
