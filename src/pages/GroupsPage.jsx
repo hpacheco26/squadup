@@ -26,10 +26,10 @@ function GroupsPage() {
         <SquadsHeaderBar />
             <div className="p-4" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {groups.length > 0 ? (
-                        groups.map((group) => (
+                        groups.map((group, index) => (
                             <div
-                                key={group.id}
-                                onClick={() => navigate(`/groups/${group.id}`)}
+                                key={group.id || index}
+                                onClick={() => group.id && navigate(`/groups/${group.id}`)}
                             >
                                 <GroupCard name={group.name} sport={group.sport} rank={getGroupRank(group, user.uid)} />
                             </div>

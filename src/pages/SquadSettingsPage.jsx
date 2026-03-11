@@ -81,6 +81,8 @@ function SquadSettingsPage() {
         window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
     };
 
+    if (!group) return <p style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>Loading...</p>;
+
     return (
         <>
             <SquadSettingsHeaderBar 
