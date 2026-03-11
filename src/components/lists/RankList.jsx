@@ -50,6 +50,7 @@ const RankList = () => {
                 groupName={rank.groupName || "Unknown Group"} 
                 stats={rank.stats}
                 isAnimated={false}
+                onClick={() => navigate(`/groups/${rank.groupId}`)}
               />
             </SwiperSlide>
           ))}

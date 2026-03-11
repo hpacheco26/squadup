@@ -9,7 +9,7 @@ const SquadHeaderBar = () => {
 
     return (
         <header style={styles.header}>
-            {/* App Name */}
+            {/* Group Name */}
             <h1 style={styles.title}>{group?.name || "Squad"}</h1>
 
             {/* Group Settings Button */}
@@ -36,6 +36,15 @@ const styles = {
     title: {
         fontSize: '1.5rem',
         fontWeight: 'bold',
+    },
+    backButton: {
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        padding: '5px',
+        display: 'flex',
+        alignItems: 'center',
+        color: '#6b7280',
     },
     settingsButton: {
         background: 'none',

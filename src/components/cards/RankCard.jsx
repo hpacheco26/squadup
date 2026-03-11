@@ -81,7 +81,7 @@ const BadgeSVG = ({ rank, size = 150 }) => {
 
 const rankNames = ['Unranked', 'Bronze', 'Silver', 'Gold', 'Platinum'];
 
-const RankCard = ({ rank, groupName, stats, isAnimated }) => {
+const RankCard = ({ rank, groupName, stats, isAnimated, onClick }) => {
   const badge = isAnimated ? (
     <motion.div
       initial={{ scale: 0, opacity: 0 }}
@@ -98,13 +98,13 @@ const RankCard = ({ rank, groupName, stats, isAnimated }) => {
   const name = rankNames[rank] || 'Unranked';
 
   return (
-    <div style={{
+    <div onClick={onClick} style={{
       background: '#fff',
       borderRadius: '16px',
       padding: 'clamp(8px, 1.5dvh, 16px) 16px',
       textAlign: 'center',
       boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-      cursor: 'grab',
+      cursor: onClick ? 'pointer' : 'grab',
     }}>
       <div style={{ height: 'clamp(70px, 13dvh, 150px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {badge}

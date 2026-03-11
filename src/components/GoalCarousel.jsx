@@ -44,7 +44,7 @@ function GoalCarousel({ value, onChange, color = '#333' }) {
             onMouseLeave={() => { if (startY !== null) handleEnd(); }}
             style={{
                 position: 'relative',
-                height: '380px',
+                height: '280px',
                 overflow: 'hidden',
                 cursor: 'grab',
                 userSelect: 'none',
@@ -57,12 +57,12 @@ function GoalCarousel({ value, onChange, color = '#333' }) {
         >
             {/* Previous number (faded above) */}
             <span style={{
-                fontSize: '3rem',
+                fontSize: '2rem',
                 fontWeight: 'bold',
                 color: color,
                 opacity: 0.07,
                 lineHeight: 1,
-                marginBottom: '-8px',
+                marginBottom: '-4px',
                 transform: `translateY(${clampedOffset}px)`,
                 transition: startY !== null ? 'none' : 'transform 0.2s ease',
             }}>
@@ -71,24 +71,24 @@ function GoalCarousel({ value, onChange, color = '#333' }) {
 
             {/* Current number */}
             <span style={{
-                fontSize: '18rem',
+                fontSize: value >= 10 ? '10rem' : '14rem',
                 fontWeight: 'bold',
                 color: color,
                 lineHeight: 1,
                 transform: `translateY(${clampedOffset}px)`,
-                transition: startY !== null ? 'none' : 'transform 0.2s ease',
+                transition: startY !== null ? 'none' : 'transform 0.2s ease, font-size 0.2s ease',
             }}>
                 {value}
             </span>
 
             {/* Next number (faded below) */}
             <span style={{
-                fontSize: '3rem',
+                fontSize: '2rem',
                 fontWeight: 'bold',
                 color: color,
                 opacity: 0.07,
                 lineHeight: 1,
-                marginTop: '-8px',
+                marginTop: '-4px',
                 transform: `translateY(${clampedOffset}px)`,
                 transition: startY !== null ? 'none' : 'transform 0.2s ease',
             }}>

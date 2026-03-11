@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { IoIosArrowBack } from 'react-icons/io';
 import { FiSave } from 'react-icons/fi';
 import useAuthStore from '../store/authStore';
+import CreateGroupModal from '../components/modals/GroupModal';
 
 function AppSettingsPage() {
     const { user, playerData, updateUser, logout } = useAuthStore();
@@ -10,6 +11,7 @@ function AppSettingsPage() {
 
     const [firstName, setFirstName] = useState(playerData?.firstName || '');
     const [lastName, setLastName] = useState(playerData?.lastName || '');
+    const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
 
     const handleSave = () => {
         updateUser({ firstName, lastName });
@@ -35,7 +37,7 @@ function AppSettingsPage() {
                 <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', display: 'flex', alignItems: 'center', color: '#6b7280' }}>
                     <IoIosArrowBack size={24} />
                 </button>
-                <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>Settings</h1>
+                <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>My Profile</h1>
                 <button onClick={handleSave} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', display: 'flex', alignItems: 'center', color: '#6b7280' }} aria-label="Save">
                     <FiSave size={24} />
                 </button>
@@ -68,6 +70,28 @@ function AppSettingsPage() {
                         style={{ borderRadius: '8px' }}
                     />
                 </div>
+            </div>
+
+            {/* Create Group */}
+            <div style={{ padding: '0 20px 20px' }}>
+                <button
+                    onClick={() => setIsGroupModalOpen(true)}
+                    style={{
+                        width: '100%',
+                        padding: '12px',
+                        borderRadius: '8px',
+                        border: 'none',
+                        background: '#5b7bb3',
+                        color: '#fff',
+                        fontSize: '1rem',
+                        fontWeight: 'bold',
+                        letterSpacing: '0.5px',
+                        cursor: 'pointer',
+                    }}
+                >
+                    + Create Group
+                </button>
+                <CreateGroupModal isOpen={isGroupModalOpen} setIsOpen={setIsGroupModalOpen} />
             </div>
 
             {/* Logout at bottom */}

@@ -2,13 +2,13 @@ import { useNavigate } from 'react-router-dom';
 import GameCard from '../cards/GameCard';
 import useHoverEffect from '../../hooks/useHoverEffect'; 
 
-const GamesContainer = ({ games }) => {
+const GamesContainer = ({ games, readOnly = false }) => {
   const navigate = useNavigate();
 
   const { handleMouseEnter, handleMouseLeave, getStyle } = useHoverEffect(); // Using the custom hook
 
   const handleGameClick = (gameId) => {
-    navigate(`/pregame/${gameId}`);
+    if (!readOnly) navigate(`/pregame/${gameId}`);
   };
 
   return (
@@ -21,9 +21,9 @@ const GamesContainer = ({ games }) => {
             <div
               key={game.id}
               onClick={() => handleGameClick(game.id)}
-              onMouseEnter={() => handleMouseEnter(game.id)}
-              onMouseLeave={handleMouseLeave}
-              style={getStyle(game.id)}
+              onMouseEnter={readOnly ? undefined : () => handleMouseEnter(game.id)}
+              onMouseLeave={readOnly ? undefined : handleMouseLeave}
+              style={readOnly ? {} : getStyle(game.id)}
             >
               <GameCard game={game} />
             </div>

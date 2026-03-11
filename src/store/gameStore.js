@@ -227,12 +227,15 @@ const useGameStore = create((set) => ({
                 updatedPlayersIn.push(player);
             }
 
+            const newStatus = updatedPlayersIn.length >= (game.minPlayers || 10) ? 'confirmed' : 'open';
+
             return {
                 game: {
                     ...game,
                     playersIn: updatedPlayersIn,
                     playersOut: updatedPlayersOut,
-                    playersInvited: updatedPlayersInvited
+                    playersInvited: updatedPlayersInvited,
+                    status: newStatus
                 }
             };
         });
@@ -242,7 +245,8 @@ const useGameStore = create((set) => ({
             await GameService.updateGame(gameId, {
                 playersIn: game.playersIn,
                 playersOut: game.playersOut,
-                playersInvited: game.playersInvited
+                playersInvited: game.playersInvited,
+                status: game.status
             });
         }
     },
@@ -262,12 +266,15 @@ const useGameStore = create((set) => ({
                 updatedPlayersOut.push(game.playersInvited.find(player => player.id === playerId));
             }
 
+            const newStatus = updatedPlayersIn.length >= (game.minPlayers || 10) ? 'confirmed' : 'open';
+
             return {
                 game: {
                     ...game,
                     playersIn: updatedPlayersIn,
                     playersInvited: updatedPlayersInvited,
-                    playersOut: updatedPlayersOut
+                    playersOut: updatedPlayersOut,
+                    status: newStatus
                 }
             };
         });
@@ -277,7 +284,8 @@ const useGameStore = create((set) => ({
             await GameService.updateGame(gameId, {
                 playersIn: game.playersIn,
                 playersInvited: game.playersInvited,
-                playersOut: game.playersOut
+                playersOut: game.playersOut,
+                status: game.status
             });
         }
     },

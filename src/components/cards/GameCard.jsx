@@ -1,66 +1,121 @@
 import React from "react";
-import { CheckCircle, XCircle, Clock, Lock, UserCheck, UserX, Mail } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Lock, UserCheck, UserX, Mail, MapPin, Calendar, Users } from "lucide-react";
 import getMyInviteStatus from "../../utils/myInviteStatus";
 import useAuthStore from '../../store/authStore';
 
-const statusColors = {
-    Open: { color: "has-background-info-light", icon: <Clock size={20} /> },
-    Confirmed: { color: "has-background-success-light", icon: <CheckCircle size={20} /> },
-    Closed: { color: "has-background-success-light", icon: <Lock size={20} /> },
-    Cancelled: { color: "has-background-danger-light", icon: <XCircle size={20} /> }
+const statusConfig = {
+    open: { bg: '#dbeafe', color: '#1d4ed8', icon: <Clock size={14} />, label: 'Open' },
+    confirmed: { bg: '#dcfce7', color: '#16a34a', icon: <CheckCircle size={14} />, label: 'Confirmed' },
+    closed: { bg: '#dcfce7', color: '#16a34a', icon: <Lock size={14} />, label: 'Closed' },
+    cancelled: { bg: '#fee2e2', color: '#dc2626', icon: <XCircle size={14} />, label: 'Cancelled' }
 };
 
-const inviteStatusIcons = {
-    in: { color: "has-background-success-light", icon: <UserCheck size={20} />, label: "In" },
-    out: { color: "has-background-danger-light", icon: <UserX size={20} />, label: "Out" },
-    invited: { color: "has-background-warning-light", icon: <Mail size={20} />, label: "Invited" }
+const inviteConfig = {
+    in: { bg: '#dcfce7', color: '#16a34a', icon: <UserCheck size={14} />, label: "I'm In" },
+    out: { bg: '#fee2e2', color: '#dc2626', icon: <UserX size={14} />, label: "I'm Out" },
+    invited: { bg: '#fef3c7', color: '#d97706', icon: <Mail size={14} />, label: "Invited" }
 };
 
 const GameCard = ({ game }) => {
-    const { color, icon } = statusColors[game.status] || { color: "is-light", icon: null };
+    const status = statusConfig[game.status] || { bg: '#f1f5f9', color: '#64748b', icon: null, label: game.status };
     const { playerData } = useAuthStore();
 
-    // Get player's invite status
     const myInviteStatus = getMyInviteStatus(game, playerData.id);
-    const inviteStatus = inviteStatusIcons[myInviteStatus] || { color: "is-light", icon: null, label: "Unknown" };
+    const invite = inviteConfig[myInviteStatus] || { bg: '#f1f5f9', color: '#64748b', icon: null, label: "—" };
+
+    const playersIn = (game.playersIn || []).length;
+    const playersInvited = (game.playersInvited || []).length;
+    const total = playersIn + playersInvited + (game.playersOut || []).length;
+    const fillPercent = total > 0 ? (playersIn / total) * 100 : 0;
 
     return (
-        <div className="card shadow-lg" style={{ position: "relative" }}>
-            <div className="card-content">
-                {/* Game Location & Date */}
-                <div className="head" style={{ display: "flex", justifyContent: "space-between" }}>
-                    <div className="content">
-                        <p className="title is-5 has-text-dark">{game.location}</p>
-                        <p className="subtitle is-6 has-text-grey">{game.date} at {game.time}</p>
+        <div style={{
+            background: '#fff',
+            borderRadius: '16px',
+            padding: '16px',
+            boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+            border: '1px solid #e2e8f0',
+        }}>
+            {/* Top row: Location + Status badge */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
+                    <div style={{
+                        background: '#f1f5f9',
+                        borderRadius: '10px',
+                        width: '36px',
+                        height: '36px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                    }}>
+                        <MapPin size={18} color="#5b7bb3" />
                     </div>
-                    {/* Status Badge */}
-                    <div className={`tag ${color} is-medium`} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        {icon} <span>{game.status}</span>
+                    <div style={{ minWidth: 0 }}>
+                        <p style={{ fontSize: '1rem', fontWeight: '700', color: '#1e293b', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {game.location}
+                        </p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+                            <Calendar size={12} color="#94a3b8" />
+                            <p style={{ fontSize: '0.78rem', color: '#64748b', margin: 0 }}>
+                                {game.date} · {game.time}
+                            </p>
+                        </div>
                     </div>
                 </div>
+                <span style={{
+                    background: status.bg,
+                    color: status.color,
+                    fontSize: '0.7rem',
+                    fontWeight: '700',
+                    padding: '4px 10px',
+                    borderRadius: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
+                }}>
+                    {status.icon} {status.label}
+                </span>
+            </div>
 
-                {/* Players Info */}
-                <div className="content">
-                    <p><strong>Invited:</strong> {(game.playersInvited || []).length}</p>
-                    <p><strong>In:</strong> {(game.playersIn || []).length}</p>
-                    <p><strong>Out:</strong> {(game.playersOut || []).length}</p>
+            {/* Player bar */}
+            <div style={{ marginBottom: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <Users size={13} color="#64748b" />
+                        <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '500' }}>
+                            {playersIn} in · {playersInvited} pending
+                        </span>
+                    </div>
+                    <span style={{
+                        background: invite.bg,
+                        color: invite.color,
+                        fontSize: '0.7rem',
+                        fontWeight: '700',
+                        padding: '3px 8px',
+                        borderRadius: '20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                    }}>
+                        {invite.icon} {invite.label}
+                    </span>
                 </div>
-
-                {/* Player Invite Status in Bottom Right */}
-                <div
-                    className={`tag ${inviteStatus.color} is-medium`}
-                    style={{
-                        position: "absolute",
-                        bottom: "10px",
-                        right: "10px",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        padding: "8px 12px",
-                        borderRadius: "8px"
-                    }}
-                >
-                    {inviteStatus.icon} <span>{inviteStatus.label}</span>
+                <div style={{
+                    height: '4px',
+                    borderRadius: '2px',
+                    background: '#e2e8f0',
+                    overflow: 'hidden',
+                }}>
+                    <div style={{
+                        height: '100%',
+                        width: `${fillPercent}%`,
+                        borderRadius: '2px',
+                        background: 'linear-gradient(90deg, #5b7bb3, #7c9fd4)',
+                        transition: 'width 0.4s ease',
+                    }} />
                 </div>
             </div>
         </div>

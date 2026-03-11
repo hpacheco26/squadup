@@ -1,131 +1,173 @@
-import React, { useEffect, useState, useRef } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRightArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { Card } from "react-bulma-components";
+import React, { useRef, useCallback } from "react";
+import { ArrowLeftRight, ShieldBan, HeartPulse } from "lucide-react";
 import RankIcon from "./RankIcon";
 
-function SwipeTeamPlayer({ player, status, onSwipe, team, isCaptain }) {
-    const [startY, setStartY] = useState(null);
-    const [heightRoot, setHeightRoot] = useState(0);
-    const [translateY, setTranslateY] = useState(0);
-    const itemRef = useRef(null);
+const SWIPE_THRESHOLD = 25;
 
-    useEffect(() => {
-        function getHeightOfItem() {
-            if (itemRef.current) {
-                const { height } = itemRef.current.getBoundingClientRect();
-                setHeightRoot(height);
-            }
-        }
-        getHeightOfItem();
-        window.addEventListener("resize", getHeightOfItem);
-        return () => window.removeEventListener("resize", getHeightOfItem);
+function SwipeTeamPlayer({ player, status, onSwipe, onInjury, onRecover, team, isCaptain, mode }) {
+    const isInjured = mode === 'injured';
+    const containerRef = useRef(null);
+    const cardRef = useRef(null);
+    const startXRef = useRef(null);
+    const currentXRef = useRef(0);
+    const draggingRef = useRef(false);
+
+    const getTranslatePercent = useCallback((clientX) => {
+        if (!containerRef.current || startXRef.current === null) return 0;
+        const width = containerRef.current.getBoundingClientRect().width;
+        if (width === 0) return 0;
+        const delta = ((clientX - startXRef.current) / width) * 100;
+        if (isInjured) return Math.max(0, Math.min(SWIPE_THRESHOLD, delta));
+        return Math.max(-SWIPE_THRESHOLD, Math.min(SWIPE_THRESHOLD, delta));
+    }, [isInjured]);
+
+    const applyTransform = useCallback((percent, smooth = false) => {
+        if (!cardRef.current) return;
+        cardRef.current.style.transition = smooth ? "transform 0.25s ease" : "none";
+        cardRef.current.style.transform = `translateX(${percent}%)`;
     }, []);
 
-    function handleStart(e) {
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        setStartY(clientY);
-    }
+    const onPointerDown = useCallback((e) => {
+        e.preventDefault();
+        draggingRef.current = true;
+        startXRef.current = e.clientX;
+        currentXRef.current = 0;
+        applyTransform(0);
+        containerRef.current?.setPointerCapture(e.pointerId);
+    }, [applyTransform]);
 
-    function handleMove(e) {
-        if (startY === null) return;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        const deltaY = clientY - startY;
-        const deltaYPercentage = Math.ceil((deltaY / (heightRoot || 1)) * 100);
-        // Team 1 can only swipe down (positive), Team 2 can only swipe up (negative)
-        let limited;
-        if (team === 'team1') {
-            limited = Math.min(Math.max(deltaYPercentage, 0), 50);
+    const onPointerMove = useCallback((e) => {
+        if (!draggingRef.current) return;
+        const percent = getTranslatePercent(e.clientX);
+        currentXRef.current = percent;
+        applyTransform(percent);
+    }, [getTranslatePercent, applyTransform]);
+
+    const onPointerUp = useCallback((e) => {
+        if (!draggingRef.current) return;
+        draggingRef.current = false;
+        containerRef.current?.releasePointerCapture(e.pointerId);
+
+        if (isInjured) {
+            if (currentXRef.current >= SWIPE_THRESHOLD) onRecover?.();
         } else {
-            limited = Math.min(Math.max(deltaYPercentage, -50), 0);
+            if (currentXRef.current >= SWIPE_THRESHOLD) onSwipe?.();
+            else if (currentXRef.current <= -SWIPE_THRESHOLD) onInjury?.();
         }
-        setTranslateY(limited);
-    }
 
-    function handleEnd() {
-        if (Math.abs(translateY) >= 50 && onSwipe) {
-            onSwipe();
-        }
-        setStartY(null);
-        setTranslateY(0);
-    }
-
-    const opacity = Math.min(Math.abs(translateY) / 50, 1);
-
-    const teamShadow = team === 'team1'
-        ? '0 4px 6px 0 rgba(13, 148, 136, 0.2)'
-        : '0 4px 6px 0 rgba(185, 28, 28, 0.15)';
+        currentXRef.current = 0;
+        startXRef.current = null;
+        applyTransform(0, true);
+    }, [onSwipe, onInjury, onRecover, applyTransform, isInjured]);
 
     return (
-        <div style={{ margin: "10px 8px" }}>
+        <div style={{ margin: "6px 8px" }}>
             <div
-                ref={itemRef}
+                ref={containerRef}
+                onPointerDown={onPointerDown}
+                onPointerMove={onPointerMove}
+                onPointerUp={onPointerUp}
+                onPointerCancel={onPointerUp}
                 style={{
                     position: "relative",
                     overflow: "hidden",
                     borderRadius: "6px",
-                    boxShadow: teamShadow,
-                }}
-            >
-            {/* Blue background behind the card */}
-            <div
-                style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    backgroundColor: "#3b82f6",
-                    borderRadius: "6px",
-                    display: "flex",
-                    alignItems: team === 'team1' ? "flex-start" : "flex-end",
-                    justifyContent: "center",
-                    padding: team === 'team1' ? "6px 0 0 0" : "0 0 6px 0",
-                    opacity,
-                    transition: startY !== null ? "none" : "opacity 0.2s ease",
-                }}
-            >
-                <FontAwesomeIcon
-                    icon={faArrowRightArrowLeft}
-                    style={{ color: "#fff", fontSize: "14px", transform: "rotate(90deg)" }}
-                />
-            </div>
-
-            {/* Swipeable card */}
-            <div
-                onMouseDown={handleStart}
-                onTouchStart={handleStart}
-                onMouseMove={handleMove}
-                onTouchMove={handleMove}
-                onMouseUp={handleEnd}
-                onTouchEnd={handleEnd}
-                onMouseLeave={() => {
-                    if (startY !== null) handleEnd();
-                }}
-                style={{
-                    position: "relative",
-                    zIndex: 10,
-                    transform: `translateY(${translateY}%)`,
-                    transition: startY !== null ? "none" : "transform 0.2s ease",
-                    cursor: "grab",
-                    userSelect: "none",
                     touchAction: "none",
+                    userSelect: "none",
+                    background: "#fff",
                 }}
             >
-                <Card style={{ boxShadow: 'none' }}>
-                    <Card.Content style={{ padding: "8px 12px" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <h3 className="title is-6" style={{ margin: 0 }}>
-                                {status && <span style={{ marginRight: "6px" }}>{status}</span>}
-                                {player?.firstName} {player?.lastName}
-                                {isCaptain && <span style={{ marginLeft: '6px', fontSize: '0.7rem', fontWeight: 'bold', color: '#f59e0b', border: '1.5px solid #f59e0b', borderRadius: '4px', padding: '0 3px', verticalAlign: 'middle' }}>C</span>}
-                            </h3>
-                            <RankIcon rank={player?.rank} size={28} />
+                {/* Background: switch left / injury right (or recover for injured mode) */}
+                <div style={{
+                    position: "absolute",
+                    top: "1px",
+                    left: "1px",
+                    right: "1px",
+                    bottom: "1px",
+                    borderRadius: "5px",
+                    display: "flex",
+                }}>
+                    {isInjured ? (
+                        <div style={{
+                            flex: 1,
+                            background: "#22c55e",
+                            display: "flex",
+                            alignItems: "center",
+                            paddingLeft: "16px",
+                            borderRadius: "5px",
+                        }}>
+                            <HeartPulse size={16} color="#fff" strokeWidth={2.5} />
                         </div>
-                    </Card.Content>
-                </Card>
+                    ) : (
+                        <>
+                            <div style={{
+                                flex: 1,
+                                background: "#3b82f6",
+                                display: "flex",
+                                alignItems: "center",
+                                paddingLeft: "16px",
+                                borderRadius: "5px 0 0 5px",
+                            }}>
+                                <ArrowLeftRight size={16} color="#fff" strokeWidth={2.5} />
+                            </div>
+                            <div style={{
+                                flex: 1,
+                                background: "#f59e0b",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "flex-end",
+                                paddingRight: "16px",
+                                borderRadius: "0 5px 5px 0",
+                            }}>
+                                <ShieldBan size={16} color="#fff" strokeWidth={2.5} />
+                            </div>
+                        </>
+                    )}
+                </div>
+
+                {/* Foreground card */}
+                <div
+                    ref={cardRef}
+                    style={{
+                        position: "relative",
+                        zIndex: 10,
+                        background: "#fff",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
+                        padding: "8px 12px",
+                        cursor: "grab",
+                    }}
+                >
+                    {/* Status icon + Name */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                            {status && <span style={{ fontSize: "0.85rem" }}>{status}</span>}
+                            <span style={{ fontSize: "0.9rem", fontWeight: "600", color: "#1e293b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                {player?.firstName} {player?.lastName}
+                            </span>
+                            {isCaptain && (() => {
+                                const captainColor = team === 'team2' ? '#e11d48' : '#0d9488';
+                                return (
+                                <span style={{
+                                    fontSize: '0.6rem',
+                                    fontWeight: 'bold',
+                                    color: captainColor,
+                                    border: `1.5px solid ${captainColor}`,
+                                    borderRadius: '4px',
+                                    padding: '0 3px',
+                                    lineHeight: '1.4',
+                                    flexShrink: 0,
+                                }}>C</span>
+                                );
+                            })()}
+                        </div>
+                    </div>
+
+                    {/* Rank icon */}
+                    <RankIcon rank={player?.rank} size={24} />
+                </div>
             </div>
-        </div>
         </div>
     );
 }

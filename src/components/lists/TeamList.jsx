@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import PlayerCardMini from '../cards/PlayerCardMini';  
 import { Button } from 'react-bulma-components';
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa'; // Toggle icons
+import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { TbBallFootball, TbHandStop, TbBottle } from 'react-icons/tb';
+
+const iconStyle = { color: '#94a3b8', flexShrink: 0 };
 
 const TeamList = ({ team }) => {
     const [isCollapsed, setIsCollapsed] = useState(true); // Start with collapsed state
@@ -11,9 +14,9 @@ const TeamList = ({ team }) => {
     };
 
     const getPlayerStatus = (index) => {
-        if (index < 4) return '⚽️';  // First 4 players are on the field
-        if (index === 4) return '🧤';  // 5th player is the goalie
-        return '🏖️';  // Rest are on the bench
+        if (index < 4) return <TbBallFootball size={16} style={iconStyle} />;
+        if (index === 4) return <TbHandStop size={16} style={iconStyle} />;
+        return <TbBottle size={16} style={iconStyle} />;
     };
 
     // Show only the first player if collapsed

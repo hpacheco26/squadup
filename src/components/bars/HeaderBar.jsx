@@ -1,17 +1,10 @@
 import React from 'react';
 import logo from '../../assets/logo.png';
 
-
-
 const HeaderBar = () => {
-    
-    
     return (
         <header style={styles.header}>
-            {/* App Logo */}
             <img src={logo} alt="SquadUp" style={styles.logo} />
-            
-           
         </header>
     );
 };
@@ -28,7 +21,6 @@ const styles = {
     logo: {
         height: '36px',
     },
-    
 };
 
 export default HeaderBar;

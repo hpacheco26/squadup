@@ -6,9 +6,10 @@ import { useNavigate } from 'react-router-dom';
 import useGameStore from '../store/gameStore';
 import useGroupStore from '../store/groupStore';
 import useAuthStore from '../store/authStore';
-import GameHeaderBar from '../components/bars/GameHeaderBar';
 import PlayerModal from '../components/modals/PlayerModal';
-import { Share2, UserPlus, Link as LinkIcon } from 'lucide-react';
+import GameModal from '../components/modals/GameModal';
+import { FiSettings } from 'react-icons/fi';
+import { Share2, UserPlus, Link as LinkIcon, ClipboardList } from 'lucide-react';
 
 const PreGamePage = () => {
     const { gameId } = useParams();
@@ -20,6 +21,7 @@ const PreGamePage = () => {
     const [playersOut, setPlayersOut] = useState([]);
     const [playersInvited, setPlayersInvited] = useState([]);
     const [isGuestModalOpen, setIsGuestModalOpen] = useState(false);
+    const [isGameModalOpen, setIsGameModalOpen] = useState(false);
 
     useEffect(() => {
         const unsub = subscribeToGame(gameId);
@@ -83,10 +85,38 @@ const PreGamePage = () => {
 
     return (
         <>
-            <GameHeaderBar gameId={gameId} />
-            <div className="p-2" style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflowY: 'auto', gap: '12px' }}>
+            <header style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '12px 16px',
+                backgroundColor: '#ffffff',
+                borderBottom: '1px solid #e2e8f0',
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <ClipboardList size={20} color="#5b7bb3" />
+                    <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0f172a', margin: 0 }}>
+                        {group?.name || 'PreGame'}
+                    </h1>
+                    <span style={{
+                        fontSize: '0.65rem',
+                        fontWeight: '600',
+                        color: '#64748b',
+                        background: '#f1f5f9',
+                        borderRadius: '10px',
+                        padding: '2px 8px',
+                    }}>
+                        {playersIn.length} in
+                    </span>
+                </div>
+                <button onClick={() => setIsGameModalOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', display: 'flex', alignItems: 'center', color: '#94a3b8' }} aria-label="Game Settings">
+                    <FiSettings size={22} />
+                </button>
+            </header>
+
+            <div className="p-2" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto', gap: '12px' }}>
                 {/* Action buttons */}
-                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', padding: '4px 0' }}>
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', padding: '4px 0', flexWrap: 'wrap' }}>
                     <button
                         onClick={() => setIsGuestModalOpen(true)}
                         style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: '0.8rem', color: '#64748b' }}
@@ -149,6 +179,7 @@ const PreGamePage = () => {
                     title="Guest Player"
                     buttonLabel="Add Guest"
                 />
+                <GameModal isOpen={isGameModalOpen} setIsOpen={setIsGameModalOpen} group={group} game={game} />
             </div>
         </>
     );

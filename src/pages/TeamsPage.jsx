@@ -4,18 +4,25 @@ import { balanceTeams, getCaptain } from '../utils/teamBalancer';
 import PlayerCardMini from '../components/cards/PlayerCardMini';
 import SwipeTeamPlayer from '../components/SwipeTeamPlayer';
 import useGameStore from '../store/gameStore';
-import GameHeaderBar from '../components/bars/GameHeaderBar';
+import useGroupStore from '../store/groupStore';
+import { FiSettings } from 'react-icons/fi';
+import { TbBallFootball, TbHandStop, TbBottle } from 'react-icons/tb';
+import { ShieldBan, Shuffle, Swords } from 'lucide-react';
+import GameModal from '../components/modals/GameModal';
 
+const iconStyle = { color: '#94a3b8', flexShrink: 0 };
 const getPlayerStatus = (index) => {
-    if (index < 4) return '⚽️';
-    if (index === 4) return '🧤';
-    return '🏖️';
+    if (index < 4) return <TbBallFootball size={16} style={iconStyle} />;
+    if (index === 4) return <TbHandStop size={16} style={iconStyle} />;
+    return <TbBottle size={16} style={iconStyle} />;
 };
 
 const TeamsPage = () => {
     const { gameId } = useParams();
     const { game, subscribeToGame, updateGame, loading } = useGameStore();
+    const { group, subscribeToGroup } = useGroupStore();
     const [pressed, setPressed] = useState(false);
+    const [isGameModalOpen, setIsGameModalOpen] = useState(false);
     const [shuffling, setShuffling] = useState(false);
     const [animateIn, setAnimateIn] = useState(false);
 
@@ -25,6 +32,13 @@ const TeamsPage = () => {
             return unsub;
         }
     }, [gameId, subscribeToGame]);
+
+    useEffect(() => {
+        if (game?.groupId) {
+            const unsub = subscribeToGroup(game.groupId);
+            return unsub;
+        }
+    }, [game?.groupId, subscribeToGroup]);
 
     const handleSquadUp = async () => {
         if (game?.playersIn?.length > 0) {
@@ -85,6 +99,32 @@ const TeamsPage = () => {
         await updateGame(gameId, updatedTeams);
     };
 
+    const handleInjury = async (playerId, fromTeam) => {
+        const currentGame = useGameStore.getState().game;
+        const teamList = fromTeam === 'team1' ? [...currentGame.team1] : [...currentGame.team2];
+        const playerIndex = teamList.findIndex(p => p.id === playerId);
+        if (playerIndex === -1) return;
+
+        const [player] = teamList.splice(playerIndex, 1);
+        const injured = [...(currentGame.injured || []), { ...player, fromTeam }];
+
+        await updateGame(gameId, { [fromTeam]: teamList, injured });
+    };
+
+    const handleRecover = async (playerId) => {
+        const currentGame = useGameStore.getState().game;
+        const injuredList = [...(currentGame.injured || [])];
+        const playerIndex = injuredList.findIndex(p => p.id === playerId);
+        if (playerIndex === -1) return;
+
+        const [player] = injuredList.splice(playerIndex, 1);
+        const { fromTeam, ...cleanPlayer } = player;
+        const targetTeam = fromTeam || 'team1';
+        const teamList = [...(currentGame[targetTeam] || []), cleanPlayer];
+
+        await updateGame(gameId, { [targetTeam]: teamList, injured: injuredList });
+    };
+
     if (!game && loading) {
         return <p>Loading teams...</p>;
     }
@@ -100,7 +140,37 @@ const TeamsPage = () => {
 
     return (
         <>
-            <GameHeaderBar gameId={gameId} />
+            <header style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '12px 16px',
+                backgroundColor: '#ffffff',
+                borderBottom: '1px solid #e2e8f0',
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Swords size={20} color="#5b7bb3" />
+                    <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0f172a', margin: 0 }}>
+                        {group?.name || 'Teams'}
+                    </h1>
+                    {hasTeams && (
+                        <span style={{
+                            fontSize: '0.65rem',
+                            fontWeight: '600',
+                            color: '#64748b',
+                            background: '#f1f5f9',
+                            borderRadius: '10px',
+                            padding: '2px 8px',
+                        }}>
+                            {(game.team1?.length || 0) + (game.team2?.length || 0)} players
+                        </span>
+                    )}
+                </div>
+                <button onClick={() => setIsGameModalOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', display: 'flex', alignItems: 'center', color: '#94a3b8' }} aria-label="Game Settings">
+                    <FiSettings size={22} />
+                </button>
+            </header>
+            <GameModal isOpen={isGameModalOpen} setIsOpen={setIsGameModalOpen} group={group} game={game} />
             <div className="p-4" style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflow: 'hidden' }}>
                 <div style={{ flex: 1, overflowY: shuffling ? 'hidden' : 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly' }}>
                     {!hasTeams ? (
@@ -128,12 +198,17 @@ const TeamsPage = () => {
                                             team="team1"
                                             isCaptain={captain1?.id === player.id}
                                             onSwipe={() => handleSwapPlayer(player.id, 'team1')}
+                                            onInjury={() => handleInjury(player.id, 'team1')}
                                         />
                                     </div>
                                 ))}
                             </div>
 
-                            <hr style={{ margin: '8px 0', borderTop: '3px solid #ccc' }} />
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '4px 8px' }}>
+                                <div style={{ flex: 1, height: '2px', background: 'linear-gradient(to right, #0d9488, transparent)' }} />
+                                <span style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: '600', letterSpacing: '0.5px' }}>VS</span>
+                                <div style={{ flex: 1, height: '2px', background: 'linear-gradient(to left, #e11d48, transparent)' }} />
+                            </div>
 
                             <div>
                                 {game.team2.map((player, index) => (
@@ -147,10 +222,34 @@ const TeamsPage = () => {
                                             team="team2"
                                             isCaptain={captain2?.id === player.id}
                                             onSwipe={() => handleSwapPlayer(player.id, 'team2')}
+                                            onInjury={() => handleInjury(player.id, 'team2')}
                                         />
                                     </div>
                                 ))}
                             </div>
+
+                            {/* Injured section */}
+                            {(game.injured?.length > 0) && (
+                                <>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '4px 8px' }}>
+                                        <div style={{ flex: 1, height: '2px', background: 'linear-gradient(to right, #f59e0b, transparent)' }} />
+                                        <ShieldBan size={12} color="#f59e0b" strokeWidth={2.5} />
+                                        <span style={{ fontSize: '0.7rem', color: '#f59e0b', fontWeight: '600', letterSpacing: '0.5px' }}>INJURED</span>
+                                        <ShieldBan size={12} color="#f59e0b" strokeWidth={2.5} />
+                                        <div style={{ flex: 1, height: '2px', background: 'linear-gradient(to left, #f59e0b, transparent)' }} />
+                                    </div>
+                                    <div>
+                                        {game.injured.map((player) => (
+                                            <SwipeTeamPlayer
+                                                key={player.id}
+                                                player={player}
+                                                mode="injured"
+                                                onRecover={() => handleRecover(player.id)}
+                                            />
+                                        ))}
+                                    </div>
+                                </>
+                            )}
                         </>
                     )}
                 </div>
@@ -161,22 +260,31 @@ const TeamsPage = () => {
                     onPointerUp={() => setPressed(false)}
                     onPointerLeave={() => setPressed(false)}
                     style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '10px',
                         padding: '14px 24px',
-                        fontSize: '1.1rem',
-                        fontWeight: 'bold',
+                        fontSize: '1rem',
+                        fontWeight: '700',
                         color: '#fff',
-                        backgroundColor: pressed ? '#4a6694' : '#5b7bb3',
+                        background: pressed
+                            ? 'linear-gradient(135deg, #4a6694, #3d5580)'
+                            : 'linear-gradient(135deg, #5b7bb3, #4a6694)',
                         border: 'none',
-                        borderRadius: '10px',
+                        borderRadius: '12px',
                         cursor: 'pointer',
                         flexShrink: 0,
-                        boxShadow: pressed ? '0 1px 2px rgba(0, 0, 0, 0.2)' : '0 4px 6px rgba(0, 0, 0, 0.2)',
+                        boxShadow: pressed
+                            ? '0 1px 3px rgba(91,123,179,0.3)'
+                            : '0 4px 12px rgba(91,123,179,0.35)',
                         textTransform: 'uppercase',
-                        letterSpacing: '1px',
-                        transform: pressed ? 'scale(0.96)' : 'scale(1)',
-                        transition: 'transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease',
+                        letterSpacing: '1.5px',
+                        transform: pressed ? 'scale(0.97)' : 'scale(1)',
+                        transition: 'transform 0.15s ease, box-shadow 0.15s ease',
                     }}
                 >
+                    <Shuffle size={18} strokeWidth={2.5} />
                     Squad Up
                 </button>
             </div>

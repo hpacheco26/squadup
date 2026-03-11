@@ -43,14 +43,14 @@ function SquadSettingsPage() {
 
     const handleDeleteGroup = () => {
         deleteGroup(group.id);
-        navigate('/groups');
+        navigate('/');
     };
 
     const handleLeaveGroup = () => {
         if (!group || !user) return;
         const updatedPlayers = (group.players ?? []).filter(player => player.userId !== user.uid);
         updateGroup(group.id, { ...group, players: updatedPlayers });
-        navigate('/groups');
+        navigate('/');
     };
 
     const handleAddPlayer = (newPlayer) => {
