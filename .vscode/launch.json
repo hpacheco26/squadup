@@ -2,35 +2,16 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Backend",
-      "type": "node",
-      "request": "launch",
-      "program": "${workspaceFolder}/backend/server.js",
-      "cwd": "${workspaceFolder}/backend",
-      "envFile": "${workspaceFolder}/backend/.env",
-      "console": "integratedTerminal",
-      "restart": true,
-      "presentation": {
-        "clear": true
-      }
-    },
-    {
-      "name": "Frontend (Vite)",
+      "name": "Dev Server",
       "type": "node",
       "request": "launch",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
-      "cwd": "${workspaceFolder}/frontend",
+      "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "presentation": {
         "clear": true
       }
-    }
-  ],
-  "compounds": [
-    {
-      "name": "Full Stack (Backend + Frontend)",
-      "configurations": ["Backend", "Frontend (Vite)"]
     }
   ]
 }

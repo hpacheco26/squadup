@@ -1,0 +1,47 @@
+/* Bulma primary color override */
+$primary: #5b7bb3;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: #f0f2f5;
+  color: #1e293b;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Override Bulma link color */
+a {
+  color: #5b7bb3;
+}
+a:hover {
+  color: #4a6694;
+}
+
+/* Navbar: icon color only, no background change */
+.navbar-item:hover,
+.navbar-item:focus,
+.navbar-item:active,
+.navbar-item.is-active,
+.navbar button:hover,
+.navbar button:focus,
+.navbar button:active {
+  background-color: transparent !important;
+  color: #ffffff !important;
+}
