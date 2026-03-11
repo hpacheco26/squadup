@@ -9,17 +9,17 @@ function HomePage() {
       <div
         style={{
           flex: 1,
-          overflowY: "auto",
-          padding: "16px 0",
+          overflow: 'hidden',
+          padding: "8px 0",
           display: "flex",
           flexDirection: "column",
-          gap: "24px",
+          gap: "4px",
         }}
       >
-        <div style={{ width: "100%" }}>
+        <div style={{ width: "100%", flex: 'none' }}>
           <GameList />
         </div>
-        <div style={{ width: "100%" }}>
+        <div style={{ width: "100%", flex: 1, minHeight: 0 }}>
           <RankList />
         </div>
       </div>

@@ -5,18 +5,21 @@ import PlayersList from '../components/lists/PlayersList';
 import { useNavigate } from 'react-router-dom';
 import useGameStore from '../store/gameStore';
 import useGroupStore from '../store/groupStore';
-import useAuthStore from '../store/authStore'; // Assuming there's an auth store to get user info
+import useAuthStore from '../store/authStore';
 import GameHeaderBar from '../components/bars/GameHeaderBar';
+import PlayerModal from '../components/modals/PlayerModal';
+import { Share2, UserPlus, Link as LinkIcon } from 'lucide-react';
 
 const PreGamePage = () => {
     const { gameId } = useParams();
     const navigate = useNavigate();
-    const { game, fetchGameById, handlePlayerOut, handlePlayerIn } = useGameStore();
+    const { game, fetchGameById, handlePlayerOut, handlePlayerIn, updateGame } = useGameStore();
     const { group, fetchGroupById } = useGroupStore();
-    const { user } = useAuthStore(); // Get logged-in user info
+    const { user } = useAuthStore();
     const [playersIn, setPlayersIn] = useState([]);
     const [playersOut, setPlayersOut] = useState([]);
     const [playersInvited, setPlayersInvited] = useState([]);
+    const [isGuestModalOpen, setIsGuestModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchGameData = async () => {
@@ -40,12 +43,71 @@ const PreGamePage = () => {
         }
     }, [game]);
 
+    const handleAddGuest = (guestPlayer) => {
+        if (!game) return;
+        const guest = { ...guestPlayer, guest: true };
+        const updatedPlayersIn = [...(game.playersIn || []), guest];
+        updateGame(gameId, { playersIn: updatedPlayersIn });
+    };
+
+    const buildGameSummary = () => {
+        const inNames = (game.playersIn || []).map(p => p.firstName).join(', ');
+        const outNames = (game.playersOut || []).map(p => p.firstName).join(', ');
+        const pendingNames = (game.playersInvited || []).map(p => p.firstName).join(', ');
+        const dateStr = game.date || '';
+        const timeStr = game.time || '';
+        const loc = game.location || '';
+        const groupName = group?.name || '';
+
+        let msg = `⚽ ${groupName} — Game Day!\n`;
+        if (dateStr) msg += `📅 ${dateStr}${timeStr ? ` at ${timeStr}` : ''}\n`;
+        if (loc) msg += `📍 ${loc}\n`;
+        msg += `\n`;
+        msg += `✅ IN (${(game.playersIn || []).length}): ${inNames || 'none'}\n`;
+        msg += `❌ OUT (${(game.playersOut || []).length}): ${outNames || 'none'}\n`;
+        msg += `❓ PENDING (${(game.playersInvited || []).length}): ${pendingNames || 'none'}\n`;
+        msg += `\nRespond here: ${window.location.origin}/game-invite/${gameId}`;
+        return msg;
+    };
+
+    const handleShareWhatsApp = () => {
+        const message = buildGameSummary();
+        window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+    };
+
+    const handleCopyInviteLink = () => {
+        const link = `${window.location.origin}/game-invite/${gameId}`;
+        navigator.clipboard.writeText(link);
+    };
+
     if (!game) return <div>Loading...</div>;
 
     return (
         <>
             <GameHeaderBar gameId={gameId} />
             <div className="p-2" style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflowY: 'auto', gap: '12px' }}>
+                {/* Action buttons */}
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', padding: '4px 0' }}>
+                    <button
+                        onClick={() => setIsGuestModalOpen(true)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: '0.8rem', color: '#64748b' }}
+                    >
+                        <UserPlus size={14} /> Guest
+                    </button>
+                    <button
+                        onClick={handleShareWhatsApp}
+                        style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: 'none', background: '#4CAF7D', color: '#fff', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold' }}
+                    >
+                        <Share2 size={14} /> WhatsApp
+                    </button>
+                    <button
+                        onClick={handleCopyInviteLink}
+                        style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: '0.8rem', color: '#64748b' }}
+                    >
+                        <LinkIcon size={14} /> Link
+                    </button>
+                </div>
+
                 <div>
                     <PlayersList 
                         players={playersIn}
@@ -80,6 +142,14 @@ const PreGamePage = () => {
                     />
                 </div>
 
+                {/* Guest Player Modal */}
+                <PlayerModal
+                    isOpen={isGuestModalOpen}
+                    setIsOpen={setIsGuestModalOpen}
+                    onAddPlayer={handleAddGuest}
+                    title="Guest Player"
+                    buttonLabel="Add Guest"
+                />
             </div>
         </>
     );

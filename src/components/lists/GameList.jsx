@@ -24,7 +24,7 @@ const GameList = () => {
 
   return (
     <div>
-      <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', marginBottom: '8px', textAlign: 'center' }}>
+      <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', marginBottom: '4px', textAlign: 'center' }}>
         Upcoming Games
       </p>
       <Swiper
@@ -48,7 +48,7 @@ const GameList = () => {
               <div style={{
                 background: '#fff',
                 borderRadius: '16px',
-                padding: '16px',
+                padding: 'clamp(10px, 2dvh, 16px)',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
                 height: '100%',
               }}>

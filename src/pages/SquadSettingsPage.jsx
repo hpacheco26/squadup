@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Plus } from 'lucide-react';
+import { Plus, Link, Share2, Copy, Check } from 'lucide-react';
 import useGroupStore from '../store/groupStore';
+import useAuthStore from '../store/authStore';
+import useInviteStore from '../store/inviteStore';
 import PlayerCard from '../components/cards/PlayerCard';
 import PlayerModal from '../components/modals/PlayerModal';
 import SquadSettingsHeaderBar from '../components/bars/SquadSettingsHeaderBar';
@@ -13,6 +15,10 @@ function SquadSettingsPage() {
 
     const [groupName, setGroupName] = useState('');
     const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
+    const [inviteLink, setInviteLink] = useState('');
+    const [copied, setCopied] = useState(false);
+    const { user } = useAuthStore();
+    const { createInvite } = useInviteStore();
 
     // Ensure `fetchGroupById` doesn't trigger unnecessary renders
     const fetchGroup = useCallback(() => fetchGroupById(id), [id, fetchGroupById]);
@@ -49,6 +55,30 @@ function SquadSettingsPage() {
         if (!group) return;
         const updatedPlayers = (group.players ?? []).filter(player => player.id !== playerId);
         updateGroup(group.id, { ...group, players: updatedPlayers }).then(fetchGroup);
+    };
+
+    const handleGenerateInvite = async () => {
+        if (!group || !user) return;
+        const invite = await createInvite({
+            groupId: group.id,
+            groupName: group.name,
+            createdBy: user.uid,
+        });
+        if (invite) {
+            const link = `${window.location.origin}/join/${invite.code}`;
+            setInviteLink(link);
+        }
+    };
+
+    const handleCopyLink = () => {
+        navigator.clipboard.writeText(inviteLink);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handleShareWhatsApp = () => {
+        const message = `Join my squad "${group.name}" on SquadUp! ${inviteLink}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
     };
 
     return (
@@ -111,6 +141,47 @@ function SquadSettingsPage() {
                     setIsOpen={setIsPlayerModalOpen} 
                     onAddPlayer={handleAddPlayer} 
                 />
+
+                {/* Invite Section */}
+                <div style={{ marginBottom: '16px' }}>
+                    <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
+                        Invite Players
+                    </label>
+                    {!inviteLink ? (
+                        <button
+                            className="button"
+                            style={{ width: '100%', background: '#5b7bb3', color: '#fff', borderRadius: '8px', fontWeight: 'bold', border: 'none', padding: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                            onClick={handleGenerateInvite}
+                        >
+                            <Link size={16} /> Generate Invite Link
+                        </button>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <input
+                                    className="input"
+                                    type="text"
+                                    value={inviteLink}
+                                    readOnly
+                                    style={{ borderRadius: '8px', flex: 1, fontSize: '0.85rem' }}
+                                />
+                                <button
+                                    style={{ background: 'none', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                                    onClick={handleCopyLink}
+                                >
+                                    {copied ? <Check size={16} color="#16a34a" /> : <Copy size={16} />}
+                                </button>
+                            </div>
+                            <button
+                                className="button"
+                                style={{ width: '100%', background: '#4CAF7D', color: '#fff', borderRadius: '8px', fontWeight: 'bold', border: 'none', padding: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                onClick={handleShareWhatsApp}
+                            >
+                                <Share2 size={16} /> Share via WhatsApp
+                            </button>
+                        </div>
+                    )}
+                </div>
 
                 {/* Actions */}
                 <div style={{ display: 'flex', gap: '12px' }}>

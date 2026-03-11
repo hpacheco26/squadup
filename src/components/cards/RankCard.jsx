@@ -88,10 +88,10 @@ const RankCard = ({ rank, groupName, stats, isAnimated }) => {
       animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
     >
-      <BadgeSVG rank={rank} />
+      <BadgeSVG rank={rank} size={120} />
     </motion.div>
   ) : (
-    <BadgeSVG rank={rank} />
+    <BadgeSVG rank={rank} size={120} />
   );
 
   const theme = rankThemes[rank] || rankThemes[0];
@@ -101,12 +101,12 @@ const RankCard = ({ rank, groupName, stats, isAnimated }) => {
     <div style={{
       background: '#fff',
       borderRadius: '16px',
-      padding: '24px 20px',
+      padding: 'clamp(8px, 1.5dvh, 16px) 16px',
       textAlign: 'center',
       boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
       cursor: 'grab',
     }}>
-      <div style={{ height: '190px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ height: 'clamp(70px, 13dvh, 150px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {badge}
       </div>
 
@@ -123,7 +123,7 @@ const RankCard = ({ rank, groupName, stats, isAnimated }) => {
       </p>
 
       {/* Group Name */}
-      <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1e293b', marginBottom: '16px' }}>
+      <h2 style={{ fontSize: 'clamp(0.95rem, 1.5dvh, 1.25rem)', fontWeight: 'bold', color: '#1e293b', marginBottom: 'clamp(4px, 1dvh, 10px)' }}>
         {groupName}
       </h2>
 
@@ -133,7 +133,7 @@ const RankCard = ({ rank, groupName, stats, isAnimated }) => {
         justifyContent: 'center',
         gap: '24px',
         borderTop: '1px solid #e2e8f0',
-        paddingTop: '14px',
+        paddingTop: '10px',
       }}>
         <div style={{ textAlign: 'center' }}>
           <p style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#1e293b' }}>{stats?.wins || 0}</p>

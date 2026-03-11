@@ -23,7 +23,7 @@ export default function CreateGroupModal({ isOpen, setIsOpen }) {
             id: null,
             name: groupName,
             sport: sport,
-            adminId: playerData.id,
+            adminId: playerData.userId,
             admin: `${playerData.firstName} ${playerData.lastName}`, 
             players: [
                 {

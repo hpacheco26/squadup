@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiPlay, FiPause, FiRotateCcw } from 'react-icons/fi';
+import { Share2 } from 'lucide-react';
 import useGameStore from '../store/gameStore';
 import useGroupStore from '../store/groupStore';
 import { getCaptain } from '../utils/teamBalancer';
@@ -22,6 +23,7 @@ const GamePage = () => {
     const { updateRank, group } = useGroupStore();
 
     const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+    const intervalRef = useRef(null);
 
     useEffect(() => {
         if (gameId) fetchGameById(gameId);
@@ -34,18 +36,33 @@ const GamePage = () => {
         }
     }, [game?.subTime]);
 
-    // Timer countdown
-    const currentTimer = timer ?? 300;
-    useEffect(() => {
-        let interval;
-        if (isRunning && currentTimer > 0) {
-            interval = setInterval(() => setTimer(prev => prev - 1), 1000);
-        } else if (currentTimer === 0 && isRunning) {
-            setIsRunning(false);
-            setIsSubModalOpen(true);
+    // Timer countdown — use ref-based interval to avoid stale closures
+    const stopInterval = useCallback(() => {
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
         }
-        return () => clearInterval(interval);
-    }, [isRunning, currentTimer]);
+    }, []);
+
+    useEffect(() => {
+        if (isRunning) {
+            stopInterval();
+            intervalRef.current = setInterval(() => {
+                const state = useGameStore.getState();
+                const current = state.timer ?? 300;
+                if (current <= 1) {
+                    state.setTimer(0);
+                    state.setIsRunning(false);
+                    setIsSubModalOpen(true);
+                } else {
+                    state.setTimer(current - 1);
+                }
+            }, 1000);
+        } else {
+            stopInterval();
+        }
+        return stopInterval;
+    }, [isRunning, stopInterval]);
 
     const toggleTimer = () => setIsRunning(!isRunning);
     const resetTimer = () => {
@@ -103,8 +120,21 @@ const GamePage = () => {
         navigate('/rank');
     };
 
+    const handleShareResult = () => {
+        const team1Names = team1.map(p => p.firstName).join(', ');
+        const team2Names = team2.map(p => p.firstName).join(', ');
+        const groupName = group?.name || 'Game';
+        let msg = `⚽ ${groupName} — Result\n\n`;
+        msg += `${team1Label}: ${team1Goals}\n`;
+        msg += `${team2Label}: ${team2Goals}\n\n`;
+        msg += `🟢 ${team1Label}: ${team1Names}\n`;
+        msg += `🔴 ${team2Label}: ${team2Names}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+
     if (loading || !game) return <p>Loading game...</p>;
 
+    const currentTimer = timer ?? 300;
     const team1 = game.team1 || [];
     const team2 = game.team2 || [];
     const captain1 = getCaptain(team1);
@@ -124,7 +154,7 @@ const GamePage = () => {
             }}>
                 {/* Sub Timer */}
                 <div style={{ textAlign: 'center', padding: '8px 0', flexShrink: 0 }}>
-                    <p style={{ fontSize: '3.5rem', fontWeight: 'bold', fontFamily: 'monospace' }}>
+                    <p style={{ fontSize: '3.5rem', fontWeight: 'bold', fontFamily: 'monospace', color: '#0f1d2f' }}>
                         {formatTime(currentTimer)}
                     </p>
                     <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', marginTop: '8px' }}>
@@ -154,7 +184,7 @@ const GamePage = () => {
                     {/* Team 1 */}
                     <div style={{ textAlign: 'center', flex: 1 }}>
                         <p style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#0d9488', marginBottom: '4px' }}>{team1Label}</p>
-                        <GoalCarousel value={team1Goals} onChange={setTeam1Goals} color="#0d9488" />
+                        <GoalCarousel value={team1Goals} onChange={setTeam1Goals} color="#0f1d2f" />
                     </div>
 
                     {/* Divider */}
@@ -163,30 +193,50 @@ const GamePage = () => {
                     {/* Team 2 */}
                     <div style={{ textAlign: 'center', flex: 1 }}>
                         <p style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#b91c1c', marginBottom: '4px' }}>{team2Label}</p>
-                        <GoalCarousel value={team2Goals} onChange={setTeam2Goals} color="#b91c1c" />
+                        <GoalCarousel value={team2Goals} onChange={setTeam2Goals} color="#0f1d2f" />
                     </div>
                 </div>
 
                 {/* End Game Button */}
-                <button
-                    onClick={handleEndGame}
-                    style={{
-                        padding: '14px 24px',
-                        fontSize: '1.1rem',
-                        fontWeight: 'bold',
-                        color: '#fff',
-                        backgroundColor: '#5b7bb3',
-                        border: 'none',
-                        borderRadius: '10px',
-                        cursor: 'pointer',
-                        boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
-                        textTransform: 'uppercase',
-                        letterSpacing: '1px',
-                        flexShrink: 0,
-                    }}
-                >
-                    End Game
-                </button>
+                <div style={{ display: 'flex', gap: '10px', flexShrink: 0 }}>
+                    <button
+                        onClick={handleShareResult}
+                        style={{
+                            padding: '14px',
+                            fontSize: '1.1rem',
+                            fontWeight: 'bold',
+                            color: '#fff',
+                            backgroundColor: '#4CAF7D',
+                            border: 'none',
+                            borderRadius: '10px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <Share2 size={20} />
+                    </button>
+                    <button
+                        onClick={handleEndGame}
+                        style={{
+                            padding: '14px 24px',
+                            fontSize: '1.1rem',
+                            fontWeight: 'bold',
+                            color: '#fff',
+                            backgroundColor: '#5b7bb3',
+                            border: 'none',
+                            borderRadius: '10px',
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
+                            textTransform: 'uppercase',
+                            letterSpacing: '1px',
+                            flex: 1,
+                        }}
+                    >
+                        End Game
+                    </button>
+                </div>
             </div>
 
             {/* Sub Timer Modal */}

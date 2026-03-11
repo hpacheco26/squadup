@@ -12,12 +12,14 @@ import GamePage from './pages/GamePage';
 import TeamsPage from './pages/TeamsPage';
 import RankPage from './pages/RankPage.jsx';
 import AppSettingsPage from './pages/AppSettingsPage.jsx';
+import JoinPage from './pages/JoinPage.jsx';
+import GameInvitePage from './pages/GameInvitePage.jsx';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/bars/NavBar.jsx'; 
 
 function App() {
   const location = useLocation();
-  const hideNavbar = ['/login', '/signup'].includes(location.pathname);
+  const hideNavbar = ['/login', '/signup'].includes(location.pathname) || location.pathname.startsWith('/game-invite');
 
   const appStyles = {
     height: '100dvh',
@@ -46,6 +48,8 @@ function App() {
         <Route path="/game/:gameId" element={<ProtectedRoute><GamePage /></ProtectedRoute>} />
         <Route path="/rank" element={<ProtectedRoute><RankPage /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><AppSettingsPage /></ProtectedRoute>} />
+        <Route path="/join/:code" element={<ProtectedRoute><JoinPage /></ProtectedRoute>} />
+        <Route path="/game-invite/:gameId" element={<GameInvitePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       </div>

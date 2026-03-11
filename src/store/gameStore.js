@@ -23,7 +23,9 @@ const useGameStore = create((set) => ({
     setTimer: (updater) => set((state) => ({
         timer: typeof updater === 'function' ? updater(state.timer) : updater,
     })),
-    setIsRunning: (val) => set({ isRunning: typeof val === 'function' ? val(useGameStore.getState().isRunning) : val }),
+    setIsRunning: (val) => set((state) => ({
+        isRunning: typeof val === 'function' ? val(state.isRunning) : val,
+    })),
 
     // Reset game session state (goals, timer, running)
     resetGameSession: () => set({

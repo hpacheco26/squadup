@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import useGroupStore from '../../store/groupStore';
 
-function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
+function PlayerModal({ isOpen, setIsOpen, onAddPlayer, title = 'New Player', buttonLabel = 'Add Player' }) {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [rank] = useState(0); 
@@ -41,7 +41,7 @@ function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
             <div className="modal-background" onClick={() => setIsOpen(false)}></div>
             <div className="modal-card p-2">
                 <header className="modal-card-head" style={{ minHeight: '50px', background: '#fff', borderBottom: '1px solid #e2e8f0' }}>
-                    <p className="modal-card-title" style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>New Player</p>
+                    <p className="modal-card-title" style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{title}</p>
                     <button className="delete" aria-label="close" onClick={() => setIsOpen(false)} style={{ cursor: 'pointer' }}></button>
                 </header>
                 <section className="modal-card-body" style={{ padding: '20px' }}>
@@ -78,7 +78,7 @@ function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
                         style={{ flex: 1, background: '#5b7bb3', color: '#fff', borderRadius: '8px', fontWeight: 'bold', letterSpacing: '0.5px', border: 'none', cursor: 'pointer' }}
                         onClick={handleSubmit}
                     >
-                        Add Player
+                        {buttonLabel}
                     </button>
                 </footer>
             </div>

@@ -27,7 +27,7 @@ const RankList = () => {
 
   return (
     <div className="rank-carousel-container">
-      <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', marginBottom: '8px', textAlign: 'center' }}>
+      <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', marginBottom: '4px', textAlign: 'center' }}>
         My Groups
       </p>
       {Array.isArray(ranks) && ranks.length > 0 ? (

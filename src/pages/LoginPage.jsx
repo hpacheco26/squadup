@@ -19,7 +19,9 @@ const LoginPage = () => {
 
         try {
             await login(email, password);
-            navigate('/'); // Redirect to homepage on successful login
+            const returnTo = sessionStorage.getItem('returnTo');
+            sessionStorage.removeItem('returnTo');
+            navigate(returnTo || '/'); // Redirect to saved page or homepage
         } catch (err) {
             setError('Invalid credentials');
         } finally {
@@ -31,7 +33,9 @@ const LoginPage = () => {
         setLoading(true);
         try {
             await loginWithGoogle();
-            navigate('/'); // Redirect after Google login
+            const returnTo = sessionStorage.getItem('returnTo');
+            sessionStorage.removeItem('returnTo');
+            navigate(returnTo || '/'); // Redirect after Google login
         } catch (err) {
             setError('Google login failed');
         } finally {
