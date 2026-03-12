@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { UserPlus, LogOut, Trash2 } from 'lucide-react';
+import { UserPlus, LogOut, Trash2, Wallet, X } from 'lucide-react';
 import useGroupStore from '../store/groupStore';
 import useAuthStore from '../store/authStore';
 import PlayerCard from '../components/cards/PlayerCard';
@@ -10,12 +10,14 @@ import SquadSettingsHeaderBar from '../components/bars/SquadSettingsHeaderBar';
 function SquadSettingsPage() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { group, subscribeToGroup, updateGroup, deleteGroup } = useGroupStore();
+    const { group, subscribeToGroup, updateGroup, deleteGroup, clearPlayerDebt } = useGroupStore();
 
     const [groupName, setGroupName] = useState('');
+    const [treasuryPhone, setTreasuryPhone] = useState('');
     const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
     const { user } = useAuthStore();
     const saveTimerRef = useRef(null);
+    const phoneSaveTimerRef = useRef(null);
 
     const isAdmin = group?.adminId === user?.uid;
 
@@ -29,6 +31,7 @@ function SquadSettingsPage() {
         if (group?.name) {
             setGroupName(group.name);
         }
+        setTreasuryPhone(group?.treasuryPhone || '');
     }, [group]);
 
     const handleUpdateGroup = () => {
@@ -45,6 +48,20 @@ function SquadSettingsPage() {
             if (value.trim() && value !== group?.name) {
                 updateGroup(group.id, { ...group, name: value });
             }
+        }, 800);
+    };
+
+    const handleTreasuryPlayerChange = (e) => {
+        const playerId = e.target.value || null;
+        updateGroup(group.id, { ...group, treasuryPlayerId: playerId });
+    };
+
+    const handleTreasuryPhoneChange = (e) => {
+        const value = e.target.value;
+        setTreasuryPhone(value);
+        if (phoneSaveTimerRef.current) clearTimeout(phoneSaveTimerRef.current);
+        phoneSaveTimerRef.current = setTimeout(() => {
+            updateGroup(group.id, { ...group, treasuryPhone: value || null });
         }, 800);
     };
 
@@ -114,6 +131,113 @@ function SquadSettingsPage() {
                             />
                         </div>
                     )}
+
+                    {/* Treasury - admin only */}
+                    {isAdmin && (
+                        <div style={{
+                            background: '#fff',
+                            borderRadius: '12px',
+                            padding: '16px',
+                            marginBottom: '12px',
+                            border: '1px solid #e2e8f0',
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
+                                <Wallet size={14} color="#5b7bb3" />
+                                <label style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
+                                    Treasury
+                                </label>
+                            </div>
+                            <label style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '4px', display: 'block' }}>Treasury Player</label>
+                            <select
+                                value={group.treasuryPlayerId || ''}
+                                onChange={handleTreasuryPlayerChange}
+                                style={{
+                                    width: '100%',
+                                    padding: '10px 12px',
+                                    borderRadius: '8px',
+                                    border: '1px solid #e2e8f0',
+                                    fontSize: '0.95rem',
+                                    color: '#1e293b',
+                                    outline: 'none',
+                                    boxSizing: 'border-box',
+                                    background: '#fff',
+                                    marginBottom: '10px',
+                                }}
+                            >
+                                <option value="">Select player...</option>
+                                {(group.players ?? []).map(p => (
+                                    <option key={p.id} value={p.id}>{p.firstName} {p.lastName || ''}</option>
+                                ))}
+                            </select>
+                            <label style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '4px', display: 'block' }}>MBWay Phone</label>
+                            <input
+                                type="tel"
+                                placeholder="912345678"
+                                value={treasuryPhone}
+                                onChange={handleTreasuryPhoneChange}
+                                style={{
+                                    width: '100%',
+                                    padding: '10px 12px',
+                                    borderRadius: '8px',
+                                    border: '1px solid #e2e8f0',
+                                    fontSize: '0.95rem',
+                                    color: '#1e293b',
+                                    outline: 'none',
+                                    boxSizing: 'border-box',
+                                }}
+                            />
+                        </div>
+                    )}
+
+                    {/* Debts - admin only */}
+                    {isAdmin && (() => {
+                        const playersWithDebt = (group.players ?? []).filter(p => (p.debt || 0) > 0);
+                        if (playersWithDebt.length === 0) return null;
+                        const totalDebt = playersWithDebt.reduce((sum, p) => sum + (p.debt || 0), 0);
+                        return (
+                            <div style={{
+                                background: '#fff',
+                                borderRadius: '12px',
+                                padding: '16px',
+                                marginBottom: '12px',
+                                border: '1px solid #e2e8f0',
+                            }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                    <label style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
+                                        Outstanding Debts
+                                    </label>
+                                    <span style={{ fontSize: '0.8rem', fontWeight: '700', color: '#dc2626' }}>€{totalDebt.toFixed(2)}</span>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                    {playersWithDebt.map(player => (
+                                        <div key={player.id} style={{
+                                            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                            padding: '8px 10px', borderRadius: '8px', background: '#fef2f2', border: '1px solid #fecaca',
+                                        }}>
+                                            <div>
+                                                <span style={{ fontSize: '0.9rem', fontWeight: '500', color: '#1e293b' }}>
+                                                    {player.firstName} {player.lastName?.[0] ? `${player.lastName[0]}.` : ''}
+                                                </span>
+                                                <span style={{ fontSize: '0.85rem', fontWeight: '600', color: '#dc2626', marginLeft: '8px' }}>
+                                                    €{(player.debt || 0).toFixed(2)}
+                                                </span>
+                                            </div>
+                                            <button
+                                                onClick={() => clearPlayerDebt(group.id, player.id)}
+                                                style={{
+                                                    background: '#dcfce7', border: 'none', borderRadius: '6px',
+                                                    padding: '4px 10px', fontSize: '0.75rem', fontWeight: '600',
+                                                    color: '#16a34a', cursor: 'pointer',
+                                                }}
+                                            >
+                                                Clear
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        );
+                    })()}
 
                     {/* Players - admin only */}
                     {isAdmin && (

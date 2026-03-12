@@ -15,13 +15,14 @@ const GamePage = () => {
     const navigate = useNavigate();
     const {
         game, subscribeToGame, loading,
-        createGame, deleteGame,
+        createGame, deleteGame, updateGame,
+        resetGameSession,
         team1Goals, setTeam1Goals,
         team2Goals, setTeam2Goals,
         timer, setTimer,
         isRunning, setIsRunning,
     } = useGameStore();
-    const { updateRank, group, subscribeToGroup } = useGroupStore();
+    const { updateRank, group, subscribeToGroup, accumulateDebts } = useGroupStore();
 
     const [isSubModalOpen, setIsSubModalOpen] = useState(false);
     const [isGameModalOpen, setIsGameModalOpen] = useState(false);
@@ -30,10 +31,17 @@ const GamePage = () => {
 
     useEffect(() => {
         if (gameId) {
+            resetGameSession();
             const unsub = subscribeToGame(gameId);
             return unsub;
         }
     }, [gameId, subscribeToGame]);
+
+    useEffect(() => {
+        if (game?.status === 'ended' && game.groupId) {
+            navigate(`/groups/${game.groupId}`, { replace: true });
+        }
+    }, [game?.status, game?.groupId, navigate]);
 
     useEffect(() => {
         if (game?.groupId) {
@@ -124,6 +132,36 @@ const GamePage = () => {
     };
 
     const handleEndGame = async () => {
+        // Accumulate unpaid debts before finishing
+        if (game.price > 0) {
+            const allPlayers = [...team1, ...team2, ...(game.injured || [])];
+            if (allPlayers.length > 0) {
+                const treasuryId = group?.treasuryPlayerId || null;
+                const perPlayerCost = game.price / allPlayers.length;
+                const payments = { ...(game.payments || {}) };
+
+                // Auto-pay treasury and guests invited by treasury
+                allPlayers.forEach(p => {
+                    if (p.id === treasuryId) payments[p.id] = true;
+                    if (p.guest && p.addedBy === treasuryId) payments[p.id] = true;
+                });
+
+                const debtMap = {};
+                allPlayers
+                    .filter(p => !payments[p.id] && p.id !== treasuryId)
+                    .forEach(p => {
+                        const targetId = p.guest && p.addedBy ? p.addedBy : p.id;
+                        debtMap[targetId] = (debtMap[targetId] || 0) + perPlayerCost;
+                    });
+                if (Object.keys(debtMap).length > 0) {
+                    await accumulateDebts(group.id, debtMap);
+                }
+
+                // Store payments and perPlayerCost on the game for carousel accuracy
+                await updateGame(game.id, { payments, perPlayerCost });
+            }
+        }
+
         const winner = team1Goals >= team2Goals ? team1 : team2;
         const loser = team1Goals >= team2Goals ? team2 : team1;
         updateRank(group.id, winner, loser);
@@ -153,12 +191,24 @@ const GamePage = () => {
                 teamB: [],
                 subTime: game.subTime,
                 recurrence: game.recurrence,
+                price: game.price || 0,
+                payments: {},
                 groupId: game.groupId,
             });
         }
 
-        // Delete the finished game
-        await deleteGame(game.id);
+        // Mark finished game as ended (keep it if there are unpaid players)
+        // Re-read payments after auto-pay updates above
+        const finalGame = useGameStore.getState().game;
+        const finalPayments = finalGame?.payments || game.payments || {};
+        const allGamePlayers = [...team1, ...team2, ...(game.injured || [])];
+        const hasUnpaid = game.price > 0 && allGamePlayers.some(p => !finalPayments[p.id]);
+        if (hasUnpaid) {
+            await updateGame(game.id, { status: 'ended' });
+        } else {
+            await deleteGame(game.id);
+        }
+        resetGameSession();
         navigate('/rank');
     };
 
@@ -175,6 +225,7 @@ const GamePage = () => {
     };
 
     if (loading || !game) return <p>Loading game...</p>;
+    if (game.status === 'ended') return null;
 
     const currentTimer = timer ?? 300;
     const team1 = game.team1 || [];

@@ -14,6 +14,7 @@ import RankPage from './pages/RankPage.jsx';
 import AppSettingsPage from './pages/AppSettingsPage.jsx';
 import JoinPage from './pages/JoinPage.jsx';
 import GameInvitePage from './pages/GameInvitePage.jsx';
+import PaymentsPage from './pages/PaymentsPage.jsx';
 import ProtectedRoute from './components/ProtectedRoute';
 
 
@@ -43,6 +44,7 @@ function App() {
 
         <Route path="/pregame/:gameId" element={<ProtectedRoute><PregamePage /></ProtectedRoute>} />
         <Route path="/teams/:gameId" element={<ProtectedRoute><TeamsPage /></ProtectedRoute>} />
+        <Route path="/payments/:groupId" element={<ProtectedRoute><PaymentsPage /></ProtectedRoute>} />
         <Route path="/game/:gameId" element={<ProtectedRoute><GamePage /></ProtectedRoute>} />
         <Route path="/rank" element={<ProtectedRoute><RankPage /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><AppSettingsPage /></ProtectedRoute>} />

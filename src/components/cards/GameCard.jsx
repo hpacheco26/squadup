@@ -1,5 +1,5 @@
 import React from "react";
-import { CheckCircle, XCircle, Clock, Lock, UserCheck, UserX, Mail, MapPin, Calendar, Users } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Lock, UserCheck, UserX, Mail, MapPin, Calendar, Users, Euro } from "lucide-react";
 import getMyInviteStatus from "../../utils/myInviteStatus";
 import useAuthStore from '../../store/authStore';
 
@@ -63,21 +63,38 @@ const GameCard = ({ game }) => {
                         </div>
                     </div>
                 </div>
-                <span style={{
-                    background: status.bg,
-                    color: status.color,
-                    fontSize: '0.7rem',
-                    fontWeight: '700',
-                    padding: '4px 10px',
-                    borderRadius: '20px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    whiteSpace: 'nowrap',
-                    flexShrink: 0,
-                }}>
-                    {status.icon} {status.label}
-                </span>
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
+                    {game.price > 0 && (
+                        <span style={{
+                            background: '#f0fdf4',
+                            color: '#16a34a',
+                            fontSize: '0.7rem',
+                            fontWeight: '700',
+                            padding: '4px 8px',
+                            borderRadius: '20px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '2px',
+                            whiteSpace: 'nowrap',
+                        }}>
+                            <Euro size={12} /> {Number(game.price).toFixed(0)}
+                        </span>
+                    )}
+                    <span style={{
+                        background: status.bg,
+                        color: status.color,
+                        fontSize: '0.7rem',
+                        fontWeight: '700',
+                        padding: '4px 10px',
+                        borderRadius: '20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        whiteSpace: 'nowrap',
+                    }}>
+                        {status.icon} {status.label}
+                    </span>
+                </div>
             </div>
 
             {/* Player bar */}

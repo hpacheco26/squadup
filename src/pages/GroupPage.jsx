@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useGroupStore from '../store/groupStore';
 import useGameStore from '../store/gameStore';
+import useAuthStore from '../store/authStore';
 import { Loader, Button } from 'react-bulma-components';
 import GameModal from '../components/modals/GameModal'; 
 import GamesContainer from '../components/containers/GamesContainer'; 
@@ -15,8 +16,11 @@ function GroupPage() {
     const { id } = useParams();
     const { group, subscribeToGroup } = useGroupStore();
     const { games, subscribeToGamesByGroup, loading, error } = useGameStore();
+    const { user } = useAuthStore();
 
     const [isGameCreateModalOpen, setIsGameCreateModalOpen] = useState(false);
+
+    const isAdmin = group && user && group.adminId === user.uid;
 
     useEffect(() => {
         const unsubGroup = subscribeToGroup(id);
@@ -35,6 +39,9 @@ function GroupPage() {
         }))
         .sort((a, b) => b.rank - a.rank || b.wins - a.wins || a.losses - b.losses);
 
+    // Check if any player has debt
+    const showDebtColumn = sortedPlayers.some(p => (p.debt || 0) > 0);
+
     if (!group || loading || group.id !== id) return <Loader />;
 
     return (
@@ -49,7 +56,7 @@ function GroupPage() {
                 />
 
                 {/* Next Game */}
-                {games.length > 0 && (
+                {games.filter(g => !g.status || g.status === 'open').length > 0 && (
                     <>
                         <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', textAlign: 'center', marginBottom: '4px' }}>
                             Next Game
@@ -59,10 +66,10 @@ function GroupPage() {
                         </p>
                     </>
                 )}
-                <GamesContainer games={games} readOnly />
+                <GamesContainer games={games.filter(g => !g.status || g.status === 'open')} readOnly />
 
-                {/* Show Schedule Button only if no games exist */}
-                {games.length === 0 && (
+                {/* Show Schedule Button only if no open games and user is admin */}
+                {games.filter(g => !g.status || g.status === 'open').length === 0 && isAdmin && (
                     <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
                         <Button 
                             onClick={() => setIsGameCreateModalOpen(true)} 
@@ -93,7 +100,9 @@ function GroupPage() {
                         {/* Header row */}
                         <div style={{
                             display: 'grid',
-                            gridTemplateColumns: '28px 1fr 28px repeat(4, 32px)',
+                            gridTemplateColumns: showDebtColumn
+                                ? '28px 1fr 28px repeat(4, 32px) 44px'
+                                : '28px 1fr 28px repeat(4, 32px)',
                             alignItems: 'center',
                             padding: '0 12px 6px',
                             fontSize: '0.65rem',
@@ -109,6 +118,7 @@ function GroupPage() {
                             <span style={{ textAlign: 'center' }}>D</span>
                             <span style={{ textAlign: 'center' }}>L</span>
                             <span style={{ textAlign: 'center' }}>GP</span>
+                            {showDebtColumn && <span style={{ textAlign: 'center' }}>€</span>}
                         </div>
 
                         {/* Player rows */}
@@ -120,7 +130,9 @@ function GroupPage() {
                                         key={player.id}
                                         style={{
                                             display: 'grid',
-                                            gridTemplateColumns: '28px 1fr 28px repeat(4, 32px)',
+                                            gridTemplateColumns: showDebtColumn
+                                                ? '28px 1fr 28px repeat(4, 32px) 44px'
+                                                : '28px 1fr 28px repeat(4, 32px)',
                                             alignItems: 'center',
                                             background: isTop3 ? topBgColors[index] : '#fff',
                                             borderRadius: '10px',
@@ -156,6 +168,14 @@ function GroupPage() {
                                         <span style={{ textAlign: 'center', fontSize: '0.85rem', fontWeight: '500', color: '#94a3b8' }}>{player.draws}</span>
                                         <span style={{ textAlign: 'center', fontSize: '0.85rem', fontWeight: '500', color: '#e07070' }}>{player.losses}</span>
                                         <span style={{ textAlign: 'center', fontSize: '0.85rem', fontWeight: '500', color: '#64748b' }}>{player.totalGames}</span>
+                                        {showDebtColumn && (
+                                            <span style={{
+                                                textAlign: 'center', fontSize: '0.75rem', fontWeight: '600',
+                                                color: (player.debt || 0) > 0 ? '#dc2626' : '#94a3b8',
+                                            }}>
+                                                {(player.debt || 0) > 0 ? `${(player.debt || 0).toFixed(0)}` : '-'}
+                                            </span>
+                                        )}
                                     </div>
                                 );
                             })}

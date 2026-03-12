@@ -219,7 +219,59 @@ const useGroupStore = create(
                 } catch (error) {
                     console.error('Failed to update ranks and stats:', error);
                 }
-            }
+            },
+
+            setTreasury: async (groupId, treasuryPlayerId, treasuryPhone) => {
+                try {
+                    await GroupService.updateGroup(groupId, { treasuryPlayerId, treasuryPhone });
+                    set((state) => ({
+                        group: state.group?.id === groupId
+                            ? { ...state.group, treasuryPlayerId, treasuryPhone }
+                            : state.group
+                    }));
+                } catch (error) {
+                    console.error('Failed to set treasury:', error);
+                }
+            },
+
+            accumulateDebts: async (groupId, debtMap) => {
+                try {
+                    const group = useGroupStore.getState().group;
+                    if (!group || group.id !== groupId) return;
+
+                    const updatedPlayers = group.players.map(player => {
+                        const amount = debtMap[player.id];
+                        if (amount) {
+                            return { ...player, debt: Math.round(((player.debt || 0) + amount) * 100) / 100, gamesUnpaid: (player.gamesUnpaid || 0) + 1 };
+                        }
+                        return player;
+                    });
+
+                    await GroupService.updateGroup(groupId, { players: updatedPlayers });
+                    set({ group: { ...group, players: updatedPlayers } });
+                } catch (error) {
+                    console.error('Failed to accumulate debts:', error);
+                }
+            },
+
+            clearPlayerDebt: async (groupId, playerId) => {
+                try {
+                    const group = useGroupStore.getState().group;
+                    if (!group || group.id !== groupId) return;
+
+                    const updatedPlayers = group.players.map(player => {
+                        if (player.id === playerId) {
+                            return { ...player, debt: 0, gamesUnpaid: 0 };
+                        }
+                        return player;
+                    });
+
+                    await GroupService.updateGroup(groupId, { players: updatedPlayers });
+                    set({ group: { ...group, players: updatedPlayers } });
+                } catch (error) {
+                    console.error('Failed to clear debt:', error);
+                }
+            },
         }),
         {
             name: 'group-store',

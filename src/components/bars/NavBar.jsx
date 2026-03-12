@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FiClipboard, FiUsers, FiUser } from 'react-icons/fi';
 import { TbTriangleSquareCircleFilled } from 'react-icons/tb';
 import { MdGroups3, MdSportsSoccer } from 'react-icons/md';
+import { Wallet } from 'lucide-react';
 import useGameStore from '../../store/gameStore';
 import useGroupStore from '../../store/groupStore';
 
@@ -30,8 +31,10 @@ const NavItem = ({ icon, label, active, disabled, onClick }) => (
 const NavBar = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { game, games } = useGameStore();
+    const { game, games, upcomingGames } = useGameStore();
     const { group } = useGroupStore();
+    const lastGameIdRef = useRef(null);
+    const lastGroupIdRef = useRef(null);
 
     const pathname = location.pathname;
 
@@ -44,17 +47,36 @@ const NavBar = () => {
     const groupMatch = pathname.match(/^\/groups\/([^/]+)/);
     const pregameMatch = pathname.match(/^\/pregame\/([^/]+)/);
     const teamsMatch = pathname.match(/^\/teams\/([^/]+)/);
+    const paymentsMatch = pathname.match(/^\/payments\/([^/]+)/);
     const gamePageMatch = pathname.match(/^\/game\/([^/]+)/);
 
-    const isGroupContext = groupMatch || pregameMatch || teamsMatch || gamePageMatch;
+    const isGroupContext = groupMatch || pregameMatch || teamsMatch || paymentsMatch || gamePageMatch;
 
-    const gameId = pregameMatch?.[1] || teamsMatch?.[1] || gamePageMatch?.[1] || game?.id || (games?.length > 0 ? games[0].id : null);
-    const groupId = groupMatch?.[1] || game?.groupId || group?.id || null;
+    const currentGroupId = groupMatch?.[1] || paymentsMatch?.[1] || game?.groupId || group?.id || null;
+
+    // Clear cached game when group changes
+    if (currentGroupId && currentGroupId !== lastGroupIdRef.current) {
+        lastGroupIdRef.current = currentGroupId;
+        lastGameIdRef.current = null;
+    }
+
+    const openGame = games?.find(g => (!g.status || g.status === 'open') && (!currentGroupId || g.groupId === currentGroupId))
+        || upcomingGames?.find(g => g.groupId === currentGroupId);
+    const openGameId = openGame?.id || null;
+    // Only use single game if it belongs to current group
+    const singleGameId = game && (!game.status || game.status === 'open') && (!currentGroupId || game.groupId === currentGroupId) ? game.id : null;
+    const resolvedGameId = pregameMatch?.[1] || teamsMatch?.[1] || gamePageMatch?.[1] || singleGameId || openGameId;
+
+    // Remember the last known open game ID so it persists across page navigations
+    if (resolvedGameId) lastGameIdRef.current = resolvedGameId;
+    const gameId = resolvedGameId || lastGameIdRef.current;
+    const groupId = currentGroupId;
 
     // Active states
     const isGroupHub = !!groupMatch;
     const isPregame = !!pregameMatch;
     const isTeams = !!teamsMatch;
+    const isPayments = !!paymentsMatch;
     const isGame = !!gamePageMatch;
     const isHome = pathname === '/';
     const isSettings = pathname === '/settings';
@@ -67,14 +89,17 @@ const NavBar = () => {
         );
     }
 
+    const hasGame = !!gameId;
+
     // Full navbar in group/game context
     return (
         <nav style={styles.navbar}>
             <NavItem icon={<TbTriangleSquareCircleFilled size={22} />} label="Home" onClick={() => navigate('/')} />
             <NavItem icon={<MdGroups3 size={22} />} label="Hub" active={isGroupHub} onClick={() => groupId && navigate(`/groups/${groupId}`)} />
-            <NavItem icon={<FiClipboard size={20} />} label="PreGame" active={isPregame} onClick={() => gameId && navigate(`/pregame/${gameId}`)} />
-            <NavItem icon={<FiUsers size={20} />} label="Teams" active={isTeams} onClick={() => gameId && navigate(`/teams/${gameId}`)} />
-            <NavItem icon={<MdSportsSoccer size={20} />} label="Game" active={isGame} onClick={() => gameId && navigate(`/game/${gameId}`)} />
+            <NavItem icon={<FiClipboard size={20} />} label="PreGame" active={isPregame} disabled={!hasGame} onClick={() => gameId && navigate(`/pregame/${gameId}`)} />
+            <NavItem icon={<FiUsers size={20} />} label="Teams" active={isTeams} disabled={!hasGame} onClick={() => gameId && navigate(`/teams/${gameId}`)} />
+            <NavItem icon={<MdSportsSoccer size={20} />} label="Game" active={isGame} disabled={!hasGame} onClick={() => gameId && navigate(`/game/${gameId}`)} />
+            <NavItem icon={<Wallet size={18} />} label="Pay" active={isPayments} onClick={() => groupId && navigate(`/payments/${groupId}`)} />
         </nav>
     );
 };

@@ -89,7 +89,9 @@ const useGameStore = create((set) => ({
 
         const unsubs = groups.map(group =>
             GameService.subscribeToGamesByGroup(group.id, (games) => {
-                gamesByGroup[group.id] = games.map(g => ({ ...g, groupName: group.name }));
+                gamesByGroup[group.id] = games
+                    .filter(g => !g.status || g.status === 'open')
+                    .map(g => ({ ...g, groupName: group.name }));
                 const allGames = Object.values(gamesByGroup).flat();
                 allGames.sort((a, b) => {
                     const dateA = new Date(`${a.date}T${a.time || '00:00'}`);
@@ -287,6 +289,42 @@ const useGameStore = create((set) => ({
                 playersOut: game.playersOut,
                 status: game.status
             });
+        }
+    },
+
+    togglePayment: async (gameId, playerId) => {
+        const state = useGameStore.getState();
+        // Find the game in either single game or games list
+        const targetGame = (state.game?.id === gameId ? state.game : null)
+            || (state.games || []).find(g => g.id === gameId);
+        if (!targetGame) return;
+
+        const payments = { ...(targetGame.payments || {}) };
+        payments[playerId] = !payments[playerId];
+
+        // Update local state
+        if (state.game?.id === gameId) {
+            set({ game: { ...state.game, payments } });
+        }
+        const updatedGames = (state.games || []).map(g =>
+            g.id === gameId ? { ...g, payments } : g
+        );
+        set({ games: updatedGames });
+
+        await GameService.updateGame(gameId, { payments });
+
+        // If game is ended and all in-game players have paid, clean it up
+        if (targetGame.status === 'ended') {
+            const inGameIds = new Set();
+            for (const p of [...(targetGame.playersIn || []), ...(targetGame.team1 || []), ...(targetGame.team2 || []), ...(targetGame.injured || [])]) {
+                inGameIds.add(p.id);
+            }
+            const allPlayers = [...(targetGame.team1 || []), ...(targetGame.team2 || []), ...(targetGame.injured || [])];
+            const allPaid = allPlayers.length > 0 && allPlayers.every(p => payments[p.id]);
+            if (allPaid) {
+                await GameService.deleteGame(gameId);
+                set({ games: updatedGames.filter(g => g.id !== gameId) });
+            }
         }
     },
 

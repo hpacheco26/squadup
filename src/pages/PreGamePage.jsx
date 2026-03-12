@@ -28,6 +28,12 @@ const PreGamePage = () => {
         return unsub;
     }, [gameId, subscribeToGame]);
 
+    useEffect(() => {
+        if (game?.status === 'ended' && game.groupId) {
+            navigate(`/groups/${game.groupId}`, { replace: true });
+        }
+    }, [game?.status, game?.groupId, navigate]);
+
     // Ensure the correct group is loaded for the back button
     useEffect(() => {
         if (game?.groupId) {
@@ -62,7 +68,8 @@ const PreGamePage = () => {
 
     const handleAddGuest = (guestPlayer) => {
         if (!game) return;
-        const guest = { ...guestPlayer, guest: true };
+        const myPlayer = group?.players?.find(p => p.userId === user?.uid);
+        const guest = { ...guestPlayer, guest: true, addedBy: myPlayer?.id || null };
         const updatedPlayersIn = [...(game.playersIn || []), guest];
         updateGame(gameId, { playersIn: updatedPlayersIn });
     };
@@ -98,6 +105,7 @@ const PreGamePage = () => {
     };
 
     if (!game) return <div>Loading...</div>;
+    if (game.status === 'ended') return null;
 
     return (
         <>

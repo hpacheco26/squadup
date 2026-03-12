@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { balanceTeams, getCaptain } from '../utils/teamBalancer';
 import PlayerCardMini from '../components/cards/PlayerCardMini';
 import SwipeTeamPlayer from '../components/SwipeTeamPlayer';
@@ -19,6 +19,7 @@ const getPlayerStatus = (index) => {
 
 const TeamsPage = () => {
     const { gameId } = useParams();
+    const navigate = useNavigate();
     const { game, subscribeToGame, updateGame, loading } = useGameStore();
     const { group, subscribeToGroup } = useGroupStore();
     const [pressed, setPressed] = useState(false);
@@ -32,6 +33,12 @@ const TeamsPage = () => {
             return unsub;
         }
     }, [gameId, subscribeToGame]);
+
+    useEffect(() => {
+        if (game?.status === 'ended' && game.groupId) {
+            navigate(`/groups/${game.groupId}`, { replace: true });
+        }
+    }, [game?.status, game?.groupId, navigate]);
 
     useEffect(() => {
         if (game?.groupId) {
@@ -132,6 +139,8 @@ const TeamsPage = () => {
     if (!game) {
         return <p>Loading teams...</p>;
     }
+
+    if (game.status === 'ended') return null;
 
     const playersIn = game.playersIn || [];
     const hasTeams = game.team1?.length > 0 || game.team2?.length > 0;

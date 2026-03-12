@@ -11,6 +11,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
     const [minPlayers, setMinPlayers] = useState(5);
     const [subTime, setSubTime] = useState(5);
     const [recurrence, setRecurrence] = useState('none');
+    const [price, setPrice] = useState(0);
     const [invitedPlayers, setInvitedPlayers] = useState(group?.players || []);
     const [groupId, setGroupId] = useState('');
 
@@ -29,6 +30,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
                 setMinPlayers(game.minPlayers || 5);
                 setSubTime(game.subTime || 5);
                 setRecurrence(game.recurrence || 'none');
+                setPrice(game.price || 0);
                 setInvitedPlayers(game.playersInvited || []);
                 setGroupId(game.groupId || group?.id || '');
             } else {
@@ -39,6 +41,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
                 setMinPlayers(10);
                 setSubTime(5);
                 setRecurrence('none');
+                setPrice(0);
                 setInvitedPlayers(group?.players || []);
                 setGroupId(group?.id || '');
             }
@@ -60,6 +63,8 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
             teamB: isEditMode ? game.teamB : [],
             subTime,
             recurrence,
+            price: Number(price) || 0,
+            payments: isEditMode ? game.payments || {} : {},
             groupId
         };
 
@@ -127,6 +132,14 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
                     <div className="field" style={{ marginBottom: '16px' }}>
                         <div className="control">
                             <input className="input has-text-centered" type="number" min="1" value={subTime} onChange={(e) => setSubTime(e.target.value)} style={{ borderRadius: '8px', maxWidth: '120px' }} />
+                        </div>
+                    </div>
+
+                    {/* Game Price */}
+                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Price (€)</label>
+                    <div className="field" style={{ marginBottom: '16px' }}>
+                        <div className="control">
+                            <input className="input has-text-centered" type="number" min="0" step="0.5" value={price} onChange={(e) => setPrice(e.target.value)} style={{ borderRadius: '8px', maxWidth: '120px' }} />
                         </div>
                     </div>
 
