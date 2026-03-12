@@ -169,14 +169,6 @@ const GamePage = () => {
             }
         }
 
-        // Determine if there are unpaid players
-        const hasUnpaid = price > 0 && allPlayers.some(p => !payments[p.id]);
-
-        // Write final game state in one call to avoid race conditions
-        if (hasUnpaid) {
-            await updateGame(game.id, { status: 'ended', payments, perPlayerCost, treasuryPlayerId: treasuryId || null });
-        }
-
         const winner = team1Goals >= team2Goals ? team1 : team2;
         const loser = team1Goals >= team2Goals ? team2 : team1;
         updateRank(group.id, winner, loser);
@@ -212,10 +204,8 @@ const GamePage = () => {
             });
         }
 
-        // Delete game if fully paid, otherwise already marked as ended above
-        if (!hasUnpaid) {
-            await deleteGame(game.id);
-        }
+        // Always delete the ended game — debts are stored on the group
+        await deleteGame(game.id);
         resetGameSession();
         navigate('/rank');
     };

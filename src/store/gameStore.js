@@ -64,13 +64,13 @@ const useGameStore = create((set) => ({
         // Skip if already subscribed to this group
         const state = useGameStore.getState();
         if (state._subscribedGroupId === groupId && state._unsubGames) {
-            return state._unsubGames;
+            return () => {};
         }
 
-        const prev = state._unsubGames;
-        if (prev) prev();
+        // Clean up previous subscription
+        if (state._unsubGames) state._unsubGames();
 
-        const rawUnsub = GameService.subscribeToGamesByGroup(groupId, (games) => {
+        const unsub = GameService.subscribeToGamesByGroup(groupId, (games) => {
             // Deduplicate by game ID to prevent duplicate key warnings
             const seen = new Set();
             const unique = games.filter(g => {
@@ -78,14 +78,11 @@ const useGameStore = create((set) => ({
                 seen.add(g.id);
                 return true;
             });
-            set({ games: unique, loading: false });
+            set({ games: unique });
         });
-        const unsub = () => {
-            rawUnsub();
-            set({ _unsubGames: null, _subscribedGroupId: null });
-        };
-        set({ _unsubGames: unsub, _subscribedGroupId: groupId, loading: true });
-        return unsub;
+        set({ _unsubGames: unsub, _subscribedGroupId: groupId });
+        // Return no-op — store manages the subscription lifecycle
+        return () => {};
     },
 
     unsubscribeGames: () => {
@@ -189,16 +186,11 @@ const useGameStore = create((set) => ({
 
     // Create a new game
     createGame: async (gameData) => {
-        set({ loading: true, error: null });
         try {
             const newGame = await GameService.createGame(gameData);
-            set((state) => ({
-                game: newGame,
-                games: [...state.games, newGame],
-                loading: false,
-            }));
+            set({ game: newGame });
         } catch (error) {
-            set({ error: error.message, loading: false });
+            set({ error: error.message });
         }
     },
 
@@ -219,17 +211,15 @@ const useGameStore = create((set) => ({
 
     // Delete a game
     deleteGame: async (gameId) => {
-        set({ loading: true, error: null });
         try {
             await GameService.deleteGame(gameId);
             set((state) => ({
                 games: state.games.filter(game => game.id !== gameId),
                 upcomingGames: state.upcomingGames.filter(game => game.id !== gameId),
                 game: null,
-                loading: false
             }));
         } catch (error) {
-            set({ error: error.message, loading: false });
+            set({ error: error.message });
         }
     },
 
@@ -312,47 +302,6 @@ const useGameStore = create((set) => ({
                 playersOut: game.playersOut,
                 status: game.status
             });
-        }
-    },
-
-    togglePayment: async (gameId, playerId) => {
-        const state = useGameStore.getState();
-        // Find the game in either single game or games list
-        const targetGame = (state.game?.id === gameId ? state.game : null)
-            || (state.games || []).find(g => g.id === gameId);
-        if (!targetGame) return;
-
-        const payments = { ...(targetGame.payments || {}) };
-        const newValue = !payments[playerId];
-        payments[playerId] = newValue;
-
-        // Update local state
-        if (state.game?.id === gameId) {
-            set({ game: { ...state.game, payments } });
-        }
-        const updatedGames = (state.games || []).map(g =>
-            g.id === gameId ? { ...g, payments } : g
-        );
-        set({ games: updatedGames });
-
-        // Use atomic dot-notation update to avoid overwriting other players' payments
-        await GameService.updateGame(gameId, { [`payments.${playerId}`]: newValue });
-
-        // If game is ended and all in-game players are effectively paid, clean it up
-        if (targetGame.status === 'ended') {
-            const allPlayers = [...(targetGame.team1 || []), ...(targetGame.team2 || []), ...(targetGame.injured || [])];
-            const treasuryId = targetGame.treasuryPlayerId || null;
-            const allPaid = allPlayers.length > 0 && allPlayers.every(p => {
-                if (p.id === treasuryId) return true;
-                if (p.guest && p.addedBy === treasuryId) return true;
-                if (payments[p.id]) return true;
-                if (p.guest && p.addedBy && payments[p.addedBy]) return true;
-                return false;
-            });
-            if (allPaid) {
-                await GameService.deleteGame(gameId);
-                set({ games: updatedGames.filter(g => g.id !== gameId) });
-            }
         }
     },
 

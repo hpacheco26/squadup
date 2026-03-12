@@ -17,7 +17,7 @@ const positionColors = ['#d4a817', '#a0a0a0', '#cd7f32'];
 function GroupPage() {
     const { id } = useParams();
     const { group, subscribeToGroup } = useGroupStore();
-    const { games, subscribeToGamesByGroup, loading, error } = useGameStore();
+    const { games, subscribeToGamesByGroup } = useGameStore();
     const { user } = useAuthStore();
     const { t } = useLanguageStore();
 
@@ -27,8 +27,8 @@ function GroupPage() {
 
     useEffect(() => {
         const unsubGroup = subscribeToGroup(id);
-        const unsubGames = subscribeToGamesByGroup(id);
-        return () => { unsubGroup(); unsubGames(); };
+        subscribeToGamesByGroup(id);
+        return () => { unsubGroup(); };
     }, [id, subscribeToGroup, subscribeToGamesByGroup]);
 
     // All players sorted by rank (desc), then wins (desc)
@@ -42,7 +42,7 @@ function GroupPage() {
         }))
         .sort((a, b) => b.rank - a.rank || b.wins - a.wins || a.losses - b.losses);
 
-    if (!group || loading || group.id !== id) return <Loader />;
+    if (!group || group.id !== id) return <Loader />;
 
     return (
         <>

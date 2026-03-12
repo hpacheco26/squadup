@@ -1,5 +1,5 @@
 import { db } from '../config/firebase';
-import { collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, deleteField, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, query, where, onSnapshot } from 'firebase/firestore';
 
 const gamesRef = collection(db, 'games');
 
