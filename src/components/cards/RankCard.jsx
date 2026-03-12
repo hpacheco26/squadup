@@ -53,7 +53,7 @@ const BadgeSVG = ({ rank, size = 150 }) => {
     : <polygon points={polyPoints(shape.sides, cx, cy, s.innerR, shape.offset)} fill={theme.ring} opacity="0.3" />;
 
   return (
-    <svg width={size} height={size} viewBox="0 0 200 200" fill="none" style={{ filter: theme.glow }}>
+    <svg width={size} height={size} viewBox="0 0 200 200" fill="none" style={{ filter: theme.glow, width: size, height: size, maxWidth: '100%' }}>
       <defs>
         <radialGradient id={`${id}-ball`} cx="0.4" cy="0.35" r="0.6">
           <stop offset="0%" stopColor="#ffffff" />
@@ -82,16 +82,18 @@ const BadgeSVG = ({ rank, size = 150 }) => {
 const rankNames = ['Unranked', 'Bronze', 'Silver', 'Gold', 'Platinum'];
 
 const RankCard = ({ rank, groupName, stats, isAnimated, onClick }) => {
+  const badgeSize = 'clamp(80px, 15dvh, 120px)';
+
   const badge = isAnimated ? (
     <motion.div
       initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
     >
-      <BadgeSVG rank={rank} size={120} />
+      <BadgeSVG rank={rank} size={badgeSize} />
     </motion.div>
   ) : (
-    <BadgeSVG rank={rank} size={120} />
+    <BadgeSVG rank={rank} size={badgeSize} />
   );
 
   const theme = rankThemes[rank] || rankThemes[0];

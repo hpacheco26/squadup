@@ -12,7 +12,7 @@ import CreateGroupModal from '../modals/GroupModal';
 const RankList = () => {
   const navigate = useNavigate();
   const { user, playerData } = useAuthStore();
-  const { ranks, fetchGroupsByPlayer } = useGroupStore();
+  const { ranks, subscribeToGroupsByPlayer } = useGroupStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -21,15 +21,21 @@ const RankList = () => {
       return;
     }
     if (playerData?.id) {
-      fetchGroupsByPlayer(playerData.id);
+      const unsub = subscribeToGroupsByPlayer(playerData.id);
+      return () => unsub();
     }
   }, [user, playerData?.id, navigate]);
 
   return (
     <div className="rank-carousel-container">
-      <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', marginBottom: '4px', textAlign: 'center' }}>
+      <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', marginBottom: '2px', textAlign: 'center' }}>
         My Groups
       </p>
+      {Array.isArray(ranks) && ranks.length > 0 && (
+        <p style={{ fontSize: '0.65rem', color: '#94a3b8', textAlign: 'center', marginBottom: '4px' }}>
+          Tap a group to enter
+        </p>
+      )}
       {Array.isArray(ranks) && ranks.length > 0 ? (
         <Swiper
           modules={[Pagination]} 

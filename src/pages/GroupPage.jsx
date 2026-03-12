@@ -8,6 +8,9 @@ import GamesContainer from '../components/containers/GamesContainer';
 import SquadHeaderBar from '../components/bars/SquadHeaderBar';
 import RankIcon from '../components/RankIcon';
 
+const medalIcons = ['🥇', '🥈', '🥉'];
+const topBgColors = ['#fef3c7', '#f1f5f9', '#fde8d0'];
+
 function GroupPage() {
     const { id } = useParams();
     const { group, subscribeToGroup } = useGroupStore();
@@ -21,11 +24,16 @@ function GroupPage() {
         return () => { unsubGroup(); unsubGames(); };
     }, [id, subscribeToGroup, subscribeToGamesByGroup]);
 
-    // Top 3 players by wins
-    const topPlayers = (group?.players || [])
-        .map(p => ({ ...p, wins: p.stats?.wins || 0 }))
-        .sort((a, b) => b.wins - a.wins)
-        .slice(0, 3);
+    // All players sorted by rank (desc), then wins (desc)
+    const sortedPlayers = (group?.players || [])
+        .map(p => ({
+            ...p,
+            wins: p.stats?.wins || 0,
+            draws: p.stats?.draws || 0,
+            losses: p.stats?.losses || 0,
+            totalGames: (p.stats?.wins || 0) + (p.stats?.draws || 0) + (p.stats?.losses || 0),
+        }))
+        .sort((a, b) => b.rank - a.rank || b.wins - a.wins || a.losses - b.losses);
 
     if (!group || loading || group.id !== id) return <Loader />;
 
@@ -70,76 +78,82 @@ function GroupPage() {
                     </div>
                 )}
 
-                {/* Top 3 Podium */}
-                {topPlayers.length > 0 && (
+                {/* Player Leaderboard */}
+                {sortedPlayers.length > 0 && (
                     <div style={{ marginTop: '24px' }}>
                         <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', textAlign: 'center', marginBottom: '12px' }}>
-                            Top Players
+                            Leaderboard
                         </p>
-                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: '8px' }}>
-                            {/* 2nd place */}
-                            {topPlayers[1] ? (
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '1.5rem' }}>🥈</span>
-                                    <div style={{
-                                        background: '#e2e8f0',
-                                        borderRadius: '10px 10px 0 0',
-                                        width: '80px',
-                                        height: '80px',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                    }}>
-                                        <RankIcon rank={topPlayers[1].rank || 0} size={24} />
-                                        <p style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#1e293b' }}>{topPlayers[1].firstName}</p>
-                                        <p style={{ fontSize: '0.7rem', color: '#64748b' }}>{topPlayers[1].wins}W</p>
-                                    </div>
-                                </div>
-                            ) : <div style={{ width: '80px' }} />}
 
-                            {/* 1st place */}
-                            {topPlayers[0] ? (
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '2rem' }}>🥇</span>
-                                    <div style={{
-                                        background: '#fef3c7',
-                                        borderRadius: '10px 10px 0 0',
-                                        width: '90px',
-                                        height: '110px',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                                    }}>
-                                        <RankIcon rank={topPlayers[0].rank || 0} size={28} />
-                                        <p style={{ fontSize: '0.95rem', fontWeight: 'bold', color: '#1e293b' }}>{topPlayers[0].firstName}</p>
-                                        <p style={{ fontSize: '0.75rem', color: '#64748b' }}>{topPlayers[0].wins}W</p>
-                                    </div>
-                                </div>
-                            ) : null}
+                        {/* Header row */}
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: '28px 1fr 28px repeat(4, 32px)',
+                            alignItems: 'center',
+                            padding: '0 12px 6px',
+                            fontSize: '0.65rem',
+                            color: '#94a3b8',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            fontWeight: '600',
+                        }}>
+                            <span>#</span>
+                            <span>Player</span>
+                            <span></span>
+                            <span style={{ textAlign: 'center' }}>W</span>
+                            <span style={{ textAlign: 'center' }}>D</span>
+                            <span style={{ textAlign: 'center' }}>L</span>
+                            <span style={{ textAlign: 'center' }}>GP</span>
+                        </div>
 
-                            {/* 3rd place */}
-                            {topPlayers[2] ? (
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '1.3rem' }}>🥉</span>
-                                    <div style={{
-                                        background: '#fde8d0',
-                                        borderRadius: '10px 10px 0 0',
-                                        width: '75px',
-                                        height: '60px',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                    }}>
-                                        <RankIcon rank={topPlayers[2].rank || 0} size={20} />
-                                        <p style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#1e293b' }}>{topPlayers[2].firstName}</p>
-                                        <p style={{ fontSize: '0.65rem', color: '#64748b' }}>{topPlayers[2].wins}W</p>
+                        {/* Player rows */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            {sortedPlayers.map((player, index) => {
+                                const isTop3 = index < 3;
+                                return (
+                                    <div
+                                        key={player.id}
+                                        style={{
+                                            display: 'grid',
+                                            gridTemplateColumns: '28px 1fr 28px repeat(4, 32px)',
+                                            alignItems: 'center',
+                                            background: isTop3 ? topBgColors[index] : '#fff',
+                                            borderRadius: '10px',
+                                            padding: '10px 12px',
+                                            boxShadow: isTop3
+                                                ? '0 2px 8px rgba(0,0,0,0.08)'
+                                                : '0 1px 3px rgba(0,0,0,0.04)',
+                                            border: isTop3 ? 'none' : '1px solid #f1f5f9',
+                                        }}
+                                    >
+                                        {/* Position */}
+                                        <span style={{ fontSize: isTop3 ? '1rem' : '0.8rem', fontWeight: '600', color: '#64748b' }}>
+                                            {isTop3 ? medalIcons[index] : index + 1}
+                                        </span>
+
+                                        {/* Name */}
+                                        <span style={{
+                                            fontSize: '0.9rem',
+                                            fontWeight: isTop3 ? 'bold' : '500',
+                                            color: '#1e293b',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap',
+                                        }}>
+                                            {player.firstName} {player.lastName?.[0] ? `${player.lastName[0]}.` : ''}
+                                        </span>
+
+                                        {/* Rank icon */}
+                                        <RankIcon rank={player.rank || 0} size={22} />
+
+                                        {/* Stats */}
+                                        <span style={{ textAlign: 'center', fontSize: '0.85rem', fontWeight: '600', color: '#16a34a' }}>{player.wins}</span>
+                                        <span style={{ textAlign: 'center', fontSize: '0.85rem', fontWeight: '500', color: '#94a3b8' }}>{player.draws}</span>
+                                        <span style={{ textAlign: 'center', fontSize: '0.85rem', fontWeight: '500', color: '#e07070' }}>{player.losses}</span>
+                                        <span style={{ textAlign: 'center', fontSize: '0.85rem', fontWeight: '500', color: '#64748b' }}>{player.totalGames}</span>
                                     </div>
-                                </div>
-                            ) : <div style={{ width: '75px' }} />}
+                                );
+                            })}
                         </div>
                     </div>
                 )}

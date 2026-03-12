@@ -171,8 +171,8 @@ const useGameStore = create((set) => ({
     createGame: async (gameData) => {
         set({ loading: true, error: null });
         try {
-            const newGame = await GameService.createGame(gameData);
-            set((state) => ({ games: [...state.games, newGame], loading: false }));
+            await GameService.createGame(gameData);
+            set({ loading: false });
         } catch (error) {
             set({ error: error.message, loading: false });
         }

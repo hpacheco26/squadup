@@ -119,42 +119,44 @@ function SquadSettingsPage() {
                     </div>
                 )}
 
-                {/* Players */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                    <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
-                        Players ({(group.players ?? []).length})
-                    </label>
-                    {isAdmin && (
-                        <button
-                            onClick={() => setIsPlayerModalOpen(true)}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', color: '#6b7280', display: 'flex', alignItems: 'center' }}
-                            aria-label="Add Player"
-                        >
-                            <Plus size={20} />
-                        </button>
-                    )}
-                </div>
-                <div style={{ flex: 1, overflowY: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '8px', marginBottom: '16px' }}>
-                    {(group.players ?? []).length === 0 ? (
-                        <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px', fontSize: '0.9rem' }}>No players yet</p>
-                    ) : (
-                        (group.players ?? []).map((player) => (
-                            <div style={{ padding: '4px 0' }} key={player.id}>
-                                <PlayerCard 
-                                    player={player}
-                                    onRemovePlayer={isAdmin ? handleRemovePlayer : undefined}
-                                />
-                            </div>
-                        ))
-                    )}
-                </div>
+                {/* Players - admin only */}
+                {isAdmin && (
+                    <>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                            <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
+                                Players ({(group.players ?? []).length})
+                            </label>
+                            <button
+                                onClick={() => setIsPlayerModalOpen(true)}
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', color: '#6b7280', display: 'flex', alignItems: 'center' }}
+                                aria-label="Add Player"
+                            >
+                                <Plus size={20} />
+                            </button>
+                        </div>
+                        <div style={{ flex: 1, overflowY: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', padding: '8px', marginBottom: '16px' }}>
+                            {(group.players ?? []).length === 0 ? (
+                                <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px', fontSize: '0.9rem' }}>No players yet</p>
+                            ) : (
+                                (group.players ?? []).map((player) => (
+                                    <div style={{ padding: '4px 0' }} key={player.id}>
+                                        <PlayerCard 
+                                            player={player}
+                                            onRemovePlayer={handleRemovePlayer}
+                                        />
+                                    </div>
+                                ))
+                            )}
+                        </div>
 
-                {/* Add Player Modal */}
-                <PlayerModal 
-                    isOpen={isPlayerModalOpen} 
-                    setIsOpen={setIsPlayerModalOpen} 
-                    onAddPlayer={handleAddPlayer} 
-                />
+                        {/* Add Player Modal */}
+                        <PlayerModal 
+                            isOpen={isPlayerModalOpen} 
+                            setIsOpen={setIsPlayerModalOpen} 
+                            onAddPlayer={handleAddPlayer} 
+                        />
+                    </>
+                )}
 
                 {/* Bottom actions - always visible, side by side */}
                 <div style={{ flexShrink: 0, display: 'flex', gap: '12px' }}>

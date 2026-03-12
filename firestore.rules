@@ -2,6 +2,12 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Config collection (read-only for authenticated users)
+    match /config/{docId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
     // Players collection
     match /players/{playerId} {
       allow read: if request.auth != null;
@@ -12,7 +18,8 @@ service cloud.firestore {
     // Groups collection
     match /groups/{groupId} {
       allow read: if request.auth != null;
-      allow create: if request.auth != null;
+      allow create: if request.auth != null
+        && request.auth.uid in get(/databases/$(database)/documents/config/allowedCreators).data.uids;
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.adminId;
     }
 

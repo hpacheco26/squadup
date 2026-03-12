@@ -2,6 +2,7 @@ import { db } from '../config/firebase';
 import { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
 
 const groupsRef = collection(db, 'groups');
+const allowedCreatorsRef = doc(db, 'config', 'allowedCreators');
 
 const GroupService = {
     getGroups: async () => {
@@ -20,6 +21,17 @@ const GroupService = {
         return snapshot.docs
             .map(doc => ({ id: doc.id, ...doc.data() }))
             .filter(group => group.players.some(player => player.id === playerId));
+    },
+
+    canCreateGroup: async (uid) => {
+        try {
+            const snap = await getDoc(allowedCreatorsRef);
+            if (!snap.exists()) return false;
+            const { uids } = snap.data();
+            return Array.isArray(uids) && uids.includes(uid);
+        } catch {
+            return false;
+        }
     },
 
     createGroup: async (groupData) => {

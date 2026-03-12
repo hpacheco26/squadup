@@ -1,60 +1,51 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiSettings } from 'react-icons/fi';
+import { Users } from 'lucide-react';
 import useGroupStore from '../../store/groupStore';
 
 const SquadHeaderBar = () => {
     const { group } = useGroupStore();
     const navigate = useNavigate();
 
-    return (
-        <header style={styles.header}>
-            {/* Group Name */}
-            <h1 style={styles.title}>{group?.name || "Squad"}</h1>
+    const playerCount = group?.players?.length || 0;
 
-            {/* Group Settings Button */}
-            <button 
-                onClick={() => group?.id && navigate(`/groups/${group.id}/settings`)} 
-                style={styles.settingsButton}
+    return (
+        <header style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '12px 16px',
+            backgroundColor: '#ffffff',
+            borderBottom: '1px solid #e2e8f0',
+        }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Users size={20} color="#5b7bb3" />
+                <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0f172a', margin: 0 }}>
+                    {group?.name || 'Squad'}
+                </h1>
+                {playerCount > 0 && (
+                    <span style={{
+                        fontSize: '0.65rem',
+                        fontWeight: '600',
+                        color: '#64748b',
+                        background: '#f1f5f9',
+                        borderRadius: '10px',
+                        padding: '2px 8px',
+                    }}>
+                        {playerCount} players
+                    </span>
+                )}
+            </div>
+            <button
+                onClick={() => group?.id && navigate(`/groups/${group.id}/settings`)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', display: 'flex', alignItems: 'center', color: '#94a3b8' }}
                 aria-label="Go to Group Settings"
             >
-                <FiSettings size={24} />
+                <FiSettings size={22} />
             </button>
         </header>
     );
-};
-
-const styles = {
-    header: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '10px 15px',
-        backgroundColor: '#ffffff',
-        borderBottom: '1px solid #e2e8f0',
-    },
-    title: {
-        fontSize: '1.5rem',
-        fontWeight: 'bold',
-    },
-    backButton: {
-        background: 'none',
-        border: 'none',
-        cursor: 'pointer',
-        padding: '5px',
-        display: 'flex',
-        alignItems: 'center',
-        color: '#6b7280',
-    },
-    settingsButton: {
-        background: 'none',
-        border: 'none',
-        cursor: 'pointer',
-        padding: '5px',
-        display: 'flex',
-        alignItems: 'center',
-        color: '#6b7280',
-    }
 };
 
 export default SquadHeaderBar;

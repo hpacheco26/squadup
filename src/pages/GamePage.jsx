@@ -25,6 +25,7 @@ const GamePage = () => {
 
     const [isSubModalOpen, setIsSubModalOpen] = useState(false);
     const [isGameModalOpen, setIsGameModalOpen] = useState(false);
+    const [subCounts, setSubCounts] = useState({});
     const intervalRef = useRef(null);
 
     useEffect(() => {
@@ -82,8 +83,37 @@ const GamePage = () => {
         setTimer((game?.subTime || 5) * 60);
     };
 
-    const handleSubstitution = () => {
+    const handleSubstitution = ({ team1PlayerId, team2PlayerId }) => {
         setIsSubModalOpen(false);
+
+        // Rotate selected players to end of their team arrays
+        const currentGame = useGameStore.getState().game;
+        if (currentGame) {
+            const rotatePlayer = (team, playerId) => {
+                if (!playerId || !team?.length) return team;
+                const idx = team.findIndex(p => p.id === playerId);
+                if (idx === -1) return team;
+                const newTeam = [...team];
+                const [player] = newTeam.splice(idx, 1);
+                newTeam.push(player);
+                return newTeam;
+            };
+
+            const newTeam1 = rotatePlayer(currentGame.team1, team1PlayerId);
+            const newTeam2 = rotatePlayer(currentGame.team2, team2PlayerId);
+
+            const { updateGame } = useGameStore.getState();
+            updateGame(currentGame.id, { team1: newTeam1, team2: newTeam2 });
+        }
+
+        // Track sub counts
+        setSubCounts(prev => {
+            const next = { ...prev };
+            if (team1PlayerId) next[team1PlayerId] = (next[team1PlayerId] || 0) + 1;
+            if (team2PlayerId) next[team2PlayerId] = (next[team2PlayerId] || 0) + 1;
+            return next;
+        });
+
         resetTimer();
     };
 
@@ -273,6 +303,9 @@ const GamePage = () => {
             <SubTimerModal
                 team1={team1}
                 team2={team2}
+                team1Label={team1Label}
+                team2Label={team2Label}
+                subCounts={subCounts}
                 isOpen={isSubModalOpen}
                 onClose={() => setIsSubModalOpen(false)}
                 onAcceptSub={handleSubstitution}
