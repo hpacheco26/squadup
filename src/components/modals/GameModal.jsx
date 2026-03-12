@@ -140,19 +140,19 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
                         </div>
                     </div>
 
-                    {/* Sub Time */}
-                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('subTimer')}</label>
-                    <div className="field" style={{ marginBottom: '16px' }}>
-                        <div className="control">
-                            <input className="input has-text-centered" type="number" min="1" value={subTime} onChange={(e) => setSubTime(e.target.value)} style={{ borderRadius: '8px', maxWidth: '120px' }} />
+                    {/* Sub Time & Price */}
+                    <div className="field" style={{ display: "flex", gap: "10px", alignItems: 'flex-end', marginBottom: '16px' }}>
+                        <div style={{ flex: 1 }}>
+                            <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('subTimer')}</label>
+                            <div className="control">
+                                <input className="input has-text-centered" type="number" min="1" value={subTime} onChange={(e) => setSubTime(e.target.value)} style={{ borderRadius: '8px' }} />
+                            </div>
                         </div>
-                    </div>
-
-                    {/* Game Price */}
-                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('priceLabel')}</label>
-                    <div className="field" style={{ marginBottom: '16px' }}>
-                        <div className="control">
-                            <input className="input has-text-centered" type="number" min="0" step="0.5" value={price} onChange={(e) => setPrice(e.target.value)} style={{ borderRadius: '8px', maxWidth: '120px' }} />
+                        <div style={{ flex: 1 }}>
+                            <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('priceLabel')}</label>
+                            <div className="control">
+                                <input className="input has-text-centered" type="number" min="0" step="0.5" value={price} onChange={(e) => setPrice(e.target.value)} style={{ borderRadius: '8px' }} />
+                            </div>
                         </div>
                     </div>
 
