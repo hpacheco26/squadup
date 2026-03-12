@@ -1,22 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Wallet, Check, X as XIcon, Send, Smartphone, Copy, Share2 } from 'lucide-react';
+import { Wallet, Check, X as XIcon, Send, Smartphone, Copy, Share2, Calendar, MapPin } from 'lucide-react';
 import useGroupStore from '../store/groupStore';
 import useAuthStore from '../store/authStore';
 import theme from '../theme';
 import useLanguageStore from '../store/languageStore';
+import GameDebtService from '../api/gameDebtService';
 
 const PaymentsPage = () => {
     const { groupId } = useParams();
-    const { group, subscribeToGroup, clearPlayerDebt } = useGroupStore();
+    const { group, subscribeToGroup } = useGroupStore();
     const { user } = useAuthStore();
     const { t } = useLanguageStore();
     const [iPaidSent, setIPaidSent] = useState(false);
+    const [gameDebts, setGameDebts] = useState([]);
 
     useEffect(() => {
         if (!groupId) return;
-        const unsub = subscribeToGroup(groupId);
-        return unsub;
+        const unsubGroup = subscribeToGroup(groupId);
+        const unsubDebts = GameDebtService.subscribeToGameDebtsByGroup(groupId, (debts) => {
+            debts.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            setGameDebts(debts);
+        });
+        return () => { unsubGroup(); unsubDebts(); };
     }, [groupId, subscribeToGroup]);
 
     if (!group) return <p style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>{t('loading')}</p>;
@@ -33,19 +39,57 @@ const PaymentsPage = () => {
     const isTreasury = myGroupPlayer && treasuryId === myGroupPlayer.id;
     const canManage = group.adminId === user?.uid || isTreasury;
 
+    // Compute per-player totals from gameDebts
+    const playerTotals = {};
+    gameDebts.forEach(gd => {
+        Object.entries(gd.debts || {}).forEach(([playerId, info]) => {
+            if (!info.paid) {
+                if (!playerTotals[playerId]) playerTotals[playerId] = { debt: 0, gamesUnpaid: 0 };
+                playerTotals[playerId].debt += info.amount;
+                playerTotals[playerId].gamesUnpaid += 1;
+            }
+        });
+    });
+
     // All players except treasury
     const visiblePlayers = groupPlayers.filter(p => p.id !== treasuryId);
 
-    // Debts come from the group document (accumulated on game end)
-    const getPlayerDebt = (player) => ({
-        debt: Math.round((player.debt || 0) * 100) / 100,
-        gamesUnpaid: player.gamesUnpaid || 0,
-    });
+    const getPlayerDebt = (player) => {
+        const totals = playerTotals[player.id];
+        return {
+            debt: totals ? Math.round(totals.debt * 100) / 100 : 0,
+            gamesUnpaid: totals ? totals.gamesUnpaid : 0,
+        };
+    };
 
-    const totalOwed = visiblePlayers.reduce((sum, p) => sum + (p.debt || 0), 0);
+    const totalOwed = Object.values(playerTotals).reduce((sum, t) => sum + t.debt, 0);
 
-    const handleClearPlayer = async (playerId) => {
-        await clearPlayerDebt(groupId, playerId);
+    const handleMarkPaid = async (gameDebtId, playerId) => {
+        await GameDebtService.markPlayerPaid(gameDebtId, playerId);
+        // Check if all players in this game debt are now paid
+        const gd = gameDebts.find(g => g.id === gameDebtId);
+        if (gd) {
+            const allPaid = Object.entries(gd.debts || {}).every(([id, info]) =>
+                id === playerId || info.paid
+            );
+            if (allPaid) {
+                await GameDebtService.deleteGameDebt(gameDebtId);
+            }
+        }
+    };
+
+    const handleClearAllForPlayer = async (playerId) => {
+        for (const gd of gameDebts) {
+            if (gd.debts?.[playerId] && !gd.debts[playerId].paid) {
+                await GameDebtService.markPlayerPaid(gd.id, playerId);
+                const allPaid = Object.entries(gd.debts || {}).every(([id, info]) =>
+                    id === playerId || info.paid
+                );
+                if (allPaid) {
+                    await GameDebtService.deleteGameDebt(gd.id);
+                }
+            }
+        }
     };
 
     const handleSendMBWay = () => {
@@ -54,15 +98,16 @@ const PaymentsPage = () => {
 
     const handleSharePayments = () => {
         const groupName = group?.name || 'Group';
-        const playersWithDebt = visiblePlayers.filter(p => (p.debt || 0) > 0);
+        const playersWithDebt = visiblePlayers.filter(p => getPlayerDebt(p).debt > 0);
         let msg = `💰 ${groupName} — Payments\n\n`;
         if (playersWithDebt.length === 0) {
             msg += '✅ All players have paid!\n';
         } else {
             msg += `Total owed: €${totalOwed.toFixed(2)}\n\n`;
             for (const p of playersWithDebt) {
+                const { debt, gamesUnpaid } = getPlayerDebt(p);
                 const name = `${p.firstName} ${p.lastName?.[0] ? p.lastName[0] + '.' : ''}`.trim();
-                msg += `❌ ${name} — €${(p.debt || 0).toFixed(2)} (${p.gamesUnpaid || 0} game${(p.gamesUnpaid || 0) !== 1 ? 's' : ''})\n`;
+                msg += `❌ ${name} — €${debt.toFixed(2)} (${gamesUnpaid} game${gamesUnpaid !== 1 ? 's' : ''})\n`;
             }
         }
         if (group.treasuryPhone) {
@@ -77,7 +122,7 @@ const PaymentsPage = () => {
 
     const handleIPaid = async () => {
         if (!myGroupPlayer || myDebt <= 0) return;
-        await handleClearPlayer(myGroupPlayer.id);
+        await handleClearAllForPlayer(myGroupPlayer.id);
         setIPaidSent(true);
     };
 
@@ -231,7 +276,92 @@ const PaymentsPage = () => {
                     </button>
                 )}
 
-                {/* All group players */}
+                {/* Game debt cards */}
+                {gameDebts.map((gd) => {
+                    const unpaidEntries = Object.entries(gd.debts || {}).filter(([, info]) => !info.paid);
+                    const gameTotal = unpaidEntries.reduce((sum, [, info]) => sum + info.amount, 0);
+                    return (
+                        <div key={gd.id} style={{
+                            background: theme.surface,
+                            borderRadius: '12px',
+                            border: `1px solid ${theme.border}`,
+                            overflow: 'hidden',
+                        }}>
+                            {/* Game header */}
+                            <div style={{
+                                padding: '10px 16px',
+                                borderBottom: `1px solid ${theme.border}`,
+                                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    {gd.date && (
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', color: theme.textSecondary }}>
+                                            <Calendar size={12} /> {gd.date}
+                                        </span>
+                                    )}
+                                    {gd.location && (
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', color: theme.textSecondary }}>
+                                            <MapPin size={12} /> {gd.location}
+                                        </span>
+                                    )}
+                                </div>
+                                <span style={{
+                                    fontSize: '0.75rem', fontWeight: '700', color: theme.danger,
+                                    background: theme.dangerLight, padding: '2px 8px', borderRadius: '10px',
+                                }}>
+                                    €{gameTotal.toFixed(2)}
+                                </span>
+                            </div>
+                            {/* Unpaid players */}
+                            <div>
+                                {unpaidEntries.map(([playerId, info], idx) => (
+                                    <div key={playerId} style={{
+                                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                        padding: '10px 16px',
+                                        borderBottom: idx < unpaidEntries.length - 1 ? `1px solid ${theme.border}` : 'none',
+                                    }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <div style={{
+                                                width: '28px', height: '28px', borderRadius: '50%',
+                                                background: theme.dangerLight,
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            }}>
+                                                <XIcon size={14} color={theme.danger} />
+                                            </div>
+                                            <span style={{ fontSize: '0.85rem', color: theme.text, fontWeight: '500' }}>
+                                                {info.name}
+                                                {myGroupPlayer && playerId === myGroupPlayer.id && (
+                                                    <span style={{ fontSize: '0.6rem', color: theme.primary, marginLeft: '4px' }}>({t('you')})</span>
+                                                )}
+                                            </span>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                            <span style={{ fontSize: '0.85rem', fontWeight: '700', color: theme.danger }}>
+                                                €{info.amount.toFixed(2)}
+                                            </span>
+                                            {canManage && (
+                                                <button
+                                                    onClick={() => handleMarkPaid(gd.id, playerId)}
+                                                    style={{
+                                                        background: theme.successLight, border: 'none',
+                                                        borderRadius: '8px',
+                                                        padding: '4px 8px', fontSize: '0.65rem', fontWeight: '600',
+                                                        color: theme.success, cursor: 'pointer',
+                                                        display: 'flex', alignItems: 'center', gap: '3px',
+                                                    }}
+                                                >
+                                                    <Check size={12} /> {t('clear')}
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    );
+                })}
+
+                {/* Player summary */}
                 <div style={{
                     background: theme.surface,
                     borderRadius: '12px',
@@ -293,7 +423,7 @@ const PaymentsPage = () => {
                                     </span>
                                     {canManage && hasDebt && (
                                         <button
-                                            onClick={() => handleClearPlayer(player.id)}
+                                            onClick={() => handleClearAllForPlayer(player.id)}
                                             style={{
                                                 background: theme.successLight, border: 'none',
                                                 borderRadius: '8px',

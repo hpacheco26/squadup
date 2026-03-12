@@ -10,6 +10,7 @@ import GameModal from '../components/modals/GameModal';
 import SubTimerModal from '../components/modals/SubTimerModal';
 import GoalCarousel from '../components/GoalCarousel';
 import useLanguageStore from '../store/languageStore';
+import GameDebtService from '../api/gameDebtService';
 
 const GamePage = () => {
     const { gameId } = useParams();
@@ -23,7 +24,7 @@ const GamePage = () => {
         timer, setTimer,
         isRunning, setIsRunning,
     } = useGameStore();
-    const { updateRank, group, subscribeToGroup, accumulateDebts } = useGroupStore();
+    const { updateRank, group, subscribeToGroup } = useGroupStore();
     const { t } = useLanguageStore();
 
     const [isSubModalOpen, setIsSubModalOpen] = useState(false);
@@ -145,10 +146,9 @@ const GamePage = () => {
         const price = Number(game.price) || 0;
         const treasuryId = group?.treasuryPlayerId || null;
         let payments = { ...(game.payments || {}) };
-        let perPlayerCost = 0;
 
         if (price > 0 && allPlayers.length > 0) {
-            perPlayerCost = price / allPlayers.length;
+            const perPlayerCost = price / allPlayers.length;
 
             // Auto-pay treasury and guests invited by treasury
             allPlayers.forEach(p => {
@@ -156,16 +156,32 @@ const GamePage = () => {
                 if (p.guest && p.addedBy === treasuryId) payments[p.id] = true;
             });
 
-            // Build debt map for unpaid players (guest cost goes to adder)
-            const debtMap = {};
+            // Build debts map for unpaid players (guest cost goes to adder)
+            const debts = {};
             allPlayers
                 .filter(p => !payments[p.id] && p.id !== treasuryId)
                 .forEach(p => {
                     const targetId = p.guest && p.addedBy ? p.addedBy : p.id;
-                    debtMap[targetId] = (debtMap[targetId] || 0) + perPlayerCost;
+                    const targetPlayer = allPlayers.find(pl => pl.id === targetId) || p;
+                    const name = `${targetPlayer.firstName} ${targetPlayer.lastName?.[0] ? targetPlayer.lastName[0] + '.' : ''}`.trim();
+                    debts[targetId] = {
+                        name,
+                        amount: Math.round(((debts[targetId]?.amount || 0) + perPlayerCost) * 100) / 100,
+                        paid: false,
+                    };
                 });
-            if (Object.keys(debtMap).length > 0) {
-                await accumulateDebts(group.id, debtMap);
+
+            if (Object.keys(debts).length > 0) {
+                await GameDebtService.createGameDebt({
+                    groupId: group.id,
+                    date: game.date || null,
+                    time: game.time || null,
+                    location: game.location || null,
+                    price,
+                    perPlayerCost: Math.round(perPlayerCost * 100) / 100,
+                    createdAt: Date.now(),
+                    debts,
+                });
             }
         }
 

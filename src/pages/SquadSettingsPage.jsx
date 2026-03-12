@@ -7,15 +7,17 @@ import PlayerCard from '../components/cards/PlayerCard';
 import PlayerModal from '../components/modals/PlayerModal';
 import SquadSettingsHeaderBar from '../components/bars/SquadSettingsHeaderBar';
 import useLanguageStore from '../store/languageStore';
+import GameDebtService from '../api/gameDebtService';
 
 function SquadSettingsPage() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { group, subscribeToGroup, updateGroup, deleteGroup, clearPlayerDebt } = useGroupStore();
+    const { group, subscribeToGroup, updateGroup, deleteGroup } = useGroupStore();
 
     const [groupName, setGroupName] = useState('');
     const [treasuryPhone, setTreasuryPhone] = useState('');
     const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
+    const [gameDebts, setGameDebts] = useState([]);
     const { user } = useAuthStore();
     const { t } = useLanguageStore();
     const saveTimerRef = useRef(null);
@@ -25,8 +27,9 @@ function SquadSettingsPage() {
 
     // Subscribe to group for real-time updates
     useEffect(() => {
-        const unsub = subscribeToGroup(id);
-        return unsub;
+        const unsubGroup = subscribeToGroup(id);
+        const unsubDebts = GameDebtService.subscribeToGameDebtsByGroup(id, setGameDebts);
+        return () => { unsubGroup(); unsubDebts(); };
     }, [id, subscribeToGroup]);
 
     useEffect(() => {
@@ -193,9 +196,32 @@ function SquadSettingsPage() {
 
                     {/* Debts - admin only */}
                     {isAdmin && (() => {
-                        const playersWithDebt = (group.players ?? []).filter(p => (p.debt || 0) > 0);
+                        // Compute per-player debt totals from gameDebts
+                        const playerDebtMap = {};
+                        gameDebts.forEach(gd => {
+                            Object.entries(gd.debts || {}).forEach(([playerId, info]) => {
+                                if (!info.paid) {
+                                    if (!playerDebtMap[playerId]) playerDebtMap[playerId] = 0;
+                                    playerDebtMap[playerId] += info.amount;
+                                }
+                            });
+                        });
+                        const playersWithDebt = (group.players ?? []).filter(p => (playerDebtMap[p.id] || 0) > 0);
                         if (playersWithDebt.length === 0) return null;
-                        const totalDebt = playersWithDebt.reduce((sum, p) => sum + (p.debt || 0), 0);
+                        const totalDebt = Object.values(playerDebtMap).reduce((sum, v) => sum + v, 0);
+
+                        const handleClearDebt = async (playerId) => {
+                            for (const gd of gameDebts) {
+                                if (gd.debts?.[playerId] && !gd.debts[playerId].paid) {
+                                    await GameDebtService.markPlayerPaid(gd.id, playerId);
+                                    const allPaid = Object.entries(gd.debts || {}).every(([id, info]) =>
+                                        id === playerId || info.paid
+                                    );
+                                    if (allPaid) await GameDebtService.deleteGameDebt(gd.id);
+                                }
+                            }
+                        };
+
                         return (
                             <div style={{
                                 background: '#fff',
@@ -221,11 +247,11 @@ function SquadSettingsPage() {
                                                     {player.firstName} {player.lastName?.[0] ? `${player.lastName[0]}.` : ''}
                                                 </span>
                                                 <span style={{ fontSize: '0.85rem', fontWeight: '600', color: '#dc2626', marginLeft: '8px' }}>
-                                                    €{(player.debt || 0).toFixed(2)}
+                                                    €{(playerDebtMap[player.id] || 0).toFixed(2)}
                                                 </span>
                                             </div>
                                             <button
-                                                onClick={() => clearPlayerDebt(group.id, player.id)}
+                                                onClick={() => handleClearDebt(player.id)}
                                                 style={{
                                                     background: '#dcfce7', border: 'none', borderRadius: '6px',
                                                     padding: '4px 10px', fontSize: '0.75rem', fontWeight: '600',
