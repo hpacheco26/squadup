@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FiClipboard, FiUsers, FiUser } from 'react-icons/fi';
 import { TbTriangleSquareCircleFilled } from 'react-icons/tb';
@@ -32,28 +32,35 @@ const NavItem = ({ icon, label, active, disabled, onClick }) => (
 const NavBar = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { game, games, upcomingGames } = useGameStore();
+    const { game, games, upcomingGames, subscribeToGamesByGroup } = useGameStore();
     const { group } = useGroupStore();
     const lastGameIdRef = useRef(null);
     const lastGroupIdRef = useRef(null);
 
     const pathname = location.pathname;
 
-    // Hide on certain routes
-    if (['/login', '/signup', '/rank', '/settings'].includes(pathname) || pathname.startsWith('/game-invite') || pathname.startsWith('/join')) {
-        return null;
-    }
-
-    // Parse route context
+    // Parse route context early so we can use it in the effect
     const groupMatch = pathname.match(/^\/groups\/([^/]+)/);
     const pregameMatch = pathname.match(/^\/pregame\/([^/]+)/);
     const teamsMatch = pathname.match(/^\/teams\/([^/]+)/);
     const paymentsMatch = pathname.match(/^\/payments\/([^/]+)/);
     const gamePageMatch = pathname.match(/^\/game\/([^/]+)/);
 
-    const isGroupContext = groupMatch || pregameMatch || teamsMatch || paymentsMatch || gamePageMatch;
-
     const currentGroupId = groupMatch?.[1] || paymentsMatch?.[1] || game?.groupId || group?.id || null;
+
+    // Ensure games are loaded for the current group context
+    useEffect(() => {
+        if (!currentGroupId) return;
+        const unsub = subscribeToGamesByGroup(currentGroupId);
+        return unsub;
+    }, [currentGroupId, subscribeToGamesByGroup]);
+
+    // Hide on certain routes
+    if (['/login', '/signup', '/rank', '/settings'].includes(pathname) || pathname.startsWith('/game-invite') || pathname.startsWith('/join')) {
+        return null;
+    }
+
+    const isGroupContext = groupMatch || pregameMatch || teamsMatch || paymentsMatch || gamePageMatch;
 
     // Clear cached game when group changes
     if (currentGroupId && currentGroupId !== lastGroupIdRef.current) {
