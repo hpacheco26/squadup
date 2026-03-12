@@ -45,7 +45,7 @@ const PaymentsPage = () => {
         Object.entries(gd.debts || {}).forEach(([playerId, info]) => {
             if (!info.paid) {
                 if (!playerTotals[playerId]) playerTotals[playerId] = { debt: 0, gamesUnpaid: 0 };
-                playerTotals[playerId].debt += info.amount;
+                playerTotals[playerId].debt += (info.amount || 0);
                 playerTotals[playerId].gamesUnpaid += 1;
             }
         });
@@ -279,7 +279,7 @@ const PaymentsPage = () => {
                 {/* Game debt cards */}
                 {gameDebts.map((gd) => {
                     const unpaidEntries = Object.entries(gd.debts || {}).filter(([, info]) => !info.paid);
-                    const gameTotal = unpaidEntries.reduce((sum, [, info]) => sum + info.amount, 0);
+                    const gameTotal = unpaidEntries.reduce((sum, [, info]) => sum + (info.amount || 0), 0);
                     return (
                         <div key={gd.id} style={{
                             background: theme.surface,
@@ -337,7 +337,7 @@ const PaymentsPage = () => {
                                         </div>
                                         <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                                             <span style={{ fontSize: '0.85rem', fontWeight: '700', color: theme.danger }}>
-                                                €{info.amount.toFixed(2)}
+                                                €{(info.amount || 0).toFixed(2)}
                                             </span>
                                             {canManage && (
                                                 <button
