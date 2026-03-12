@@ -64,7 +64,14 @@ const useGameStore = create((set) => ({
         if (prev) prev();
 
         const unsub = GameService.subscribeToGamesByGroup(groupId, (games) => {
-            set({ games, loading: false });
+            // Deduplicate by game ID to prevent duplicate key warnings
+            const seen = new Set();
+            const unique = games.filter(g => {
+                if (seen.has(g.id)) return false;
+                seen.add(g.id);
+                return true;
+            });
+            set({ games: unique, loading: false });
         });
         set({ _unsubGames: unsub, loading: true });
         return unsub;

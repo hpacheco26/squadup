@@ -9,7 +9,7 @@ import theme from '../theme';
 const PaymentsPage = () => {
     const { groupId } = useParams();
     const { games, subscribeToGamesByGroup, togglePayment } = useGameStore();
-    const { group, subscribeToGroup, clearPlayerDebt } = useGroupStore();
+    const { group, subscribeToGroup } = useGroupStore();
     const { user } = useAuthStore();
     const scrollRef = useRef(null);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -151,8 +151,6 @@ const PaymentsPage = () => {
                 }
             }
         }
-        // Clear group-level debt
-        await clearPlayerDebt(groupId, playerId);
     };
 
     const handleSendMBWay = () => {
