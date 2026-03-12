@@ -48,7 +48,11 @@ const NavBar = () => {
     const paymentsMatch = pathname.match(/^\/payments\/([^/]+)/);
     const gamePageMatch = pathname.match(/^\/game\/([^/]+)/);
 
-    const currentGroupId = groupMatch?.[1] || paymentsMatch?.[1] || game?.groupId || group?.id || null;
+    // Decode URI-encoded IDs from pathname (e.g. %C3%A7 → ç) to match Firestore doc IDs
+    const decode = (s) => { try { return decodeURIComponent(s); } catch { return s; } };
+    const currentGroupId = (groupMatch?.[1] && decode(groupMatch[1]))
+        || (paymentsMatch?.[1] && decode(paymentsMatch[1]))
+        || game?.groupId || group?.id || null;
 
     // Ensure games are loaded for the current group context
     useEffect(() => {
