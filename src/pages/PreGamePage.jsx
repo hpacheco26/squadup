@@ -14,7 +14,7 @@ import { Share2, UserPlus, Link as LinkIcon, ClipboardList } from 'lucide-react'
 const PreGamePage = () => {
     const { gameId } = useParams();
     const navigate = useNavigate();
-    const { game, subscribeToGame, handlePlayerOut, handlePlayerIn, updateGame } = useGameStore();
+    const { game, subscribeToGame, handlePlayerOut, handlePlayerIn, updateGame, loading } = useGameStore();
     const { group, subscribeToGroup } = useGroupStore();
     const { user } = useAuthStore();
     const [playersIn, setPlayersIn] = useState([]);
@@ -29,10 +29,17 @@ const PreGamePage = () => {
     }, [gameId, subscribeToGame]);
 
     useEffect(() => {
-        if (game?.status === 'ended' && game.groupId) {
+        if (loading) return;
+        if (!game) {
+            const gId = group?.id;
+            if (gId) navigate(`/groups/${gId}`, { replace: true });
+            else navigate('/', { replace: true });
+            return;
+        }
+        if (game.status && game.status !== 'open' && game.status !== 'confirmed') {
             navigate(`/groups/${game.groupId}`, { replace: true });
         }
-    }, [game?.status, game?.groupId, navigate]);
+    }, [game, loading, group?.id, navigate]);
 
     // Ensure the correct group is loaded for the back button
     useEffect(() => {
@@ -105,7 +112,6 @@ const PreGamePage = () => {
     };
 
     if (!game) return <div>Loading...</div>;
-    if (game.status === 'ended') return null;
 
     return (
         <>

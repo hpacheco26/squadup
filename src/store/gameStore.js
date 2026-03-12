@@ -90,7 +90,7 @@ const useGameStore = create((set) => ({
         const unsubs = groups.map(group =>
             GameService.subscribeToGamesByGroup(group.id, (games) => {
                 gamesByGroup[group.id] = games
-                    .filter(g => !g.status || g.status === 'open')
+                    .filter(g => g.status === 'open' || g.status === 'confirmed')
                     .map(g => ({ ...g, groupName: group.name }));
                 const allGames = Object.values(gamesByGroup).flat();
                 allGames.sort((a, b) => {
@@ -313,14 +313,17 @@ const useGameStore = create((set) => ({
 
         await GameService.updateGame(gameId, { payments });
 
-        // If game is ended and all in-game players have paid, clean it up
+        // If game is ended and all in-game players are effectively paid, clean it up
         if (targetGame.status === 'ended') {
-            const inGameIds = new Set();
-            for (const p of [...(targetGame.playersIn || []), ...(targetGame.team1 || []), ...(targetGame.team2 || []), ...(targetGame.injured || [])]) {
-                inGameIds.add(p.id);
-            }
             const allPlayers = [...(targetGame.team1 || []), ...(targetGame.team2 || []), ...(targetGame.injured || [])];
-            const allPaid = allPlayers.length > 0 && allPlayers.every(p => payments[p.id]);
+            const treasuryId = targetGame.treasuryPlayerId || null;
+            const allPaid = allPlayers.length > 0 && allPlayers.every(p => {
+                if (p.id === treasuryId) return true;
+                if (p.guest && p.addedBy === treasuryId) return true;
+                if (payments[p.id]) return true;
+                if (p.guest && p.addedBy && payments[p.addedBy]) return true;
+                return false;
+            });
             if (allPaid) {
                 await GameService.deleteGame(gameId);
                 set({ games: updatedGames.filter(g => g.id !== gameId) });

@@ -35,10 +35,17 @@ const TeamsPage = () => {
     }, [gameId, subscribeToGame]);
 
     useEffect(() => {
-        if (game?.status === 'ended' && game.groupId) {
+        if (loading) return;
+        if (!game) {
+            const gId = group?.id;
+            if (gId) navigate(`/groups/${gId}`, { replace: true });
+            else navigate('/', { replace: true });
+            return;
+        }
+        if (game.status && game.status !== 'open' && game.status !== 'confirmed') {
             navigate(`/groups/${game.groupId}`, { replace: true });
         }
-    }, [game?.status, game?.groupId, navigate]);
+    }, [game, loading, group?.id, navigate]);
 
     useEffect(() => {
         if (game?.groupId) {
@@ -132,15 +139,7 @@ const TeamsPage = () => {
         await updateGame(gameId, { [targetTeam]: teamList, injured: injuredList });
     };
 
-    if (!game && loading) {
-        return <p>Loading teams...</p>;
-    }
-
-    if (!game) {
-        return <p>Loading teams...</p>;
-    }
-
-    if (game.status === 'ended') return null;
+    if (!game) return <p>Loading teams...</p>;
 
     const playersIn = game.playersIn || [];
     const hasTeams = game.team1?.length > 0 || game.team2?.length > 0;

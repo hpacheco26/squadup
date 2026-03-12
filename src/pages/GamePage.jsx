@@ -38,10 +38,17 @@ const GamePage = () => {
     }, [gameId, subscribeToGame]);
 
     useEffect(() => {
-        if (game?.status === 'ended' && game.groupId) {
+        if (loading) return;
+        if (!game) {
+            const gId = group?.id;
+            if (gId) navigate(`/groups/${gId}`, { replace: true });
+            else navigate('/', { replace: true });
+            return;
+        }
+        if (game.status && game.status !== 'open' && game.status !== 'confirmed') {
             navigate(`/groups/${game.groupId}`, { replace: true });
         }
-    }, [game?.status, game?.groupId, navigate]);
+    }, [game, loading, group?.id, navigate]);
 
     useEffect(() => {
         if (game?.groupId) {
@@ -132,34 +139,40 @@ const GamePage = () => {
     };
 
     const handleEndGame = async () => {
-        // Accumulate unpaid debts before finishing
-        if (game.price > 0) {
-            const allPlayers = [...team1, ...team2, ...(game.injured || [])];
-            if (allPlayers.length > 0) {
-                const treasuryId = group?.treasuryPlayerId || null;
-                const perPlayerCost = game.price / allPlayers.length;
-                const payments = { ...(game.payments || {}) };
+        const allPlayers = [...team1, ...team2, ...(game.injured || [])];
+        const price = Number(game.price) || 0;
+        const treasuryId = group?.treasuryPlayerId || null;
+        let payments = { ...(game.payments || {}) };
+        let perPlayerCost = 0;
 
-                // Auto-pay treasury and guests invited by treasury
-                allPlayers.forEach(p => {
-                    if (p.id === treasuryId) payments[p.id] = true;
-                    if (p.guest && p.addedBy === treasuryId) payments[p.id] = true;
+        if (price > 0 && allPlayers.length > 0) {
+            perPlayerCost = price / allPlayers.length;
+
+            // Auto-pay treasury and guests invited by treasury
+            allPlayers.forEach(p => {
+                if (p.id === treasuryId) payments[p.id] = true;
+                if (p.guest && p.addedBy === treasuryId) payments[p.id] = true;
+            });
+
+            // Build debt map for unpaid players (guest cost goes to adder)
+            const debtMap = {};
+            allPlayers
+                .filter(p => !payments[p.id] && p.id !== treasuryId)
+                .forEach(p => {
+                    const targetId = p.guest && p.addedBy ? p.addedBy : p.id;
+                    debtMap[targetId] = (debtMap[targetId] || 0) + perPlayerCost;
                 });
-
-                const debtMap = {};
-                allPlayers
-                    .filter(p => !payments[p.id] && p.id !== treasuryId)
-                    .forEach(p => {
-                        const targetId = p.guest && p.addedBy ? p.addedBy : p.id;
-                        debtMap[targetId] = (debtMap[targetId] || 0) + perPlayerCost;
-                    });
-                if (Object.keys(debtMap).length > 0) {
-                    await accumulateDebts(group.id, debtMap);
-                }
-
-                // Store payments and perPlayerCost on the game for carousel accuracy
-                await updateGame(game.id, { payments, perPlayerCost });
+            if (Object.keys(debtMap).length > 0) {
+                await accumulateDebts(group.id, debtMap);
             }
+        }
+
+        // Determine if there are unpaid players
+        const hasUnpaid = price > 0 && allPlayers.some(p => !payments[p.id]);
+
+        // Write final game state in one call to avoid race conditions
+        if (hasUnpaid) {
+            await updateGame(game.id, { status: 'ended', payments, perPlayerCost, treasuryPlayerId: treasuryId || null });
         }
 
         const winner = team1Goals >= team2Goals ? team1 : team2;
@@ -197,15 +210,8 @@ const GamePage = () => {
             });
         }
 
-        // Mark finished game as ended (keep it if there are unpaid players)
-        // Re-read payments after auto-pay updates above
-        const finalGame = useGameStore.getState().game;
-        const finalPayments = finalGame?.payments || game.payments || {};
-        const allGamePlayers = [...team1, ...team2, ...(game.injured || [])];
-        const hasUnpaid = game.price > 0 && allGamePlayers.some(p => !finalPayments[p.id]);
-        if (hasUnpaid) {
-            await updateGame(game.id, { status: 'ended' });
-        } else {
+        // Delete game if fully paid, otherwise already marked as ended above
+        if (!hasUnpaid) {
             await deleteGame(game.id);
         }
         resetGameSession();
@@ -225,7 +231,6 @@ const GamePage = () => {
     };
 
     if (loading || !game) return <p>Loading game...</p>;
-    if (game.status === 'ended') return null;
 
     const currentTimer = timer ?? 300;
     const team1 = game.team1 || [];

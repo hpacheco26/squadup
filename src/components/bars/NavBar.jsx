@@ -19,8 +19,9 @@ const NavItem = ({ icon, label, active, disabled, onClick }) => (
             alignItems: 'center',
             gap: '2px',
             padding: '4px 8px',
-            color: disabled ? '#475569' : active ? '#ffffff' : '#94a3b8',
-            opacity: disabled ? 0.4 : 1,
+            color: disabled ? '#64748b' : active ? '#ffffff' : '#94a3b8',
+            opacity: disabled ? 0.5 : 1,
+            pointerEvents: disabled ? 'none' : 'auto',
         }}
     >
         <span style={{ fontSize: '20px', display: 'flex' }}>{icon}</span>
@@ -60,11 +61,12 @@ const NavBar = () => {
         lastGameIdRef.current = null;
     }
 
-    const openGame = games?.find(g => (!g.status || g.status === 'open') && (!currentGroupId || g.groupId === currentGroupId))
-        || upcomingGames?.find(g => g.groupId === currentGroupId);
+    const isActive = (g) => g.status === 'open' || g.status === 'confirmed';
+    const openGame = games?.find(g => isActive(g) && (!currentGroupId || g.groupId === currentGroupId))
+        || upcomingGames?.find(g => isActive(g) && g.groupId === currentGroupId);
     const openGameId = openGame?.id || null;
-    // Only use single game if it belongs to current group
-    const singleGameId = game && (!game.status || game.status === 'open') && (!currentGroupId || game.groupId === currentGroupId) ? game.id : null;
+    // Only use single game if it belongs to current group and is active
+    const singleGameId = game && isActive(game) && (!currentGroupId || game.groupId === currentGroupId) ? game.id : null;
     const resolvedGameId = pregameMatch?.[1] || teamsMatch?.[1] || gamePageMatch?.[1] || singleGameId || openGameId;
 
     // Remember the last known open game ID so it persists across page navigations
@@ -89,7 +91,7 @@ const NavBar = () => {
         );
     }
 
-    const hasGame = !!gameId;
+    const hasGame = !!openGameId || !!singleGameId;
 
     // Full navbar in group/game context
     return (

@@ -56,7 +56,7 @@ function GroupPage() {
                 />
 
                 {/* Next Game */}
-                {games.filter(g => !g.status || g.status === 'open').length > 0 && (
+                {games.filter(g => g.status === 'open' || g.status === 'confirmed').length > 0 && (
                     <>
                         <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', textAlign: 'center', marginBottom: '4px' }}>
                             Next Game
@@ -66,10 +66,10 @@ function GroupPage() {
                         </p>
                     </>
                 )}
-                <GamesContainer games={games.filter(g => !g.status || g.status === 'open')} readOnly />
+                <GamesContainer games={games.filter(g => g.status === 'open' || g.status === 'confirmed')} readOnly />
 
                 {/* Show Schedule Button only if no open games and user is admin */}
-                {games.filter(g => !g.status || g.status === 'open').length === 0 && isAdmin && (
+                {games.filter(g => g.status === 'open' || g.status === 'confirmed').length === 0 && isAdmin && (
                     <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
                         <Button 
                             onClick={() => setIsGameCreateModalOpen(true)} 

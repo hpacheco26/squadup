@@ -75,6 +75,14 @@ const PaymentsPage = () => {
     // Treasury and guests added by treasury are always considered paid
     const isAutoPaid = (p) => p.id === treasuryId || (p.guest && p.addedBy === treasuryId);
 
+    // A player is effectively paid if: auto-paid, directly paid, or a guest whose adder has paid
+    const isPlayerPaid = (p, payments) => {
+        if (isAutoPaid(p)) return true;
+        if (payments[p.id]) return true;
+        if (p.guest && p.addedBy && payments[p.addedBy]) return true;
+        return false;
+    };
+
     // Games with unpaid players (for carousel) — only ended games with a price
     const unpaidGames = (games || []).filter(g => {
         if (g.status !== 'ended') return false;
@@ -82,7 +90,7 @@ const PaymentsPage = () => {
         if (price === 0) return false;
         const allInGame = getAllInGamePlayers(g);
         const payments = g.payments || {};
-        return allInGame.some(p => !isAutoPaid(p) && !payments[p.id]);
+        return allInGame.some(p => !isPlayerPaid(p, payments));
     }).sort((a, b) => {
         // Most recent first
         const da = new Date(`${a.date}T${a.time || '00:00'}`);
@@ -96,7 +104,7 @@ const PaymentsPage = () => {
         const allInGame = getAllInGamePlayers(g);
         const perPlayer = g.perPlayerCost || (allInGame.length > 0 ? price / allInGame.length : 0);
         const payments = g.payments || {};
-        const unpaidCount = allInGame.filter(p => !isAutoPaid(p) && !payments[p.id]).length;
+        const unpaidCount = allInGame.filter(p => !isPlayerPaid(p, payments)).length;
         return sum + (unpaidCount * perPlayer);
     }, 0);
 
@@ -106,10 +114,17 @@ const PaymentsPage = () => {
         for (const g of allGames) {
             if (g.status !== 'ended') continue;
             const allInGame = getAllInGamePlayers(g);
-            const isInGame = allInGame.some(p => p.id === playerId);
             const payments = g.payments || {};
+            // Mark the player as paid
+            const isInGame = allInGame.some(p => p.id === playerId);
             if (isInGame && !payments[playerId]) {
                 await togglePayment(g.id, playerId);
+            }
+            // Also mark any guests they added as paid
+            for (const p of allInGame) {
+                if (p.guest && p.addedBy === playerId && !payments[p.id]) {
+                    await togglePayment(g.id, p.id);
+                }
             }
         }
         // Clear group-level debt
@@ -238,7 +253,7 @@ const PaymentsPage = () => {
                                 const allInGame = getAllInGamePlayers(g);
                                 const payments = g.payments || {};
                                 const perPlayer = g.perPlayerCost || (allInGame.length > 0 ? price / allInGame.length : 0);
-                                const paidCount = allInGame.filter(p => isAutoPaid(p) || payments[p.id]).length;
+                                const paidCount = allInGame.filter(p => isPlayerPaid(p, payments)).length;
                                 const unpaidCount = allInGame.length - paidCount;
                                 const owedInGame = unpaidCount * perPlayer;
                                 return (
