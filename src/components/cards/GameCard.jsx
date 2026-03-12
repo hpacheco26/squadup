@@ -2,26 +2,28 @@ import React from "react";
 import { CheckCircle, XCircle, Clock, Lock, UserCheck, UserX, Mail, MapPin, Calendar, Users, Euro } from "lucide-react";
 import getMyInviteStatus from "../../utils/myInviteStatus";
 import useAuthStore from '../../store/authStore';
+import useLanguageStore from '../../store/languageStore';
 
 const statusConfig = {
-    open: { bg: '#dbeafe', color: '#1d4ed8', icon: <Clock size={14} />, label: 'Open' },
-    confirmed: { bg: '#dcfce7', color: '#16a34a', icon: <CheckCircle size={14} />, label: 'Confirmed' },
-    closed: { bg: '#dcfce7', color: '#16a34a', icon: <Lock size={14} />, label: 'Closed' },
-    cancelled: { bg: '#fee2e2', color: '#dc2626', icon: <XCircle size={14} />, label: 'Cancelled' }
+    open: { bg: '#dbeafe', color: '#1d4ed8', icon: <Clock size={14} />, labelKey: 'statusOpen' },
+    confirmed: { bg: '#dcfce7', color: '#16a34a', icon: <CheckCircle size={14} />, labelKey: 'statusConfirmed' },
+    closed: { bg: '#dcfce7', color: '#16a34a', icon: <Lock size={14} />, labelKey: 'statusClosed' },
+    cancelled: { bg: '#fee2e2', color: '#dc2626', icon: <XCircle size={14} />, labelKey: 'statusCancelled' }
 };
 
-const inviteConfig = {
-    in: { bg: '#dcfce7', color: '#16a34a', icon: <UserCheck size={14} />, label: "I'm In" },
-    out: { bg: '#fee2e2', color: '#dc2626', icon: <UserX size={14} />, label: "I'm Out" },
-    invited: { bg: '#fef3c7', color: '#d97706', icon: <Mail size={14} />, label: "Invited" }
+const inviteConfigMap = {
+    in: { bg: '#dcfce7', color: '#16a34a', icon: <UserCheck size={14} />, labelKey: 'imIn' },
+    out: { bg: '#fee2e2', color: '#dc2626', icon: <UserX size={14} />, labelKey: 'imOut' },
+    invited: { bg: '#fef3c7', color: '#d97706', icon: <Mail size={14} />, labelKey: 'invited' }
 };
 
 const GameCard = ({ game }) => {
-    const status = statusConfig[game.status] || { bg: '#f1f5f9', color: '#64748b', icon: null, label: game.status };
+    const status = statusConfig[game.status] || { bg: '#f1f5f9', color: '#64748b', icon: null, labelKey: null };
     const { playerData } = useAuthStore();
+    const { t } = useLanguageStore();
 
     const myInviteStatus = getMyInviteStatus(game, playerData.id);
-    const invite = inviteConfig[myInviteStatus] || { bg: '#f1f5f9', color: '#64748b', icon: null, label: "—" };
+    const invite = inviteConfigMap[myInviteStatus] || { bg: '#f1f5f9', color: '#64748b', icon: null, labelKey: null };
 
     const playersIn = (game.playersIn || []).length;
     const playersInvited = (game.playersInvited || []).length;
@@ -100,7 +102,7 @@ const GameCard = ({ game }) => {
                         gap: '4px',
                         whiteSpace: 'nowrap',
                     }}>
-                        {status.icon} {status.label}
+                        {status.icon} {status.labelKey ? t(status.labelKey) : game.status}
                     </span>
                 </div>
             </div>
@@ -125,7 +127,7 @@ const GameCard = ({ game }) => {
                         alignItems: 'center',
                         gap: '4px',
                     }}>
-                        {invite.icon} {invite.label}
+                        {invite.icon} {invite.labelKey ? t(invite.labelKey) : '—'}
                     </span>
                 </div>
                 <div style={{

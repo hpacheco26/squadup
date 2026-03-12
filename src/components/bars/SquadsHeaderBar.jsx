@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { Plus } from 'lucide-react';
 import CreateGroupModal from '../modals/GroupModal';
+import useLanguageStore from '../../store/languageStore';
 
 const SquadsHeaderBar = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const { t } = useLanguageStore();
 
     return (
         <>
             <header style={styles.header}>
                 {/* App Name */}
-                <h1 style={styles.title}>Groups</h1>
+                <h1 style={styles.title}>{t('groups')}</h1>
                 
                 {/* New Group Button */}
                 <button 

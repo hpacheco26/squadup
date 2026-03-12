@@ -6,6 +6,7 @@ import useAuthStore from '../store/authStore';
 import PlayerCard from '../components/cards/PlayerCard';
 import PlayerModal from '../components/modals/PlayerModal';
 import SquadSettingsHeaderBar from '../components/bars/SquadSettingsHeaderBar';
+import useLanguageStore from '../store/languageStore';
 
 function SquadSettingsPage() {
     const { id } = useParams();
@@ -16,6 +17,7 @@ function SquadSettingsPage() {
     const [treasuryPhone, setTreasuryPhone] = useState('');
     const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
     const { user } = useAuthStore();
+    const { t } = useLanguageStore();
     const saveTimerRef = useRef(null);
     const phoneSaveTimerRef = useRef(null);
 
@@ -89,7 +91,7 @@ function SquadSettingsPage() {
         updateGroup(group.id, { ...group, players: updatedPlayers });
     };
 
-    if (!group) return <p style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>Loading...</p>;
+    if (!group) return <p style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>{t('loading')}</p>;
 
     return (
         <>
@@ -110,11 +112,11 @@ function SquadSettingsPage() {
                             border: '1px solid #e2e8f0',
                         }}>
                             <label style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-                                Group Name
+                                {t('groupName')}
                             </label>
                             <input
                                 type="text"
-                                placeholder="Enter group name"
+                                placeholder={t('enterGroupName')}
                                 value={groupName}
                                 onChange={handleGroupNameChange}
                                 onBlur={handleUpdateGroup}
@@ -144,10 +146,10 @@ function SquadSettingsPage() {
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
                                 <Wallet size={14} color="#5b7bb3" />
                                 <label style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
-                                    Treasury
+                                    {t('treasury')}
                                 </label>
                             </div>
-                            <label style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '4px', display: 'block' }}>Treasury Player</label>
+                            <label style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '4px', display: 'block' }}>{t('treasuryPlayer')}</label>
                             <select
                                 value={group.treasuryPlayerId || (group.players || []).find(p => p.userId === group.adminId)?.id || ''}
                                 onChange={handleTreasuryPlayerChange}
@@ -164,7 +166,7 @@ function SquadSettingsPage() {
                                     marginBottom: '10px',
                                 }}
                             >
-                                <option value="">Select player...</option>
+                                <option value="">{t('selectPlayer')}</option>
                                 {(group.players ?? []).map(p => (
                                     <option key={p.id} value={p.id}>{p.firstName} {p.lastName || ''}</option>
                                 ))}
@@ -204,7 +206,7 @@ function SquadSettingsPage() {
                             }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                                     <label style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
-                                        Outstanding Debts
+                                        {t('outstandingDebts')}
                                     </label>
                                     <span style={{ fontSize: '0.8rem', fontWeight: '700', color: '#dc2626' }}>€{totalDebt.toFixed(2)}</span>
                                 </div>
@@ -230,7 +232,7 @@ function SquadSettingsPage() {
                                                     color: '#16a34a', cursor: 'pointer',
                                                 }}
                                             >
-                                                Clear
+                                                {t('clear')}
                                             </button>
                                         </div>
                                     ))}
@@ -250,7 +252,7 @@ function SquadSettingsPage() {
                         }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexShrink: 0 }}>
                                 <label style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
-                                    Players ({(group.players ?? []).length})
+                                    {t('playersLabel')} ({(group.players ?? []).length})
                                 </label>
                                 <button
                                     onClick={() => setIsPlayerModalOpen(true)}
@@ -271,7 +273,7 @@ function SquadSettingsPage() {
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                                 {(group.players ?? []).length === 0 ? (
-                                    <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px', fontSize: '0.9rem' }}>No players yet</p>
+                                    <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px', fontSize: '0.9rem' }}>{t('noPlayersYet')}</p>
                                 ) : (
                                     (group.players ?? []).map((player) => (
                                         <PlayerCard 
@@ -312,7 +314,7 @@ function SquadSettingsPage() {
                                 gap: '8px',
                             }}
                         >
-                            <Trash2 size={16} /> Delete Group
+                            <Trash2 size={16} /> {t('deleteGroup')}
                         </button>
                     ) : (
                         <button
@@ -333,7 +335,7 @@ function SquadSettingsPage() {
                                 gap: '8px',
                             }}
                         >
-                            <LogOut size={16} /> Leave Group
+                            <LogOut size={16} /> {t('leaveGroup')}
                         </button>
                     )}
                 </div>

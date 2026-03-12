@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Modal } from 'react-bulma-components';
 import { ArrowLeftRight } from 'lucide-react';
+import useLanguageStore from '../../store/languageStore';
 
 /**
  * Builds a sub order for a team based on subCounts.
@@ -16,6 +17,7 @@ const getSubOrder = (team, subCounts) => {
 };
 
 const SubTimerModal = ({ team1, team2, team1Label, team2Label, subCounts = {}, isOpen, onClose, onAcceptSub }) => {
+    const { t } = useLanguageStore();
     const order1 = useMemo(() => getSubOrder(team1, subCounts), [team1, subCounts]);
     const order2 = useMemo(() => getSubOrder(team2, subCounts), [team2, subCounts]);
 
@@ -112,14 +114,14 @@ const SubTimerModal = ({ team1, team2, team1Label, team2Label, subCounts = {}, i
             <Modal.Card>
                 <Modal.Card.Header>
                     <Modal.Card.Title style={{ textAlign: 'center', width: '100%', fontSize: '1.1rem', fontWeight: '700' }}>
-                        Substitution Time!
+                        {t('substitutionTime')}
                     </Modal.Card.Title>
                 </Modal.Card.Header>
                 <Modal.Card.Body style={{ padding: '12px 16px' }}>
                     {/* Team 1 */}
                     <div style={{ marginBottom: '12px' }}>
                         <p style={{ fontSize: '0.75rem', fontWeight: '700', color: '#0d9488', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                            {team1Label || 'Team 1'} — Sub Out
+                            {team1Label || t('team1')} — {t('subOut')}
                         </p>
                         {renderCarousel(order1, pick1, setSelected1, '#0d9488')}
                     </div>
@@ -131,7 +133,7 @@ const SubTimerModal = ({ team1, team2, team1Label, team2Label, subCounts = {}, i
                     {/* Team 2 */}
                     <div>
                         <p style={{ fontSize: '0.75rem', fontWeight: '700', color: '#e11d48', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                            {team2Label || 'Team 2'} — Sub Out
+                            {team2Label || t('team2')} — {t('subOut')}
                         </p>
                         {renderCarousel(order2, pick2, setSelected2, '#e11d48')}
                     </div>
@@ -155,7 +157,7 @@ const SubTimerModal = ({ team1, team2, team1Label, team2Label, subCounts = {}, i
                         }}
                     >
                         <ArrowLeftRight size={16} strokeWidth={2.5} />
-                        Rotate
+                        {t('rotate')}
                     </button>
                 </Modal.Card.Footer>
             </Modal.Card>

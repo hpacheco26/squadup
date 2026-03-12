@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useAuthStore from '../store/authStore'; // Import the auth store
-import { FaGoogle } from 'react-icons/fa'; // Google icon
+import useAuthStore from '../store/authStore';
+import useLanguageStore from '../store/languageStore';
+import { FaGoogle } from 'react-icons/fa';
 import logo from '../assets/logo.png';
 
 const LoginPage = () => {
-    const { login, loginWithGoogle } = useAuthStore(); // Get auth functions from the store
+    const { login, loginWithGoogle } = useAuthStore();
+    const { t } = useLanguageStore();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -23,7 +25,7 @@ const LoginPage = () => {
             sessionStorage.removeItem('returnTo');
             navigate(returnTo || '/'); // Redirect to saved page or homepage
         } catch (err) {
-            setError('Invalid credentials');
+            setError(t('invalidCredentials'));
         } finally {
             setLoading(false);
         }
@@ -54,12 +56,12 @@ const LoginPage = () => {
                         {error && <p className="has-text-danger">{error}</p>}
                         <form onSubmit={handleSubmit}>
                             <div className="field">
-                                <label className="label">Email</label>
+                                <label className="label">{t('email')}</label>
                                 <div className="control">
                                     <input
                                         className="input"
                                         type="email"
-                                        placeholder="Email"
+                                        placeholder={t('email')}
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         required
@@ -67,12 +69,12 @@ const LoginPage = () => {
                                 </div>
                             </div>
                             <div className="field">
-                                <label className="label">Password</label>
+                                <label className="label">{t('password')}</label>
                                 <div className="control">
                                     <input
                                         className="input"
                                         type="password"
-                                        placeholder="Password"
+                                        placeholder={t('password')}
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         required
@@ -87,7 +89,7 @@ const LoginPage = () => {
                                         disabled={loading}
                                         style={{ background: '#5b7bb3', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}
                                     >
-                                        Login
+                                        {t('login')}
                                     </button>
                                 </div>
                             </div>
@@ -105,13 +107,13 @@ const LoginPage = () => {
                                     <span className="icon">
                                         <FaGoogle />
                                     </span>
-                                    <span>Login with Google</span>
+                                    <span>{t('loginWithGoogle')}</span>
                                 </button>
                             </div>
                         </div>
 
                         <p className="has-text-centered">
-                            Don't have an account? <a href="/signup">Sign up</a>
+                            {t('noAccount')} <a href="/signup">{t('signUpLink')}</a>
                         </p>
                     </div>
                 </div>

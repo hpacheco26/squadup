@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
+import useLanguageStore from '../store/languageStore';
 
 const SignupPage = () => {
     const { signup } = useAuthStore();
+    const { t } = useLanguageStore();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -19,7 +21,7 @@ const SignupPage = () => {
         setError('');
 
         if (password !== confirmPassword) {
-            setError('Passwords do not match');
+            setError(t('passwordsNoMatch'));
             setLoading(false);
             return;
         }
@@ -30,13 +32,13 @@ const SignupPage = () => {
         } catch (err) {
             const code = err?.code || '';
             if (code === 'auth/weak-password') {
-                setError('Password should be at least 6 characters');
+                setError(t('passwordTooShort'));
             } else if (code === 'auth/email-already-in-use') {
-                setError('Email is already in use');
+                setError(t('emailInUse'));
             } else if (code === 'auth/invalid-email') {
-                setError('Invalid email address');
+                setError(t('invalidEmail'));
             } else {
-                setError('Error creating account');
+                setError(t('errorCreatingAccount'));
             }
         } finally {
             setLoading(false);
@@ -54,7 +56,7 @@ const SignupPage = () => {
                 backgroundColor: '#ffffff',
                 borderBottom: '1px solid #e2e8f0',
             }}>
-                <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>Create Account</h1>
+                <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{t('createAccount')}</h1>
             </header>
 
             {/* Form */}
@@ -63,12 +65,12 @@ const SignupPage = () => {
 
                 <div style={{ marginBottom: '16px' }}>
                     <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-                        First Name
+                        {t('firstName')}
                     </label>
                     <input
                         className="input"
                         type="text"
-                        placeholder="First Name"
+                        placeholder={t('firstName')}
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         required
@@ -78,12 +80,12 @@ const SignupPage = () => {
 
                 <div style={{ marginBottom: '16px' }}>
                     <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-                        Last Name
+                        {t('lastName')}
                     </label>
                     <input
                         className="input"
                         type="text"
-                        placeholder="Last Name"
+                        placeholder={t('lastName')}
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
                         required
@@ -93,12 +95,12 @@ const SignupPage = () => {
 
                 <div style={{ marginBottom: '16px' }}>
                     <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-                        Email
+                        {t('email')}
                     </label>
                     <input
                         className="input"
                         type="email"
-                        placeholder="Email"
+                        placeholder={t('email')}
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
@@ -108,12 +110,12 @@ const SignupPage = () => {
 
                 <div style={{ marginBottom: '16px' }}>
                     <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-                        Password
+                        {t('password')}
                     </label>
                     <input
                         className="input"
                         type="password"
-                        placeholder="Password"
+                        placeholder={t('password')}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
@@ -123,12 +125,12 @@ const SignupPage = () => {
 
                 <div style={{ marginBottom: '16px' }}>
                     <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-                        Confirm Password
+                        {t('confirmPassword')}
                     </label>
                     <input
                         className="input"
                         type="password"
-                        placeholder="Confirm Password"
+                        placeholder={t('confirmPassword')}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required
@@ -144,10 +146,10 @@ const SignupPage = () => {
                     disabled={loading}
                     style={{ width: '100%', background: '#5b7bb3', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', padding: '12px', fontSize: '1rem', cursor: 'pointer' }}
                 >
-                    {loading ? 'Signing Up...' : 'Sign Up'}
+                    {loading ? t('signingUp') : t('signUp')}
                 </button>
                 <p style={{ textAlign: 'center', marginTop: '12px', color: '#64748b' }}>
-                    Already have an account? <a href="/login" style={{ color: '#5b7bb3' }}>Login</a>
+                    {t('hasAccount')} <a href="/login" style={{ color: '#5b7bb3' }}>{t('loginLink')}</a>
                 </p>
             </div>
         </div>

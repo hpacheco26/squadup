@@ -1,13 +1,15 @@
 import { useState } from "react";
 import useAuthStore from "../../store/authStore";
 import useGroupStore from "../../store/groupStore";
+import useLanguageStore from '../../store/languageStore';
 
 export default function CreateGroupModal({ isOpen, setIsOpen }) {
     const [groupName, setGroupName] = useState("");
     const [sport, setSport] = useState("Futebol"); // Default to "Futebol"
 
     const { playerData } = useAuthStore(); // Get logged-in player
-    const { addGroup } = useGroupStore(); // Function to add group
+    const { addGroup } = useGroupStore();
+    const { t } = useLanguageStore(); // Function to add group
 
     // Ensure player data exists
     if (!playerData || !playerData.id || !playerData.firstName || !playerData.lastName) {
@@ -48,11 +50,11 @@ export default function CreateGroupModal({ isOpen, setIsOpen }) {
             <div className="modal-background" onClick={() => setIsOpen(false)}></div>
             <div className="modal-card p-2">
                 <header className="modal-card-head" style={{ background: '#fff', borderBottom: '1px solid #e2e8f0', minHeight: '50px' }}>
-                    <p className="modal-card-title" style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>New Group</p>
+                    <p className="modal-card-title" style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{t('newGroup')}</p>
                     <button className="delete" aria-label="close" onClick={() => setIsOpen(false)} style={{ cursor: 'pointer' }}></button>
                 </header>
                 <section className="modal-card-body" style={{ padding: '20px' }}>
-                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Group Name</label>
+                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('groupName')}</label>
                     <div className="field" style={{ marginBottom: '16px' }}>
                         <div className="control">
                             <input
@@ -66,7 +68,7 @@ export default function CreateGroupModal({ isOpen, setIsOpen }) {
                         </div>
                     </div>
 
-                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Sport</label>
+                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('sport')}</label>
                     <div className="field">
                         <div className="control">
                             <div className="select is-fullwidth">
@@ -83,7 +85,7 @@ export default function CreateGroupModal({ isOpen, setIsOpen }) {
                         style={{ background: '#5b7bb3', color: '#fff', borderRadius: '8px', fontWeight: 'bold', letterSpacing: '0.5px', border: 'none', cursor: 'pointer' }}
                         onClick={handleSubmit}
                     >
-                        Create Group
+                        {t('createGroup')}
                     </button>
                 </footer>
             </div>

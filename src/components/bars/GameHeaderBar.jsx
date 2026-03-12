@@ -5,11 +5,13 @@ import { useNavigate, useLocation, useParams } from "react-router-dom";
 import useGroupStore from "../../store/groupStore";
 import useGameStore from "../../store/gameStore";
 import GameModal from "../modals/GameModal";
+import useLanguageStore from '../../store/languageStore';
 
 const GameHeaderBar = ({ gameId }) => {
     const [isGameModalOpen, setIsGameModalOpen] = useState(false);
     const { group, updateGroup } = useGroupStore();
     const { game } = useGameStore();
+    const { t } = useLanguageStore();
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -40,7 +42,7 @@ const GameHeaderBar = ({ gameId }) => {
                             ...(isPreGameActive ? styles.activeTab : {}) 
                         }}
                     >
-                        PreGame
+                        {t('navPreGame')}
                     </button>
                     <button 
                         onClick={() => navigate(`/teams/${gameId}`)} 
@@ -49,7 +51,7 @@ const GameHeaderBar = ({ gameId }) => {
                             ...(isTeamsActive ? styles.activeTab : {}) 
                         }}
                     >
-                        Teams
+                        {t('navTeams')}
                     </button>
                     <button 
                         onClick={() => navigate(`/game/${gameId}`)} 
@@ -58,7 +60,7 @@ const GameHeaderBar = ({ gameId }) => {
                             ...(isGameActive ? styles.activeTab : {}) 
                         }}
                     >
-                        Game
+                        {t('navGame')}
                     </button>
                 </div>
 

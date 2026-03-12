@@ -9,6 +9,7 @@ import { FiSettings } from 'react-icons/fi';
 import GameModal from '../components/modals/GameModal';
 import SubTimerModal from '../components/modals/SubTimerModal';
 import GoalCarousel from '../components/GoalCarousel';
+import useLanguageStore from '../store/languageStore';
 
 const GamePage = () => {
     const { gameId } = useParams();
@@ -23,6 +24,7 @@ const GamePage = () => {
         isRunning, setIsRunning,
     } = useGameStore();
     const { updateRank, group, subscribeToGroup, accumulateDebts } = useGroupStore();
+    const { t } = useLanguageStore();
 
     const [isSubModalOpen, setIsSubModalOpen] = useState(false);
     const [isGameModalOpen, setIsGameModalOpen] = useState(false);
@@ -230,7 +232,7 @@ const GamePage = () => {
         window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
     };
 
-    if (loading || !game) return <p>Loading game...</p>;
+    if (loading || !game) return <p>{t('loadingGame')}</p>;
 
     const currentTimer = timer ?? 300;
     const team1 = game.team1 || [];
@@ -253,7 +255,7 @@ const GamePage = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <Timer size={20} color="#5b7bb3" />
                     <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0f172a', margin: 0 }}>
-                        {group?.name || 'Game'}
+                        {group?.name || t('game')}
                     </h1>
                 </div>
                 <button onClick={() => setIsGameModalOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', display: 'flex', alignItems: 'center', color: '#94a3b8' }} aria-label="Game Settings">
@@ -350,7 +352,7 @@ const GamePage = () => {
                             flex: 1,
                         }}
                     >
-                        End Game
+                        {t('endGame')}
                     </button>
                 </div>
             </div>

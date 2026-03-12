@@ -5,12 +5,14 @@ import useGameStore from '../store/gameStore';
 import useGroupStore from '../store/groupStore';
 import useAuthStore from '../store/authStore';
 import theme from '../theme';
+import useLanguageStore from '../store/languageStore';
 
 const PaymentsPage = () => {
     const { groupId } = useParams();
     const { games, subscribeToGamesByGroup, togglePayment } = useGameStore();
     const { group, subscribeToGroup } = useGroupStore();
     const { user } = useAuthStore();
+    const { t } = useLanguageStore();
     const scrollRef = useRef(null);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
     const [canScrollRight, setCanScrollRight] = useState(false);
@@ -45,7 +47,7 @@ const PaymentsPage = () => {
         el.scrollBy({ left: dir * 260, behavior: 'smooth' });
     };
 
-    if (!group) return <p style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>Loading...</p>;
+    if (!group) return <p style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>{t('loading')}</p>;
 
     const groupPlayers = group.players || [];
     const adminPlayer = groupPlayers.find(p => p.userId === group.adminId);
@@ -201,7 +203,7 @@ const PaymentsPage = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <Wallet size={20} color={theme.primary} />
                     <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: theme.text, margin: 0 }}>
-                        Payments
+                        {t('payments')}
                     </h1>
                 </div>
                 <span style={{
@@ -210,7 +212,7 @@ const PaymentsPage = () => {
                     background: totalOwed === 0 ? theme.successLight : theme.dangerLight,
                     padding: '4px 12px', borderRadius: '20px',
                 }}>
-                    {totalOwed === 0 ? '✓ All Games Paid' : `€${totalOwed.toFixed(2)} owed`}
+                    {totalOwed === 0 ? `✓ ${t('allGamesPaid')}` : `€${totalOwed.toFixed(2)} ${t('owed')}`}
                 </span>
             </header>
 
@@ -240,7 +242,7 @@ const PaymentsPage = () => {
                             }}>
                                 <div>
                                     <p style={{ fontSize: '0.7rem', color: theme.text, margin: '0 0 2px', fontWeight: '600' }}>
-                                        Amount to pay
+                                        {t('amountToPay')}
                                     </p>
                                     <p style={{ fontSize: '1.4rem', fontWeight: '800', color: theme.danger, margin: 0 }}>
                                         €{myDebt.toFixed(2)}
@@ -258,7 +260,7 @@ const PaymentsPage = () => {
                                         display: 'flex', alignItems: 'center', gap: '4px',
                                     }}
                                 >
-                                    <Copy size={12} /> Copy
+                                    <Copy size={12} /> {t('copy')}
                                 </button>
                             </div>
                         )}
@@ -282,7 +284,7 @@ const PaymentsPage = () => {
                                     color: theme.textSecondary, cursor: 'pointer',
                                 }}
                             >
-                                Copy
+                                {t('copy')}
                             </button>
                         </div>
 
@@ -298,7 +300,7 @@ const PaymentsPage = () => {
                                     fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer',
                                 }}
                             >
-                                <Send size={15} /> Open MBWay
+                                <Send size={15} /> {t('openMBWay')}
                             </button>
                             {!isTreasury && myDebt > 0 && (
                                 <button
@@ -315,7 +317,7 @@ const PaymentsPage = () => {
                                         opacity: iPaidSent ? 0.8 : 1,
                                     }}
                                 >
-                                    {iPaidSent ? <><Check size={15} /> Paid</> : <><Check size={15} /> Paid</>}
+                                    {iPaidSent ? <><Check size={15} /> {t('paid')}</> : <><Check size={15} /> {t('paid')}</>}
                                 </button>
                             )}
                         </div>
@@ -327,7 +329,7 @@ const PaymentsPage = () => {
                     <div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                             <span style={{ fontSize: '0.7rem', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
-                                Game Debts ({unpaidGames.length})
+                                {t('gameDebts')} ({unpaidGames.length})
                             </span>
                             {unpaidGames.length > 1 && (
                                 <div style={{ display: 'flex', gap: '4px' }}>
@@ -418,7 +420,7 @@ const PaymentsPage = () => {
                             fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer',
                         }}
                     >
-                        <Share2 size={16} /> Share via WhatsApp
+                        <Share2 size={16} /> {t('shareViaWhatsApp')}
                     </button>
                 )}
 
@@ -434,7 +436,7 @@ const PaymentsPage = () => {
                         borderBottom: `1px solid ${theme.border}`,
                     }}>
                         <span style={{ fontSize: '0.7rem', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
-                            Players ({visiblePlayers.length})
+                            {t('playersLabel')} ({visiblePlayers.length})
                         </span>
                     </div>
                     <div>
@@ -465,12 +467,12 @@ const PaymentsPage = () => {
                                             display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                                         }}>
                                             {player.firstName} {player.lastName?.[0] ? `${player.lastName[0]}.` : ''}
-                                            {isMe && <span style={{ fontSize: '0.65rem', color: theme.primary, marginLeft: '4px' }}>(you)</span>}
+                                            {isMe && <span style={{ fontSize: '0.65rem', color: theme.primary, marginLeft: '4px' }}>({t('you')})</span>}
                                         </span>
                                         <span style={{ fontSize: '0.75rem', color: hasDebt ? theme.danger : theme.success, fontWeight: '500' }}>
                                             {hasDebt
-                                                ? `${gamesUnpaid} game${gamesUnpaid !== 1 ? 's' : ''} unpaid`
-                                                : 'All games paid'
+                                                ? `${gamesUnpaid} ${gamesUnpaid !== 1 ? t('gamesUnpaid') : t('gameUnpaid')}`
+                                                : t('allGamesPaid')
                                             }
                                         </span>
                                     </div>
@@ -493,7 +495,7 @@ const PaymentsPage = () => {
                                                 display: 'flex', alignItems: 'center', gap: '4px',
                                             }}
                                         >
-                                            <Check size={14} /> Clear
+                                            <Check size={14} /> {t('clear')}
                                         </button>
                                     )}
                                 </div>

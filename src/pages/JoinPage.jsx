@@ -4,6 +4,7 @@ import useInviteStore from '../store/inviteStore';
 import useAuthStore from '../store/authStore';
 import useGroupStore from '../store/groupStore';
 import GroupService from '../api/groupService';
+import useLanguageStore from '../store/languageStore';
 
 function JoinPage() {
     const { code } = useParams();
@@ -11,6 +12,7 @@ function JoinPage() {
     const { user, playerData } = useAuthStore();
     const { fetchInviteByCode, invite, loading } = useInviteStore();
     const { fetchGroupById } = useGroupStore();
+    const { t } = useLanguageStore();
 
     const [group, setGroup] = useState(null);
     const [status, setStatus] = useState('loading'); // loading | pick | already | joined | error
@@ -45,14 +47,6 @@ function JoinPage() {
         }
     }, [code, user, playerData]);
 
-    // If not logged in, redirect to login with return URL
-    useEffect(() => {
-        if (!user) {
-            sessionStorage.setItem('returnTo', `/join/${code}`);
-            navigate('/login');
-        }
-    }, [user]);
-
     const handleClaimPlayer = async (player) => {
         if (!group || !playerData) return;
         const updatedPlayers = group.players.map(p =>
@@ -82,7 +76,7 @@ function JoinPage() {
     if (status === 'loading' || loading) {
         return (
             <div style={styles.container}>
-                <p style={styles.message}>Loading invite...</p>
+                <p style={styles.message}>{t('loadingInvite')}</p>
             </div>
         );
     }
@@ -91,9 +85,9 @@ function JoinPage() {
         return (
             <div style={styles.container}>
                 <div style={styles.card}>
-                    <p style={styles.title}>Invalid Invite</p>
-                    <p style={styles.subtitle}>This invite link is invalid or has expired.</p>
-                    <button style={styles.button} onClick={() => navigate('/')}>Go Home</button>
+                    <p style={styles.title}>{t('invalidInvite')}</p>
+                    <p style={styles.subtitle}>{t('invalidInviteMsg')}</p>
+                    <button style={styles.button} onClick={() => navigate('/')}>{t('goHome')}</button>
                 </div>
             </div>
         );
@@ -103,9 +97,9 @@ function JoinPage() {
         return (
             <div style={styles.container}>
                 <div style={styles.card}>
-                    <p style={styles.title}>Already a Member</p>
-                    <p style={styles.subtitle}>You're already part of <strong>{group?.name}</strong>.</p>
-                    <button style={styles.button} onClick={() => navigate(`/groups/${group.id}`)}>Go to Group</button>
+                    <p style={styles.title}>{t('alreadyMember')}</p>
+                    <p style={styles.subtitle}>{t('alreadyMemberMsg', { group: group?.name })}</p>
+                    <button style={styles.button} onClick={() => navigate(`/groups/${group.id}`)}>{t('goToGroup')}</button>
                 </div>
             </div>
         );
@@ -115,9 +109,9 @@ function JoinPage() {
         return (
             <div style={styles.container}>
                 <div style={styles.card}>
-                    <p style={styles.title}>You're In!</p>
-                    <p style={styles.subtitle}>Welcome to <strong>{group?.name}</strong>.</p>
-                    <button style={styles.button} onClick={() => navigate(`/groups/${group.id}`)}>Go to Group</button>
+                    <p style={styles.title}>{t('youreIn')}</p>
+                    <p style={styles.subtitle}>{t('welcomeTo', { group: group?.name })}</p>
+                    <button style={styles.button} onClick={() => navigate(`/groups/${group.id}`)}>{t('goToGroup')}</button>
                 </div>
             </div>
         );
@@ -129,8 +123,8 @@ function JoinPage() {
     return (
         <div style={styles.container}>
             <div style={styles.card}>
-                <p style={styles.title}>Join {group?.name}</p>
-                <p style={styles.subtitle}>Are you one of these players?</p>
+                <p style={styles.title}>{t('joinGroup', { group: group?.name })}</p>
+                <p style={styles.subtitle}>{t('areYouOneOfThese')}</p>
 
                 {unlinkedPlayers.length > 0 && (
                     <div style={styles.playerList}>
@@ -155,14 +149,14 @@ function JoinPage() {
                         style={styles.button}
                         onClick={() => handleClaimPlayer(unlinkedPlayers.find(p => p.id === selectedPlayerId))}
                     >
-                        That's Me!
+                        {t('thatsMe')}
                     </button>
                 )}
 
-                <div style={{ margin: '16px 0', color: '#94a3b8', fontSize: '0.85rem' }}>— or —</div>
+                <div style={{ margin: '16px 0', color: '#94a3b8', fontSize: '0.85rem' }}>— {t('or')} —</div>
 
                 <button style={{ ...styles.button, background: '#64748b' }} onClick={handleJoinAsNew}>
-                    Join as {playerData?.firstName} {playerData?.lastName}
+                    {t('joinAs', { name: `${playerData?.firstName} ${playerData?.lastName}` })}
                 </button>
             </div>
         </div>

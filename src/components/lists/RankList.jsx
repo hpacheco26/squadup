@@ -8,12 +8,14 @@ import { useNavigate } from 'react-router-dom';
 import useGroupStore from "../../store/groupStore";
 import useAuthStore from '../../store/authStore';
 import CreateGroupModal from '../modals/GroupModal';
+import useLanguageStore from '../../store/languageStore';
 
 const RankList = () => {
   const navigate = useNavigate();
   const { user, playerData } = useAuthStore();
   const { ranks, subscribeToGroupsByPlayer } = useGroupStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { t } = useLanguageStore();
 
   useEffect(() => {
     if (!user) {
@@ -29,11 +31,11 @@ const RankList = () => {
   return (
     <div className="rank-carousel-container">
       <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', marginBottom: '2px', textAlign: 'center' }}>
-        My Groups
+        {t('myGroups')}
       </p>
       {Array.isArray(ranks) && ranks.length > 0 && (
         <p style={{ fontSize: '0.65rem', color: '#94a3b8', textAlign: 'center', marginBottom: '4px' }}>
-          Tap a group to enter
+          {t('tapGroupToEnter')}
         </p>
       )}
       {Array.isArray(ranks) && ranks.length > 0 ? (
@@ -63,12 +65,12 @@ const RankList = () => {
         </Swiper>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 20px' }}>
-          <p style={{ color: '#94a3b8', fontSize: '0.95rem', marginBottom: '8px' }}>No groups yet</p>
+          <p style={{ color: '#94a3b8', fontSize: '0.95rem', marginBottom: '8px' }}>{t('noGroupsYet')}</p>
           <button
             onClick={() => setIsModalOpen(true)}
             style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5b7bb3', fontSize: '1rem', fontWeight: '600', textDecoration: 'underline', padding: 0 }}
           >
-            Create First Group
+            {t('createFirstGroup')}
           </button>
           <CreateGroupModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} />
         </div>

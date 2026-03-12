@@ -3,6 +3,7 @@ import { Link, Copy, Check, Share2 } from 'lucide-react';
 import useGroupStore from '../../store/groupStore';
 import useAuthStore from '../../store/authStore';
 import useInviteStore from '../../store/inviteStore';
+import useLanguageStore from '../../store/languageStore';
 
 function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
     const [firstName, setFirstName] = useState('');
@@ -12,6 +13,7 @@ function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
     const { createInvite } = useInviteStore();
     const [inviteLink, setInviteLink] = useState('');
     const [copied, setCopied] = useState(false);
+    const { t } = useLanguageStore();
 
     useEffect(() => {
         if (isOpen) {
@@ -81,7 +83,7 @@ function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
                     padding: '16px 20px',
                     borderBottom: '1px solid #e2e8f0',
                 }}>
-                    <h3 style={{ fontSize: '1.05rem', fontWeight: '700', color: '#1e293b', margin: 0 }}>Add Player</h3>
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: '700', color: '#1e293b', margin: 0 }}>{t('addPlayer')}</h3>
                     <button onClick={() => setIsOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#94a3b8', lineHeight: 1 }}>×</button>
                 </div>
 
@@ -89,12 +91,12 @@ function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
                 <div style={{ padding: '20px' }}>
                     {/* Add guest player */}
                     <label style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
-                        Add Guest Player
+                        {t('addGuestPlayer')}
                     </label>
                     <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
                         <input
                             type="text"
-                            placeholder="First Name"
+                            placeholder={t('firstName')}
                             value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
                             style={{
@@ -109,7 +111,7 @@ function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
                         />
                         <input
                             type="text"
-                            placeholder="Last Name"
+                            placeholder={t('lastName')}
                             value={lastName}
                             onChange={(e) => setLastName(e.target.value)}
                             style={{
@@ -139,19 +141,19 @@ function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
                             marginBottom: '20px',
                         }}
                     >
-                        Add Guest
+                        {t('addGuest')}
                     </button>
 
                     {/* Divider */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
                         <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
-                        <span style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: '600' }}>or</span>
+                        <span style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: '600' }}>{t('or')}</span>
                         <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
                     </div>
 
                     {/* Invite link */}
                     <label style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
-                        Invite via Link
+                        {t('inviteViaLink')}
                     </label>
                     {!inviteLink ? (
                         <button
@@ -172,7 +174,7 @@ function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
                                 gap: '8px',
                             }}
                         >
-                            <Link size={16} /> Generate Invite Link
+                            <Link size={16} /> {t('generateInviteLink')}
                         </button>
                     ) : (
                         <div style={{ display: 'flex', gap: '8px' }}>
@@ -194,7 +196,7 @@ function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
                                     color: copied ? '#16a34a' : '#64748b',
                                 }}
                             >
-                                {copied ? <Check size={16} /> : <Copy size={16} />} {copied ? 'Copied!' : 'Copy Link'}
+                                {copied ? <Check size={16} /> : <Copy size={16} />} {copied ? t('copied') : t('copyLink')}
                             </button>
                             <button
                                 onClick={handleShareWhatsApp}

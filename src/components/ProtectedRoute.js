@@ -1,24 +1,25 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 
 function ProtectedRoute({ children }) {
-  const { user } = useAuthStore(); // Get the current user from Zustand store
+  const { user } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    // If the user is not logged in, redirect to login page
     if (!user) {
+      // Save the current path so we can return after login
+      sessionStorage.setItem('returnTo', location.pathname);
       navigate('/login');
     }
-  }, [user, navigate]);
+  }, [user, navigate, location.pathname]);
 
-  // If the user is logged in, render the children (protected content)
   if (!user) {
-    return null; // Don't render anything until the redirect happens
+    return null;
   }
 
-  return children; // Render protected content if user is authenticated
+  return children;
 }
 
 export default ProtectedRoute;

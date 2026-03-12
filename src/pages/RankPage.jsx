@@ -3,6 +3,7 @@ import confetti from "canvas-confetti";
 import useGroupStore from "../store/groupStore";
 import { useNavigate } from "react-router-dom";
 import RankCard from "../components/cards/RankCard";
+import useLanguageStore from '../store/languageStore';
 
 const rankNames = ['Unranked', 'Bronze', 'Silver', 'Gold', 'Platinum'];
 const rankColors = {
@@ -16,6 +17,7 @@ const rankColors = {
 const RankPage = () => {
   const { myPlayer, group } = useGroupStore();
   const navigate = useNavigate();
+  const { t } = useLanguageStore();
 
   useEffect(() => {
     if (myPlayer) {
@@ -29,7 +31,7 @@ const RankPage = () => {
     }
   }, [myPlayer]);
 
-  if (!myPlayer) return <p style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>Loading...</p>;
+  if (!myPlayer) return <p style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>{t('loading')}</p>;
 
   const rank = myPlayer.rank ?? 0;
   const name = rankNames[rank] || 'Unranked';
@@ -73,7 +75,7 @@ const RankPage = () => {
             cursor: 'pointer',
           }}
         >
-          Continue
+          {t('continue')}
         </button>
       </div>
     </div>

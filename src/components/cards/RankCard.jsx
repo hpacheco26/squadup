@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Trophy, Swords, Shield, Minus } from 'lucide-react';
+import useLanguageStore from '../../store/languageStore';
 
 const rankThemes = {
   0: { frame: '#b0b8c4', ring: '#dde2e8', bg: '#f4f6f8', accent: '#8994a3', label: 'Unranked' },
@@ -79,6 +80,7 @@ const BadgeSVG = ({ rank, size = 150 }) => {
 };
 
 const RankCard = ({ rank, groupName, stats, isAnimated, onClick }) => {
+  const { t } = useLanguageStore();
   const badgeSize = 'clamp(70px, 13dvh, 110px)';
   const theme = rankThemes[rank] || rankThemes[0];
   const wins = stats?.wins || 0;
@@ -156,26 +158,26 @@ const RankCard = ({ rank, groupName, stats, isAnimated, onClick }) => {
             <Trophy size={12} color="#16a34a" />
             <span style={{ fontSize: '1.05rem', fontWeight: '700', color: '#1e293b' }}>{wins}</span>
           </div>
-          <span style={{ fontSize: '0.6rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Wins</span>
+          <span style={{ fontSize: '0.6rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('wins')}</span>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             <Minus size={12} color="#94a3b8" />
             <span style={{ fontSize: '1.05rem', fontWeight: '700', color: '#1e293b' }}>{draws}</span>
           </div>
-          <span style={{ fontSize: '0.6rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Draws</span>
+          <span style={{ fontSize: '0.6rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('draws')}</span>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             <Swords size={12} color="#ef4444" />
             <span style={{ fontSize: '1.05rem', fontWeight: '700', color: '#1e293b' }}>{losses}</span>
           </div>
-          <span style={{ fontSize: '0.6rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Losses</span>
+          <span style={{ fontSize: '0.6rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('losses')}</span>
         </div>
         {totalGames > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
             <span style={{ fontSize: '1.05rem', fontWeight: '700', color: theme.accent }}>{winRate}%</span>
-            <span style={{ fontSize: '0.6rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Win Rate</span>
+            <span style={{ fontSize: '0.6rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('winRate')}</span>
           </div>
         )}
       </div>

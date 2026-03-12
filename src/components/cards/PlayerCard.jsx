@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Trash2 } from 'lucide-react';
 import RankIcon from '../RankIcon';
-
-const rankNames = ['Unranked', 'Bronze', 'Silver', 'Gold', 'Platinum'];
+import useLanguageStore from '../../store/languageStore';
 
 function PlayerCard({ player, onRemovePlayer, onUpdatePlayer }) {
     const { id, firstName, lastName, rank, stats, userId } = player;
     const [confirmRemove, setConfirmRemove] = useState(false);
+    const { t } = useLanguageStore();
+
+    const rankNames = [t('unranked'), t('bronze'), t('silver'), t('gold'), t('platinum')];
 
     const handleRemove = () => {
         if (!confirmRemove) {
@@ -56,11 +58,11 @@ function PlayerCard({ player, onRemovePlayer, onUpdatePlayer }) {
                 }}>
                     {firstName} {lastName}
                     {isGuest && (
-                        <span style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: '400', marginLeft: '6px' }}>Guest</span>
+                        <span style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: '400', marginLeft: '6px' }}>{t('guest')}</span>
                     )}
                 </p>
                 <p style={{ fontSize: '0.7rem', color: '#94a3b8', margin: '2px 0 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    {rankNames[rank] || 'Unranked'}
+                    {rankNames[rank] || t('unranked')}
                 </p>
             </div>
 

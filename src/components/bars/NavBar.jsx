@@ -6,6 +6,7 @@ import { MdGroups3, MdSportsSoccer } from 'react-icons/md';
 import { Wallet } from 'lucide-react';
 import useGameStore from '../../store/gameStore';
 import useGroupStore from '../../store/groupStore';
+import useLanguageStore from '../../store/languageStore';
 
 const NavItem = ({ icon, label, active, disabled, onClick }) => (
     <button
@@ -34,6 +35,7 @@ const NavBar = () => {
     const location = useLocation();
     const { game, games, upcomingGames, subscribeToGamesByGroup } = useGameStore();
     const { group } = useGroupStore();
+    const { t } = useLanguageStore();
     const lastGameIdRef = useRef(null);
     const lastGroupIdRef = useRef(null);
 
@@ -93,7 +95,7 @@ const NavBar = () => {
     if (!isGroupContext) {
         return (
             <nav style={{ ...styles.navbar, justifyContent: 'center' }}>
-                <NavItem icon={<FiUser size={22} />} label="Profile" onClick={() => navigate('/settings')} />
+                <NavItem icon={<FiUser size={22} />} label={t('navProfile')} onClick={() => navigate('/settings')} />
             </nav>
         );
     }
@@ -103,12 +105,12 @@ const NavBar = () => {
     // Full navbar in group/game context
     return (
         <nav style={styles.navbar}>
-            <NavItem icon={<TbTriangleSquareCircleFilled size={22} />} label="Home" onClick={() => navigate('/')} />
-            <NavItem icon={<MdGroups3 size={22} />} label="Hub" active={isGroupHub} onClick={() => groupId && navigate(`/groups/${groupId}`)} />
-            <NavItem icon={<FiClipboard size={20} />} label="PreGame" active={isPregame} disabled={!hasGame} onClick={() => gameId && navigate(`/pregame/${gameId}`)} />
-            <NavItem icon={<FiUsers size={20} />} label="Teams" active={isTeams} disabled={!hasGame} onClick={() => gameId && navigate(`/teams/${gameId}`)} />
-            <NavItem icon={<MdSportsSoccer size={20} />} label="Game" active={isGame} disabled={!hasGame} onClick={() => gameId && navigate(`/game/${gameId}`)} />
-            <NavItem icon={<Wallet size={18} />} label="Pay" active={isPayments} onClick={() => groupId && navigate(`/payments/${groupId}`)} />
+            <NavItem icon={<TbTriangleSquareCircleFilled size={22} />} label={t('navHome')} onClick={() => navigate('/')} />
+            <NavItem icon={<MdGroups3 size={22} />} label={t('navHub')} active={isGroupHub} onClick={() => groupId && navigate(`/groups/${groupId}`)} />
+            <NavItem icon={<FiClipboard size={20} />} label={t('navPreGame')} active={isPregame} disabled={!hasGame} onClick={() => gameId && navigate(`/pregame/${gameId}`)} />
+            <NavItem icon={<FiUsers size={20} />} label={t('navTeams')} active={isTeams} disabled={!hasGame} onClick={() => gameId && navigate(`/teams/${gameId}`)} />
+            <NavItem icon={<MdSportsSoccer size={20} />} label={t('navGame')} active={isGame} disabled={!hasGame} onClick={() => gameId && navigate(`/game/${gameId}`)} />
+            <NavItem icon={<Wallet size={18} />} label={t('navPay')} active={isPayments} onClick={() => groupId && navigate(`/payments/${groupId}`)} />
         </nav>
     );
 };

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import GroupService from '../api/groupService';
+import GameService from '../api/gameService';
 import useAuthStore from './authStore';
 
 const useGroupStore = create(
@@ -150,6 +151,10 @@ const useGroupStore = create(
             // 🔹 Delete a group
             deleteGroup: async (id) => {
                 try {
+                    // Delete all games belonging to this group
+                    const games = await GameService.getGamesByGroup(id);
+                    await Promise.all(games.map(g => GameService.deleteGame(g.id)));
+
                     await GroupService.deleteGroup(id);
                     set((state) => ({
                         groups: state.groups.filter((group) => group.id !== id)

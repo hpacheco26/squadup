@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import useGameStore from '../../store/gameStore';
+import useLanguageStore from '../../store/languageStore';
 
 function GameModal({ isOpen, setIsOpen, group, game }) {
     const [date, setDate] = useState('');
@@ -18,6 +19,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
 
     const { createGame, updateGame, deleteGame, loading } = useGameStore();
     const navigate = useNavigate();
+    const { t } = useLanguageStore();
 
     const isEditMode = !!game;
 
@@ -96,12 +98,12 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
             <div className="modal-background" onClick={() => setIsOpen(false)}></div>
             <div className="modal-card p-2">
                 <header className="modal-card-head" style={{ minHeight: "50px", background: '#fff', borderBottom: '1px solid #e2e8f0' }}>
-                    <p className="modal-card-title" style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{isEditMode ? 'Game Settings' : 'Create Game'}</p>
+                    <p className="modal-card-title" style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{isEditMode ? t('gameSettings') : t('createGame')}</p>
                     <button className="delete" aria-label="close" onClick={() => setIsOpen(false)} style={{ cursor: 'pointer' }}></button>
                 </header>
                 <section className="modal-card-body" style={{ padding: '20px' }}>
                     {/* Date & Time */}
-                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>When</label>
+                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('when')}</label>
                     <div className="field" style={{ display: "flex", gap: "10px", marginBottom: '16px' }}>
                         <div className="control" style={{ flex: 1 }}>
                             <input className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ borderRadius: '8px' }} />
@@ -112,7 +114,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
                     </div>
 
                     {/* Location */}
-                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Location</label>
+                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('location')}</label>
                     <div className="field" style={{ marginBottom: '8px' }}>
                         <div className="control">
                             <input className="input" type="text" placeholder="e.g. Urban Soccer, Field 3" value={location} onChange={(e) => setLocation(e.target.value)} style={{ borderRadius: '8px' }} />
@@ -125,7 +127,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
                     </div>
 
                     {/* Player Count */}
-                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Players</label>
+                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('playersLabel')}</label>
                     <div className="field" style={{ display: "flex", gap: "10px", alignItems: 'center', marginBottom: '16px' }}>
                         <div className="control" style={{ flex: 1 }}>
                             <input className="input has-text-centered" type="number" min="1" value={minPlayers} onChange={(e) => setMinPlayers(e.target.value)} placeholder="min" style={{ borderRadius: '8px' }} />
@@ -137,7 +139,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
                     </div>
 
                     {/* Sub Time */}
-                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Sub Timer (minutes)</label>
+                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('subTimer')}</label>
                     <div className="field" style={{ marginBottom: '16px' }}>
                         <div className="control">
                             <input className="input has-text-centered" type="number" min="1" value={subTime} onChange={(e) => setSubTime(e.target.value)} style={{ borderRadius: '8px', maxWidth: '120px' }} />
@@ -145,7 +147,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
                     </div>
 
                     {/* Game Price */}
-                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Price (€)</label>
+                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('priceLabel')}</label>
                     <div className="field" style={{ marginBottom: '16px' }}>
                         <div className="control">
                             <input className="input has-text-centered" type="number" min="0" step="0.5" value={price} onChange={(e) => setPrice(e.target.value)} style={{ borderRadius: '8px', maxWidth: '120px' }} />
@@ -153,7 +155,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
                     </div>
 
                     {/* Recurrence */}
-                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Repeat</label>
+                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('repeat')}</label>
                     <div className="field">
                         <div style={{ display: 'flex', gap: '8px' }}>
                             {['none', 'weekly', 'monthly'].map((opt) => (
@@ -174,7 +176,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
                                     }}
                                     onClick={() => setRecurrence(opt)}
                                 >
-                                    {opt === 'none' ? 'None' : opt}
+                                    {opt === 'none' ? t('none') : opt === 'weekly' ? t('weekly') : t('monthly')}
                                 </button>
                             ))}
                         </div>
@@ -188,7 +190,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
                             onClick={handleCancelGame}
                             disabled={loading}
                         >
-                            Cancel Game
+                            {t('cancelGame')}
                         </button>
                     )}
                     <button
@@ -197,7 +199,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
                         onClick={handleSubmit}
                         disabled={loading}
                     >
-                        {loading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Game' : 'Create Game')}
+                        {loading ? (isEditMode ? t('updating') : t('creating')) : (isEditMode ? t('updateGame') : t('createGame'))}
                     </button>
                 </footer>
             </div>

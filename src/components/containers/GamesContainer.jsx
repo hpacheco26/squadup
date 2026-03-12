@@ -1,11 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import GameCard from '../cards/GameCard';
-import useHoverEffect from '../../hooks/useHoverEffect'; 
+import useHoverEffect from '../../hooks/useHoverEffect';
+import useLanguageStore from '../../store/languageStore'; 
 
 const GamesContainer = ({ games, readOnly = false }) => {
   const navigate = useNavigate();
 
-  const { handleMouseEnter, handleMouseLeave, getStyle } = useHoverEffect(); // Using the custom hook
+  const { handleMouseEnter, handleMouseLeave, getStyle } = useHoverEffect();
+  const { t } = useLanguageStore(); // Using the custom hook
 
   const handleGameClick = (gameId) => {
     if (!readOnly) navigate(`/pregame/${gameId}`);
@@ -14,7 +16,7 @@ const GamesContainer = ({ games, readOnly = false }) => {
   return (
     <>
       {games.length === 0 ? (
-        <p className="has-text-centered has-text-grey">No games scheduled</p>
+        <p className="has-text-centered has-text-grey">{t('noGamesScheduled')}</p>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {games.map((game) => (

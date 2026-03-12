@@ -9,6 +9,7 @@ import { FiSettings } from 'react-icons/fi';
 import { TbBallFootball, TbHandStop, TbBottle } from 'react-icons/tb';
 import { ShieldBan, Shuffle, Swords } from 'lucide-react';
 import GameModal from '../components/modals/GameModal';
+import useLanguageStore from '../store/languageStore';
 
 const iconStyle = { color: '#94a3b8', flexShrink: 0 };
 const getPlayerStatus = (index) => {
@@ -22,6 +23,7 @@ const TeamsPage = () => {
     const navigate = useNavigate();
     const { game, subscribeToGame, updateGame, loading } = useGameStore();
     const { group, subscribeToGroup } = useGroupStore();
+    const { t } = useLanguageStore();
     const [pressed, setPressed] = useState(false);
     const [isGameModalOpen, setIsGameModalOpen] = useState(false);
     const [shuffling, setShuffling] = useState(false);
@@ -139,7 +141,7 @@ const TeamsPage = () => {
         await updateGame(gameId, { [targetTeam]: teamList, injured: injuredList });
     };
 
-    if (!game) return <p>Loading teams...</p>;
+    if (!game) return <p>{t('loadingTeams')}</p>;
 
     const playersIn = game.playersIn || [];
     const hasTeams = game.team1?.length > 0 || game.team2?.length > 0;
@@ -159,7 +161,7 @@ const TeamsPage = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <Swords size={20} color="#5b7bb3" />
                     <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0f172a', margin: 0 }}>
-                        {group?.name || 'Teams'}
+                        {group?.name || t('teams')}
                     </h1>
                     {hasTeams && (
                         <span style={{
@@ -170,7 +172,7 @@ const TeamsPage = () => {
                             borderRadius: '10px',
                             padding: '2px 8px',
                         }}>
-                            {(game.team1?.length || 0) + (game.team2?.length || 0)} players
+                            {(game.team1?.length || 0) + (game.team2?.length || 0)} {t('playersLabel')}
                         </span>
                     )}
                 </div>
@@ -242,7 +244,7 @@ const TeamsPage = () => {
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '4px 8px' }}>
                                         <div style={{ flex: 1, height: '2px', background: 'linear-gradient(to right, #f59e0b, transparent)' }} />
                                         <ShieldBan size={12} color="#f59e0b" strokeWidth={2.5} />
-                                        <span style={{ fontSize: '0.7rem', color: '#f59e0b', fontWeight: '600', letterSpacing: '0.5px' }}>INJURED</span>
+                                        <span style={{ fontSize: '0.7rem', color: '#f59e0b', fontWeight: '600', letterSpacing: '0.5px' }}>{t('injured')}</span>
                                         <ShieldBan size={12} color="#f59e0b" strokeWidth={2.5} />
                                         <div style={{ flex: 1, height: '2px', background: 'linear-gradient(to left, #f59e0b, transparent)' }} />
                                     </div>
@@ -293,7 +295,7 @@ const TeamsPage = () => {
                     }}
                 >
                     <Shuffle size={18} strokeWidth={2.5} />
-                    Squad Up
+                    {t('squadUp')}
                 </button>
             </div>
         </>

@@ -9,12 +9,14 @@ import useGroupStore from "../../store/groupStore";
 import useAuthStore from "../../store/authStore";
 import useGameStore from "../../store/gameStore";
 import theme from "../../theme";
+import useLanguageStore from '../../store/languageStore';
 
 const GameList = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { groups } = useGroupStore();
   const { upcomingGames, subscribeToUpcomingGames } = useGameStore();
+  const { t } = useLanguageStore();
 
   useEffect(() => {
     if (user && groups && groups.length > 0) {
@@ -28,10 +30,10 @@ const GameList = () => {
   return (
     <div>
       <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', marginBottom: '2px', textAlign: 'center' }}>
-        Upcoming Games
+        {t('upcomingGames')}
       </p>
       <p style={{ fontSize: '0.65rem', color: '#94a3b8', textAlign: 'center', marginBottom: '4px' }}>
-        Tap a game to enter
+        {t('tapGameToEnter')}
       </p>
       <Swiper
         modules={[Pagination]}

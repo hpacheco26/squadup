@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IoIosArrowBack } from 'react-icons/io';
-import { User } from 'lucide-react';
+import { User, Globe } from 'lucide-react';
 import useAuthStore from '../store/authStore';
+import useLanguageStore from '../store/languageStore';
 import CreateGroupModal from '../components/modals/GroupModal';
 import GroupService from '../api/groupService';
 
 function AppSettingsPage() {
     const { user, playerData, updateUser, logout } = useAuthStore();
+    const { lang, setLang, t } = useLanguageStore();
     const navigate = useNavigate();
 
     const [firstName, setFirstName] = useState(playerData?.firstName || '');
@@ -65,7 +67,7 @@ function AppSettingsPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <User size={18} color="#5b7bb3" />
                     <h1 style={{ fontSize: '1.15rem', fontWeight: '700', color: '#0f172a', margin: 0 }}>
-                        My Profile
+                        {t('myProfile')}
                     </h1>
                 </div>
 
@@ -76,7 +78,7 @@ function AppSettingsPage() {
             <div style={{ flex: 1, padding: '20px' }}>
                 <div style={{ marginBottom: '20px' }}>
                     <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-                        First Name
+                        {t('firstName')}
                     </label>
                     <input
                         className="input"
@@ -90,7 +92,7 @@ function AppSettingsPage() {
 
                 <div style={{ marginBottom: '20px' }}>
                     <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-                        Last Name
+                        {t('lastName')}
                     </label>
                     <input
                         className="input"
@@ -121,11 +123,47 @@ function AppSettingsPage() {
                             cursor: 'pointer',
                         }}
                     >
-                        + Create Group
+                        {t('createGroup')}
                     </button>
                     <CreateGroupModal isOpen={isGroupModalOpen} setIsOpen={setIsGroupModalOpen} />
                 </div>
             )}
+
+            {/* Language Switcher */}
+            <div style={{ padding: '0 20px 12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <Globe size={14} color="#64748b" />
+                    <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
+                        {t('language')}
+                    </label>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                        onClick={() => setLang('en')}
+                        style={{
+                            flex: 1, padding: '10px', borderRadius: '8px', border: 'none', cursor: 'pointer',
+                            fontWeight: lang === 'en' ? 'bold' : 'normal',
+                            background: lang === 'en' ? '#5b7bb3' : '#f0f2f5',
+                            color: lang === 'en' ? '#fff' : '#64748b',
+                            fontSize: '0.9rem',
+                        }}
+                    >
+                        English
+                    </button>
+                    <button
+                        onClick={() => setLang('pt')}
+                        style={{
+                            flex: 1, padding: '10px', borderRadius: '8px', border: 'none', cursor: 'pointer',
+                            fontWeight: lang === 'pt' ? 'bold' : 'normal',
+                            background: lang === 'pt' ? '#5b7bb3' : '#f0f2f5',
+                            color: lang === 'pt' ? '#fff' : '#64748b',
+                            fontSize: '0.9rem',
+                        }}
+                    >
+                        Português
+                    </button>
+                </div>
+            </div>
 
             {/* Logout at bottom */}
             <div style={{ padding: '20px' }}>
@@ -144,7 +182,7 @@ function AppSettingsPage() {
                         cursor: 'pointer',
                     }}
                 >
-                    Logout
+                    {t('logout')}
                 </button>
             </div>
         </div>

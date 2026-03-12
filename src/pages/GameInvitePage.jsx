@@ -4,9 +4,11 @@ import { signInAnonymously } from 'firebase/auth';
 import { auth } from '../config/firebase';
 import GameService from '../api/gameService';
 import GroupService from '../api/groupService';
+import useLanguageStore from '../store/languageStore';
 
 function GameInvitePage() {
     const { gameId } = useParams();
+    const { t } = useLanguageStore();
     const [game, setGame] = useState(null);
     const [group, setGroup] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -93,7 +95,7 @@ function GameInvitePage() {
     if (loading) {
         return (
             <div style={styles.container}>
-                <p style={styles.message}>Loading game...</p>
+                <p style={styles.message}>{t('loadingGame')}</p>
             </div>
         );
     }
@@ -118,7 +120,7 @@ function GameInvitePage() {
                     <GameInfo game={game} />
                     <div style={{ marginTop: '20px', padding: '16px', borderRadius: '10px', background: respondedStatus === 'in' ? '#dcfce7' : '#fee2e2' }}>
                         <p style={{ fontSize: '1.1rem', fontWeight: 'bold', color: respondedStatus === 'in' ? '#16a34a' : '#ef4444' }}>
-                            {respondedStatus === 'in' ? '✅ You\'re IN!' : '❌ You\'re OUT'}
+                            {respondedStatus === 'in' ? `✅ ${t('youreInGame')}` : `❌ ${t('youreOut')}`}
                         </p>
                     </div>
                     <PlayerSummary game={game} />
@@ -138,7 +140,7 @@ function GameInvitePage() {
 
                 {invitedPlayers.length > 0 && (
                     <>
-                        <p style={{ ...styles.subtitle, marginTop: '20px' }}>Find your name and respond:</p>
+                        <p style={{ ...styles.subtitle, marginTop: '20px' }}>{t('findYourName')}</p>
                         <div style={styles.playerList}>
                             {invitedPlayers.map(player => (
                                 <InvitePlayerCard

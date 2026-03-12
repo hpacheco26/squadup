@@ -10,6 +10,7 @@ import PlayerModal from '../components/modals/PlayerModal';
 import GameModal from '../components/modals/GameModal';
 import { FiSettings } from 'react-icons/fi';
 import { Share2, UserPlus, Link as LinkIcon, ClipboardList } from 'lucide-react';
+import useLanguageStore from '../store/languageStore';
 
 const PreGamePage = () => {
     const { gameId } = useParams();
@@ -17,6 +18,7 @@ const PreGamePage = () => {
     const { game, subscribeToGame, handlePlayerOut, handlePlayerIn, updateGame, loading } = useGameStore();
     const { group, subscribeToGroup } = useGroupStore();
     const { user } = useAuthStore();
+    const { t } = useLanguageStore();
     const [playersIn, setPlayersIn] = useState([]);
     const [playersOut, setPlayersOut] = useState([]);
     const [playersInvited, setPlayersInvited] = useState([]);
@@ -115,7 +117,7 @@ const PreGamePage = () => {
         navigator.clipboard.writeText(link);
     };
 
-    if (!game) return <div>Loading...</div>;
+    if (!game) return <div>{t('loading')}</div>;
 
     return (
         <>
@@ -155,7 +157,7 @@ const PreGamePage = () => {
                         onClick={() => setIsGuestModalOpen(true)}
                         style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: '0.8rem', color: '#64748b' }}
                     >
-                        <UserPlus size={14} /> Guest
+                        <UserPlus size={14} /> {t('guest')}
                     </button>
                     <button
                         onClick={handleShareWhatsApp}
@@ -167,7 +169,7 @@ const PreGamePage = () => {
                         onClick={handleCopyInviteLink}
                         style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: '0.8rem', color: '#64748b' }}
                     >
-                        <LinkIcon size={14} /> Link
+                        <LinkIcon size={14} /> {t('link')}
                     </button>
                 </div>
 
@@ -210,8 +212,8 @@ const PreGamePage = () => {
                     isOpen={isGuestModalOpen}
                     setIsOpen={setIsGuestModalOpen}
                     onAddPlayer={handleAddGuest}
-                    title="Guest Player"
-                    buttonLabel="Add Guest"
+                    title={t('guestPlayer')}
+                    buttonLabel={t('addGuest')}
                 />
                 <GameModal isOpen={isGameModalOpen} setIsOpen={setIsGameModalOpen} group={group} game={game} />
             </div>

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import useGroupStore from '../store/groupStore';
 import useGameStore from '../store/gameStore';
 import useAuthStore from '../store/authStore';
+import useLanguageStore from '../store/languageStore';
 import { Loader, Button } from 'react-bulma-components';
 import GameModal from '../components/modals/GameModal'; 
 import GamesContainer from '../components/containers/GamesContainer'; 
@@ -18,6 +19,7 @@ function GroupPage() {
     const { group, subscribeToGroup } = useGroupStore();
     const { games, subscribeToGamesByGroup, loading, error } = useGameStore();
     const { user } = useAuthStore();
+    const { t } = useLanguageStore();
 
     const [isGameCreateModalOpen, setIsGameCreateModalOpen] = useState(false);
 
@@ -57,10 +59,10 @@ function GroupPage() {
                 {games.filter(g => g.status === 'open' || g.status === 'confirmed').length > 0 && (
                     <>
                         <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', textAlign: 'center', marginBottom: '4px' }}>
-                            Next Game
+                            {t('nextGame')}
                         </p>
                         <p style={{ fontSize: '0.7rem', color: '#94a3b8', textAlign: 'center', marginBottom: '8px' }}>
-                            Go to PreGame to confirm your attendance
+                            {t('goToPreGame')}
                         </p>
                     </>
                 )}
@@ -83,7 +85,7 @@ function GroupPage() {
                                 cursor: 'pointer',
                             }}
                         >
-                            Schedule Game
+                            {t('scheduleGame')}
                         </Button>
                     </div>
                 )}
@@ -92,7 +94,7 @@ function GroupPage() {
                 {sortedPlayers.length > 0 && (
                     <div style={{ marginTop: '24px' }}>
                         <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', textAlign: 'center', marginBottom: '12px' }}>
-                            Leaderboard
+                            {t('leaderboard')}
                         </p>
 
                         {/* Header row */}
@@ -108,7 +110,7 @@ function GroupPage() {
                             fontWeight: '600',
                         }}>
                             <span>#</span>
-                            <span>Player</span>
+                            <span>{t('player')}</span>
                             <span></span>
                             <span style={{ textAlign: 'center' }}><Trophy size={10} color="#16a34a" /></span>
                             <span style={{ textAlign: 'center' }}><Minus size={10} color="#94a3b8" /></span>

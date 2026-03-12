@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { FiSettings } from 'react-icons/fi';
 import { Users } from 'lucide-react';
 import useGroupStore from '../../store/groupStore';
+import useLanguageStore from '../../store/languageStore';
 
 const SquadHeaderBar = () => {
     const { group } = useGroupStore();
     const navigate = useNavigate();
+    const { t } = useLanguageStore();
 
     const playerCount = group?.players?.length || 0;
 
@@ -22,7 +24,7 @@ const SquadHeaderBar = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <Users size={20} color="#5b7bb3" />
                 <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0f172a', margin: 0 }}>
-                    {group?.name || 'Squad'}
+                    {group?.name || t('squad')}
                 </h1>
                 {playerCount > 0 && (
                     <span style={{
@@ -33,7 +35,7 @@ const SquadHeaderBar = () => {
                         borderRadius: '10px',
                         padding: '2px 8px',
                     }}>
-                        {playerCount} players
+                        {playerCount} {t('playersLabel')}
                     </span>
                 )}
             </div>
