@@ -95,6 +95,8 @@ const PreGamePage = () => {
         let msg = `⚽ ${groupName} — Game Day!\n`;
         if (dateStr) msg += `📅 ${dateStr}${timeStr ? ` at ${timeStr}` : ''}\n`;
         if (loc) msg += `📍 ${loc}\n`;
+        const mapsLink = game.locationUrl || (loc ? `https://www.google.com/maps/search/${encodeURIComponent(loc)}` : null);
+        if (mapsLink) msg += `🗺️ ${mapsLink}\n`;
         msg += `\n`;
         msg += `✅ IN (${(game.playersIn || []).length}): ${inNames || 'none'}\n`;
         msg += `❌ OUT (${(game.playersOut || []).length}): ${outNames || 'none'}\n`;

@@ -7,6 +7,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
     const [date, setDate] = useState('');
     const [time, setTime] = useState('');
     const [location, setLocation] = useState('');
+    const [locationUrl, setLocationUrl] = useState('');
     const [maxPlayers, setMaxPlayers] = useState(10);
     const [minPlayers, setMinPlayers] = useState(5);
     const [subTime, setSubTime] = useState(5);
@@ -26,6 +27,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
                 setDate(game.date || '');
                 setTime(game.time || '');
                 setLocation(game.location || '');
+                setLocationUrl(game.locationUrl || '');
                 setMaxPlayers(game.maxPlayers || 10);
                 setMinPlayers(game.minPlayers || 5);
                 setSubTime(game.subTime || 5);
@@ -37,6 +39,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
                 setDate('');
                 setTime('');
                 setLocation('');
+                setLocationUrl('');
                 setMaxPlayers(12);
                 setMinPlayers(10);
                 setSubTime(5);
@@ -54,6 +57,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
             date,
             time,
             location,
+            locationUrl: locationUrl || null,
             maxPlayers,
             minPlayers,
             playersInvited: invitedPlayers,
@@ -109,9 +113,14 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
 
                     {/* Location */}
                     <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Location</label>
-                    <div className="field" style={{ marginBottom: '16px' }}>
+                    <div className="field" style={{ marginBottom: '8px' }}>
                         <div className="control">
                             <input className="input" type="text" placeholder="e.g. Urban Soccer, Field 3" value={location} onChange={(e) => setLocation(e.target.value)} style={{ borderRadius: '8px' }} />
+                        </div>
+                    </div>
+                    <div className="field" style={{ marginBottom: '16px' }}>
+                        <div className="control">
+                            <input className="input" type="url" placeholder="Google Maps link (optional)" value={locationUrl} onChange={(e) => setLocationUrl(e.target.value)} style={{ borderRadius: '8px', fontSize: '0.85rem' }} />
                         </div>
                     </div>
 

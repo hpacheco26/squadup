@@ -52,7 +52,15 @@ const GameCard = ({ game }) => {
                         <MapPin size={18} color="#5b7bb3" />
                     </div>
                     <div style={{ minWidth: 0 }}>
-                        <p style={{ fontSize: '1rem', fontWeight: '700', color: '#1e293b', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <p
+                            onClick={game.location ? (e) => { e.stopPropagation(); window.open(game.locationUrl || `https://www.google.com/maps/search/${encodeURIComponent(game.location)}`, '_blank'); } : undefined}
+                            style={{
+                                fontSize: '1rem', fontWeight: '700', color: game.location ? '#5b7bb3' : '#1e293b', margin: 0,
+                                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                                cursor: game.location ? 'pointer' : 'inherit',
+                                textDecoration: game.location ? 'underline' : 'none',
+                            }}
+                        >
                             {game.location}
                         </p>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
