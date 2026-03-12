@@ -204,7 +204,7 @@ const pt = {
   // Nav
   navHome: 'Início',
   navHub: 'Hub',
-  navPreGame: 'PreGame',
+  navPreGame: 'PréJogo',
   navTeams: 'Equipas',
   navGame: 'Jogo',
   navPay: 'Pagar',
