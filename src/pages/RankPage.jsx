@@ -45,7 +45,6 @@ const RankPage = () => {
       justifyContent: 'center',
       height: '100vh',
       padding: '24px',
-      background: '#f0f2f5',
     }}>
       {/* Card + Button wrapper — same width as home carousel card */}
       <div style={{ width: '100%', maxWidth: 'calc(83.33% - 15px)' }}>

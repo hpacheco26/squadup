@@ -50,9 +50,14 @@ function GroupPage() {
 
                 {/* Next Game */}
                 {games.length > 0 && (
-                    <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', textAlign: 'center', marginBottom: '8px' }}>
-                        Next Game
-                    </p>
+                    <>
+                        <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', textAlign: 'center', marginBottom: '4px' }}>
+                            Next Game
+                        </p>
+                        <p style={{ fontSize: '0.7rem', color: '#94a3b8', textAlign: 'center', marginBottom: '8px' }}>
+                            Go to PreGame to confirm your attendance
+                        </p>
+                    </>
                 )}
                 <GamesContainer games={games} readOnly />
 

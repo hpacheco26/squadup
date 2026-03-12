@@ -24,7 +24,6 @@ function App() {
     height: '100dvh',
     display: 'flex',
     flexDirection: 'column',
-    background: '#f0f2f5',
     overflow: 'hidden',
   };
 

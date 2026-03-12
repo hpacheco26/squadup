@@ -44,7 +44,7 @@ const SignupPage = () => {
     };
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#f0f2f5' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
             {/* Header */}
             <header style={{
                 display: 'flex',

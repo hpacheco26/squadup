@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IoIosArrowBack } from 'react-icons/io';
-import { FiSave } from 'react-icons/fi';
+import { User } from 'lucide-react';
 import useAuthStore from '../store/authStore';
 import CreateGroupModal from '../components/modals/GroupModal';
 import GroupService from '../api/groupService';
@@ -14,6 +14,7 @@ function AppSettingsPage() {
     const [lastName, setLastName] = useState(playerData?.lastName || '');
     const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
     const [canCreate, setCanCreate] = useState(false);
+    const debounceRef = useRef(null);
 
     useEffect(() => {
         if (user?.uid) {
@@ -21,9 +22,24 @@ function AppSettingsPage() {
         }
     }, [user?.uid]);
 
-    const handleSave = () => {
+    const saveProfile = useCallback(() => {
         updateUser({ firstName, lastName });
-        navigate('/');
+    }, [firstName, lastName, updateUser]);
+
+    const handleFirstNameChange = (e) => {
+        setFirstName(e.target.value);
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(() => {
+            updateUser({ firstName: e.target.value, lastName });
+        }, 800);
+    };
+
+    const handleLastNameChange = (e) => {
+        setLastName(e.target.value);
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(() => {
+            updateUser({ firstName, lastName: e.target.value });
+        }, 800);
     };
 
     const handleLogout = () => {
@@ -32,23 +48,28 @@ function AppSettingsPage() {
     };
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#f0f2f5' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
             {/* Header */}
             <header style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                padding: '10px',
+                padding: '12px 16px',
                 backgroundColor: '#ffffff',
                 borderBottom: '1px solid #e2e8f0',
             }}>
                 <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', display: 'flex', alignItems: 'center', color: '#6b7280' }}>
                     <IoIosArrowBack size={24} />
                 </button>
-                <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>My Profile</h1>
-                <button onClick={handleSave} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', display: 'flex', alignItems: 'center', color: '#6b7280' }} aria-label="Save">
-                    <FiSave size={24} />
-                </button>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <User size={18} color="#5b7bb3" />
+                    <h1 style={{ fontSize: '1.15rem', fontWeight: '700', color: '#0f172a', margin: 0 }}>
+                        My Profile
+                    </h1>
+                </div>
+
+                <div style={{ width: '34px' }} />
             </header>
 
             {/* Form */}
@@ -61,7 +82,8 @@ function AppSettingsPage() {
                         className="input"
                         type="text"
                         value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
+                        onChange={handleFirstNameChange}
+                        onBlur={saveProfile}
                         style={{ borderRadius: '8px' }}
                     />
                 </div>
@@ -74,7 +96,8 @@ function AppSettingsPage() {
                         className="input"
                         type="text"
                         value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
+                        onChange={handleLastNameChange}
+                        onBlur={saveProfile}
                         style={{ borderRadius: '8px' }}
                     />
                 </div>

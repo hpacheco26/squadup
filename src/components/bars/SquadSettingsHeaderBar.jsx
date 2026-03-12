@@ -1,65 +1,39 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FiSave } from "react-icons/fi";
 import { IoIosArrowBack } from "react-icons/io";
+import { Users } from 'lucide-react';
 
-const SquadSettingsHeaderBar = ({ group, groupName, setGroupName, updateGroup, navigate }) => {
-    const handleUpdateGroup = () => {
-        if (groupName.trim()) {
-            updateGroup(group.id, { ...group, name: groupName });
-            navigate(`/groups/${group.id}`);
-        }
-    };
-    
+const SquadSettingsHeaderBar = ({ group, navigate }) => {
+    const playerCount = group?.players?.length || 0;
+
     return (
-        <header style={styles.header}>
-            {/* Back Button */}
-            <button onClick={() => navigate(`/groups/${group.id}`)} style={styles.backButton}>
+        <header style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '12px 16px',
+            backgroundColor: '#ffffff',
+            borderBottom: '1px solid #e2e8f0',
+        }}>
+            <button onClick={() => navigate(`/groups/${group.id}`)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', display: 'flex', alignItems: 'center', color: '#6b7280' }}>
                 <IoIosArrowBack size={24} />
             </button>
-            
-            {/* App Name */}
-            <h1 style={styles.title}>Group Settings</h1>
 
-            {/* Save Button */}
-            <button onClick={handleUpdateGroup} style={styles.saveButton} aria-label="Save">
-                <FiSave size={24} />
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Users size={18} color="#5b7bb3" />
+                <h1 style={{ fontSize: '1.15rem', fontWeight: '700', color: '#0f172a', margin: 0 }}>
+                    {group?.name || 'Settings'}
+                </h1>
+                {playerCount > 0 && (
+                    <span style={{ fontSize: '0.6rem', fontWeight: '600', color: '#64748b', background: '#f1f5f9', borderRadius: '10px', padding: '2px 7px' }}>
+                        {playerCount}
+                    </span>
+                )}
+            </div>
+
+            {/* Spacer for symmetry */}
+            <div style={{ width: '34px' }} />
         </header>
     );
-};
-
-const styles = {
-    header: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '10px',
-        backgroundColor: '#ffffff',
-        borderBottom: '1px solid #e2e8f0',
-    },
-    title: {
-        fontSize: '1.5rem',
-        fontWeight: 'bold',
-    },
-    backButton: {
-        background: 'none',
-        border: 'none',
-        cursor: 'pointer',
-        padding: '5px',
-        display: 'flex',
-        alignItems: 'center',
-        color: '#6b7280',
-    },
-    saveButton: {
-        background: 'none',
-        border: 'none',
-        cursor: 'pointer',
-        padding: '5px',
-        display: 'flex',
-        alignItems: 'center',
-        color: '#6b7280',
-    },
 };
 
 export default SquadSettingsHeaderBar;

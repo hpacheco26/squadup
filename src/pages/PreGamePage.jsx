@@ -44,6 +44,22 @@ const PreGamePage = () => {
         }
     }, [game]);
 
+    // Sync new group members into the game's invited list
+    useEffect(() => {
+        if (!game || !group || game.status !== 'open') return;
+        const allGamePlayerIds = new Set([
+            ...(game.playersInvited || []).map(p => p.id),
+            ...(game.playersIn || []).map(p => p.id),
+            ...(game.playersOut || []).map(p => p.id),
+        ]);
+        const newPlayers = (group.players || []).filter(p => !allGamePlayerIds.has(p.id));
+        if (newPlayers.length > 0) {
+            updateGame(gameId, {
+                playersInvited: [...(game.playersInvited || []), ...newPlayers],
+            });
+        }
+    }, [game?.id, group?.players?.length]);
+
     const handleAddGuest = (guestPlayer) => {
         if (!game) return;
         const guest = { ...guestPlayer, guest: true };

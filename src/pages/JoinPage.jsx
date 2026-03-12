@@ -175,7 +175,6 @@ const styles = {
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '100vh',
-        background: '#f0f2f5',
         padding: '20px',
     },
     card: {

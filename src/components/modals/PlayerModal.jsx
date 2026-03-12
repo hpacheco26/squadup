@@ -1,86 +1,224 @@
 import React, { useState, useEffect } from 'react';
+import { Link, Copy, Check, Share2 } from 'lucide-react';
 import useGroupStore from '../../store/groupStore';
+import useAuthStore from '../../store/authStore';
+import useInviteStore from '../../store/inviteStore';
 
-function PlayerModal({ isOpen, setIsOpen, onAddPlayer, title = 'New Player', buttonLabel = 'Add Player' }) {
+function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
-    const [rank] = useState(0); 
     const { group } = useGroupStore();
-
+    const { user } = useAuthStore();
+    const { createInvite } = useInviteStore();
+    const [inviteLink, setInviteLink] = useState('');
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
-            // Reset the form when modal is opened
             setFirstName('');
             setLastName('');
+            setInviteLink('');
+            setCopied(false);
         }
     }, [isOpen]);
 
     const handleSubmit = () => {
-
+        if (!firstName.trim()) return;
         const newPlayer = {
             id: crypto.randomUUID(),
-            firstName,
-            lastName,
-            rank,
-            stats: {
-                wins: 0,
-                draws: 0,
-                losses: 0
-            },
-            userId: null
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            rank: 0,
+            stats: { wins: 0, draws: 0, losses: 0 },
+            userId: null,
         };
-
         onAddPlayer(newPlayer);
+        setFirstName('');
+        setLastName('');
+    };
 
-        setIsOpen(false);
+    const handleGenerateInvite = async () => {
+        if (!group || !user) return;
+        const invite = await createInvite({
+            groupId: group.id,
+            groupName: group.name,
+            createdBy: user.uid,
+        });
+        if (invite) {
+            setInviteLink(`${window.location.origin}/join/${invite.code}`);
+        }
+    };
+
+    const handleCopyLink = () => {
+        navigator.clipboard.writeText(inviteLink);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handleShareWhatsApp = () => {
+        const message = `Join my squad "${group?.name}" on SquadUp! ${inviteLink}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
     };
 
     return (
         <div className={`modal ${isOpen ? 'is-active' : ''}`} style={{ zIndex: 100 }}>
             <div className="modal-background" onClick={() => setIsOpen(false)}></div>
-            <div className="modal-card p-2">
-                <header className="modal-card-head" style={{ minHeight: '50px', background: '#fff', borderBottom: '1px solid #e2e8f0' }}>
-                    <p className="modal-card-title" style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{title}</p>
-                    <button className="delete" aria-label="close" onClick={() => setIsOpen(false)} style={{ cursor: 'pointer' }}></button>
-                </header>
-                <section className="modal-card-body" style={{ padding: '20px' }}>
-                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>First Name</label>
-                    <div className="field" style={{ marginBottom: '16px' }}>
-                        <div className="control">
-                            <input
-                                className="input"
-                                type="text"
-                                placeholder="First Name"
-                                value={firstName}
-                                onChange={(e) => setFirstName(e.target.value)}
-                                style={{ borderRadius: '8px' }}
-                            />
-                        </div>
+            <div style={{
+                background: '#fff',
+                borderRadius: '16px',
+                width: '90%',
+                maxWidth: '400px',
+                margin: 'auto',
+                overflow: 'hidden',
+                position: 'relative',
+                zIndex: 1,
+            }}>
+                {/* Header */}
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '16px 20px',
+                    borderBottom: '1px solid #e2e8f0',
+                }}>
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: '700', color: '#1e293b', margin: 0 }}>Add Player</h3>
+                    <button onClick={() => setIsOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#94a3b8', lineHeight: 1 }}>×</button>
+                </div>
+
+                {/* Body */}
+                <div style={{ padding: '20px' }}>
+                    {/* Add guest player */}
+                    <label style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
+                        Add Guest Player
+                    </label>
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                        <input
+                            type="text"
+                            placeholder="First Name"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            style={{
+                                flex: 1,
+                                padding: '10px 12px',
+                                borderRadius: '8px',
+                                border: '1px solid #e2e8f0',
+                                fontSize: '0.9rem',
+                                color: '#1e293b',
+                                outline: 'none',
+                            }}
+                        />
+                        <input
+                            type="text"
+                            placeholder="Last Name"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            style={{
+                                flex: 1,
+                                padding: '10px 12px',
+                                borderRadius: '8px',
+                                border: '1px solid #e2e8f0',
+                                fontSize: '0.9rem',
+                                color: '#1e293b',
+                                outline: 'none',
+                            }}
+                        />
                     </div>
-                    <label className="label" style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Last Name</label>
-                    <div className="field">
-                        <div className="control">
-                            <input
-                                className="input"
-                                type="text"
-                                placeholder="Last Name"
-                                value={lastName}
-                                onChange={(e) => setLastName(e.target.value)}
-                                style={{ borderRadius: '8px' }}
-                            />
-                        </div>
-                    </div>
-                </section>
-                <footer className="modal-card-foot" style={{ minHeight: '50px', display: 'flex', justifyContent: 'center', background: '#fff', borderTop: '1px solid #e2e8f0', padding: '16px 20px' }}>
                     <button
-                        className="button"
-                        style={{ flex: 1, background: '#5b7bb3', color: '#fff', borderRadius: '8px', fontWeight: 'bold', letterSpacing: '0.5px', border: 'none', cursor: 'pointer' }}
                         onClick={handleSubmit}
+                        disabled={!firstName.trim()}
+                        style={{
+                            width: '100%',
+                            padding: '10px',
+                            borderRadius: '10px',
+                            border: 'none',
+                            background: firstName.trim() ? '#5b7bb3' : '#cbd5e1',
+                            color: '#fff',
+                            fontSize: '0.9rem',
+                            fontWeight: '600',
+                            cursor: firstName.trim() ? 'pointer' : 'default',
+                            marginBottom: '20px',
+                        }}
                     >
-                        {buttonLabel}
+                        Add Guest
                     </button>
-                </footer>
+
+                    {/* Divider */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                        <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
+                        <span style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: '600' }}>or</span>
+                        <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
+                    </div>
+
+                    {/* Invite link */}
+                    <label style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
+                        Invite via Link
+                    </label>
+                    {!inviteLink ? (
+                        <button
+                            onClick={handleGenerateInvite}
+                            style={{
+                                width: '100%',
+                                padding: '10px',
+                                borderRadius: '10px',
+                                border: '1px solid #e2e8f0',
+                                background: '#fff',
+                                color: '#5b7bb3',
+                                fontSize: '0.9rem',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '8px',
+                            }}
+                        >
+                            <Link size={16} /> Generate Invite Link
+                        </button>
+                    ) : (
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            <button
+                                onClick={handleCopyLink}
+                                style={{
+                                    flex: 1,
+                                    padding: '10px',
+                                    borderRadius: '10px',
+                                    border: '1px solid #e2e8f0',
+                                    background: '#fff',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '6px',
+                                    fontWeight: '600',
+                                    fontSize: '0.85rem',
+                                    color: copied ? '#16a34a' : '#64748b',
+                                }}
+                            >
+                                {copied ? <Check size={16} /> : <Copy size={16} />} {copied ? 'Copied!' : 'Copy Link'}
+                            </button>
+                            <button
+                                onClick={handleShareWhatsApp}
+                                style={{
+                                    flex: 1,
+                                    padding: '10px',
+                                    borderRadius: '10px',
+                                    border: 'none',
+                                    background: '#25D366',
+                                    color: '#fff',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '6px',
+                                    fontWeight: '600',
+                                    fontSize: '0.85rem',
+                                }}
+                            >
+                                <Share2 size={16} /> WhatsApp
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

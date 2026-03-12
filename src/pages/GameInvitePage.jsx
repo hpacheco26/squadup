@@ -297,7 +297,6 @@ const styles = {
         justifyContent: 'center',
         alignItems: 'flex-start',
         minHeight: '100vh',
-        background: '#f0f2f5',
         padding: '20px',
         paddingTop: '40px',
     },
