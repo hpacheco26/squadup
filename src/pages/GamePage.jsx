@@ -144,7 +144,8 @@ const GamePage = () => {
     const handleEndGame = async () => {
         const allPlayers = [...team1, ...team2, ...(game.injured || [])];
         const price = Number(game.price) || 0;
-        const treasuryId = group?.treasuryPlayerId || null;
+        const adminPlayer = (group?.players || []).find(p => p.userId === group?.adminId);
+        const treasuryId = group?.treasuryPlayerId || adminPlayer?.id || null;
         let payments = { ...(game.payments || {}) };
 
         if (price > 0 && allPlayers.length > 0) {
