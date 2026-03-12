@@ -1,11 +1,11 @@
 import React from 'react';
 
 const rankThemes = {
-    0: { frame: '#b0b8c4', ring: '#c8d0dc', glow: 'none' },
-    1: { frame: '#cd7f32', ring: '#e0944a', glow: 'none' },
-    2: { frame: '#c0c0c0', ring: '#d8d8d8', glow: 'none' },
-    3: { frame: '#ffd700', ring: '#ffe44d', glow: 'none' },
-    4: { frame: '#4dd4e6', ring: '#7ae8f5', glow: 'none' },
+    0: { frame: '#b0b8c4', ring: '#dde2e8' },
+    1: { frame: '#cd7f32', ring: '#e8a860' },
+    2: { frame: '#a0a0a0', ring: '#c8c8c8' },
+    3: { frame: '#d4a817', ring: '#f0d04a' },
+    4: { frame: '#5ba4c9', ring: '#8dc8e8' },
 };
 
 const shapeConfigs = {

@@ -9,8 +9,9 @@ import GamesContainer from '../components/containers/GamesContainer';
 import SquadHeaderBar from '../components/bars/SquadHeaderBar';
 import RankIcon from '../components/RankIcon';
 
-const medalIcons = ['🥇', '🥈', '🥉'];
-const topBgColors = ['#fef3c7', '#f1f5f9', '#fde8d0'];
+import { Trophy, Swords, Minus } from 'lucide-react';
+
+const positionColors = ['#d4a817', '#a0a0a0', '#cd7f32'];
 
 function GroupPage() {
     const { id } = useParams();
@@ -38,9 +39,6 @@ function GroupPage() {
             totalGames: (p.stats?.wins || 0) + (p.stats?.draws || 0) + (p.stats?.losses || 0),
         }))
         .sort((a, b) => b.rank - a.rank || b.wins - a.wins || a.losses - b.losses);
-
-    // Check if any player has debt
-    const showDebtColumn = sortedPlayers.some(p => (p.debt || 0) > 0);
 
     if (!group || loading || group.id !== id) return <Loader />;
 
@@ -100,12 +98,10 @@ function GroupPage() {
                         {/* Header row */}
                         <div style={{
                             display: 'grid',
-                            gridTemplateColumns: showDebtColumn
-                                ? '28px 1fr 28px repeat(4, 32px) 44px'
-                                : '28px 1fr 28px repeat(4, 32px)',
+                            gridTemplateColumns: '28px 1fr 28px repeat(3, 32px) 44px',
                             alignItems: 'center',
                             padding: '0 12px 6px',
-                            fontSize: '0.65rem',
+                            fontSize: '0.6rem',
                             color: '#94a3b8',
                             textTransform: 'uppercase',
                             letterSpacing: '0.5px',
@@ -114,44 +110,53 @@ function GroupPage() {
                             <span>#</span>
                             <span>Player</span>
                             <span></span>
-                            <span style={{ textAlign: 'center' }}>W</span>
-                            <span style={{ textAlign: 'center' }}>D</span>
-                            <span style={{ textAlign: 'center' }}>L</span>
-                            <span style={{ textAlign: 'center' }}>GP</span>
-                            {showDebtColumn && <span style={{ textAlign: 'center' }}>€</span>}
+                            <span style={{ textAlign: 'center' }}><Trophy size={10} color="#16a34a" /></span>
+                            <span style={{ textAlign: 'center' }}><Minus size={10} color="#94a3b8" /></span>
+                            <span style={{ textAlign: 'center' }}><Swords size={10} color="#ef4444" /></span>
+                            <span style={{ textAlign: 'center', fontSize: '0.55rem' }}>Win%</span>
                         </div>
 
                         {/* Player rows */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                             {sortedPlayers.map((player, index) => {
                                 const isTop3 = index < 3;
+                                const winRate = player.totalGames > 0 ? Math.round((player.wins / player.totalGames) * 100) : 0;
                                 return (
                                     <div
                                         key={player.id}
                                         style={{
                                             display: 'grid',
-                                            gridTemplateColumns: showDebtColumn
-                                                ? '28px 1fr 28px repeat(4, 32px) 44px'
-                                                : '28px 1fr 28px repeat(4, 32px)',
+                                            gridTemplateColumns: '28px 1fr 28px repeat(3, 32px) 44px',
                                             alignItems: 'center',
-                                            background: isTop3 ? topBgColors[index] : '#fff',
+                                            background: '#fff',
                                             borderRadius: '10px',
                                             padding: '10px 12px',
                                             boxShadow: isTop3
-                                                ? '0 2px 8px rgba(0,0,0,0.08)'
-                                                : '0 1px 3px rgba(0,0,0,0.04)',
-                                            border: isTop3 ? 'none' : '1px solid #f1f5f9',
+                                                ? '0 2px 8px rgba(0,0,0,0.06)'
+                                                : '0 1px 3px rgba(0,0,0,0.03)',
+                                            border: isTop3 ? `1px solid ${positionColors[index]}30` : '1px solid #f1f5f9',
                                         }}
                                     >
                                         {/* Position */}
-                                        <span style={{ fontSize: isTop3 ? '1rem' : '0.8rem', fontWeight: '600', color: '#64748b' }}>
-                                            {isTop3 ? medalIcons[index] : index + 1}
+                                        <span style={{
+                                            fontSize: '0.75rem',
+                                            fontWeight: '700',
+                                            color: isTop3 ? positionColors[index] : '#94a3b8',
+                                            width: '22px',
+                                            height: '22px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            borderRadius: '50%',
+                                            background: isTop3 ? `${positionColors[index]}18` : 'transparent',
+                                        }}>
+                                            {index + 1}
                                         </span>
 
                                         {/* Name */}
                                         <span style={{
-                                            fontSize: '0.9rem',
-                                            fontWeight: isTop3 ? 'bold' : '500',
+                                            fontSize: '0.85rem',
+                                            fontWeight: isTop3 ? '600' : '500',
                                             color: '#1e293b',
                                             overflow: 'hidden',
                                             textOverflow: 'ellipsis',
@@ -164,18 +169,15 @@ function GroupPage() {
                                         <RankIcon rank={player.rank || 0} size={22} />
 
                                         {/* Stats */}
-                                        <span style={{ textAlign: 'center', fontSize: '0.85rem', fontWeight: '600', color: '#16a34a' }}>{player.wins}</span>
-                                        <span style={{ textAlign: 'center', fontSize: '0.85rem', fontWeight: '500', color: '#94a3b8' }}>{player.draws}</span>
-                                        <span style={{ textAlign: 'center', fontSize: '0.85rem', fontWeight: '500', color: '#e07070' }}>{player.losses}</span>
-                                        <span style={{ textAlign: 'center', fontSize: '0.85rem', fontWeight: '500', color: '#64748b' }}>{player.totalGames}</span>
-                                        {showDebtColumn && (
-                                            <span style={{
-                                                textAlign: 'center', fontSize: '0.75rem', fontWeight: '600',
-                                                color: (player.debt || 0) > 0 ? '#dc2626' : '#94a3b8',
-                                            }}>
-                                                {(player.debt || 0) > 0 ? `${(player.debt || 0).toFixed(0)}` : '-'}
-                                            </span>
-                                        )}
+                                        <span style={{ textAlign: 'center', fontSize: '0.8rem', fontWeight: '600', color: '#16a34a' }}>{player.wins}</span>
+                                        <span style={{ textAlign: 'center', fontSize: '0.8rem', fontWeight: '500', color: '#94a3b8' }}>{player.draws}</span>
+                                        <span style={{ textAlign: 'center', fontSize: '0.8rem', fontWeight: '500', color: '#ef4444' }}>{player.losses}</span>
+                                        <span style={{
+                                            textAlign: 'center', fontSize: '0.75rem', fontWeight: '600',
+                                            color: winRate >= 50 ? '#16a34a' : winRate > 0 ? '#64748b' : '#94a3b8',
+                                        }}>
+                                            {player.totalGames > 0 ? `${winRate}%` : '-'}
+                                        </span>
                                     </div>
                                 );
                             })}
