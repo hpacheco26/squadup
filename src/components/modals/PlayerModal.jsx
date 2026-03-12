@@ -83,30 +83,27 @@ function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
                     padding: '16px 20px',
                     borderBottom: '1px solid #e2e8f0',
                 }}>
-                    <h3 style={{ fontSize: '1.05rem', fontWeight: '700', color: '#1e293b', margin: 0 }}>{t('addPlayer')}</h3>
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: '700', color: '#1e293b', margin: 0 }}>{t('addNewPlayer')}</h3>
                     <button onClick={() => setIsOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#94a3b8', lineHeight: 1 }}>×</button>
                 </div>
 
                 {/* Body */}
                 <div style={{ padding: '20px' }}>
-                    {/* Add guest player */}
-                    <label style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
-                        {t('addGuestPlayer')}
-                    </label>
-                    <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
                         <input
                             type="text"
                             placeholder={t('firstName')}
                             value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
                             style={{
-                                flex: 1,
+                                width: '100%',
                                 padding: '10px 12px',
                                 borderRadius: '8px',
                                 border: '1px solid #e2e8f0',
                                 fontSize: '0.9rem',
                                 color: '#1e293b',
                                 outline: 'none',
+                                boxSizing: 'border-box',
                             }}
                         />
                         <input
@@ -115,13 +112,14 @@ function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
                             value={lastName}
                             onChange={(e) => setLastName(e.target.value)}
                             style={{
-                                flex: 1,
+                                width: '100%',
                                 padding: '10px 12px',
                                 borderRadius: '8px',
                                 border: '1px solid #e2e8f0',
                                 fontSize: '0.9rem',
                                 color: '#1e293b',
                                 outline: 'none',
+                                boxSizing: 'border-box',
                             }}
                         />
                     </div>
@@ -141,7 +139,7 @@ function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
                             marginBottom: '20px',
                         }}
                     >
-                        {t('addGuest')}
+                        {t('addNewPlayer')}
                     </button>
 
                     {/* Divider */}

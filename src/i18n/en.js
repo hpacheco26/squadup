@@ -125,6 +125,7 @@ const en = {
 
   // Player Modal
   addPlayer: 'Add Player',
+  addNewPlayer: 'Add New Player',
   addGuestPlayer: 'Add Guest Player',
   inviteViaLink: 'Invite via Link',
   addGuest: 'Add Guest',

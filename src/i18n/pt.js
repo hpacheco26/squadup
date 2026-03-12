@@ -125,6 +125,7 @@ const pt = {
 
   // Player Modal
   addPlayer: 'Adicionar Jogador',
+  addNewPlayer: 'Adicionar Novo Jogador',
   addGuestPlayer: 'Adicionar Convidado',
   inviteViaLink: 'Convidar por Link',
   addGuest: 'Adicionar Convidado',

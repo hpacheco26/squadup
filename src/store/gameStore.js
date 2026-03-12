@@ -188,7 +188,11 @@ const useGameStore = create((set) => ({
         set({ loading: true, error: null });
         try {
             const newGame = await GameService.createGame(gameData);
-            set({ game: newGame, loading: false });
+            set((state) => ({
+                game: newGame,
+                games: [...state.games, newGame],
+                loading: false,
+            }));
         } catch (error) {
             set({ error: error.message, loading: false });
         }
@@ -216,6 +220,7 @@ const useGameStore = create((set) => ({
             await GameService.deleteGame(gameId);
             set((state) => ({
                 games: state.games.filter(game => game.id !== gameId),
+                upcomingGames: state.upcomingGames.filter(game => game.id !== gameId),
                 game: null,
                 loading: false
             }));
