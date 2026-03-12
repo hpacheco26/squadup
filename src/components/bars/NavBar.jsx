@@ -53,8 +53,7 @@ const NavBar = () => {
     // Ensure games are loaded for the current group context
     useEffect(() => {
         if (!currentGroupId) return;
-        const unsub = subscribeToGamesByGroup(currentGroupId);
-        return unsub;
+        subscribeToGamesByGroup(currentGroupId);
     }, [currentGroupId, subscribeToGamesByGroup]);
 
     // Hide on certain routes
