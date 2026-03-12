@@ -20,10 +20,13 @@ const GameList = () => {
 
   useEffect(() => {
     if (user && groups && groups.length > 0) {
+      console.log('[GameList] useEffect subscribing to upcoming, groups:', groups.map(g => g.id));
       const unsub = subscribeToUpcomingGames(groups);
       return unsub;
     }
   }, [user, groups, subscribeToUpcomingGames]);
+
+  console.log('[GameList] render, upcomingGames:', upcomingGames.map(g => ({ id: g.id, groupId: g.groupId })));
 
   if (!upcomingGames.length) return null;
 

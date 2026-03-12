@@ -53,6 +53,7 @@ const NavBar = () => {
     // Ensure games are loaded for the current group context
     useEffect(() => {
         if (!currentGroupId) return;
+        console.log('[NavBar] useEffect calling subscribeToGamesByGroup for', currentGroupId);
         subscribeToGamesByGroup(currentGroupId);
     }, [currentGroupId, subscribeToGamesByGroup]);
 

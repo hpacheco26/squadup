@@ -54,6 +54,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
     }, [isOpen, group, game, isEditMode]);
 
     const handleSubmit = async () => {
+        console.log('[GameModal] handleSubmit called, isEditMode:', isEditMode, 'groupId:', groupId);
         const gameData = {
             status: isEditMode ? game.status : 'open',
             date,
@@ -79,6 +80,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
         } else {
             await createGame(gameData);
         }
+        console.log('[GameModal] handleSubmit DONE');
 
         setIsOpen(false);
     };

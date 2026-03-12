@@ -64,13 +64,19 @@ const useGameStore = create((set) => ({
         // Skip if already subscribed to this group
         const state = useGameStore.getState();
         if (state._subscribedGroupId === groupId && state._unsubGames) {
+            console.log('[gameStore] subscribeToGamesByGroup DEDUP skip for', groupId);
             return () => {};
         }
 
         // Clean up previous subscription
-        if (state._unsubGames) state._unsubGames();
+        if (state._unsubGames) {
+            console.log('[gameStore] subscribeToGamesByGroup cleaning up previous sub for', state._subscribedGroupId);
+            state._unsubGames();
+        }
 
+        console.log('[gameStore] subscribeToGamesByGroup NEW listener for', groupId);
         const unsub = GameService.subscribeToGamesByGroup(groupId, (games) => {
+            console.log('[gameStore] subscribeToGamesByGroup callback fired, games:', games.map(g => g.id));
             // Deduplicate by game ID to prevent duplicate key warnings
             const seen = new Set();
             const unique = games.filter(g => {
@@ -78,6 +84,9 @@ const useGameStore = create((set) => ({
                 seen.add(g.id);
                 return true;
             });
+            if (unique.length !== games.length) {
+                console.warn('[gameStore] DUPLICATES detected in Firestore callback!', games.length, '->', unique.length);
+            }
             set({ games: unique });
         });
         set({ _unsubGames: unsub, _subscribedGroupId: groupId });
@@ -93,6 +102,7 @@ const useGameStore = create((set) => ({
 
     subscribeToUpcomingGames: (groups) => {
         const prev = useGameStore.getState()._unsubUpcoming;
+        console.log('[gameStore] subscribeToUpcomingGames called, groups:', groups?.map(g => g.id), 'prev unsubs:', prev.length);
         if (prev.length) prev.forEach(fn => fn());
 
         if (!groups || groups.length === 0) {
@@ -113,6 +123,7 @@ const useGameStore = create((set) => ({
                     const dateB = new Date(`${b.date}T${b.time || '00:00'}`);
                     return dateA - dateB;
                 });
+                console.log('[gameStore] subscribeToUpcomingGames callback for group', group.id, 'upcomingGames:', allGames.map(g => g.id));
                 set({ upcomingGames: allGames });
             })
         );
@@ -186,10 +197,13 @@ const useGameStore = create((set) => ({
 
     // Create a new game
     createGame: async (gameData) => {
+        console.log('[gameStore] createGame called with groupId:', gameData.groupId);
         try {
             const newGame = await GameService.createGame(gameData);
+            console.log('[gameStore] createGame SUCCESS, new game id:', newGame.id);
             set({ game: newGame });
         } catch (error) {
+            console.error('[gameStore] createGame ERROR:', error);
             set({ error: error.message });
         }
     },
@@ -211,6 +225,7 @@ const useGameStore = create((set) => ({
 
     // Delete a game
     deleteGame: async (gameId) => {
+        console.log('[gameStore] deleteGame called for', gameId);
         try {
             await GameService.deleteGame(gameId);
             set((state) => ({
@@ -218,7 +233,9 @@ const useGameStore = create((set) => ({
                 upcomingGames: state.upcomingGames.filter(game => game.id !== gameId),
                 game: null,
             }));
+            console.log('[gameStore] deleteGame SUCCESS');
         } catch (error) {
+            console.error('[gameStore] deleteGame ERROR:', error);
             set({ error: error.message });
         }
     },

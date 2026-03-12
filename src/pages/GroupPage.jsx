@@ -26,10 +26,13 @@ function GroupPage() {
     const isAdmin = group && user && group.adminId === user.uid;
 
     useEffect(() => {
+        console.log('[GroupPage] useEffect subscribe, id:', id);
         const unsubGroup = subscribeToGroup(id);
         subscribeToGamesByGroup(id);
         return () => { unsubGroup(); };
     }, [id, subscribeToGroup, subscribeToGamesByGroup]);
+
+    console.log('[GroupPage] render, games:', games.map(g => ({ id: g.id, status: g.status })));
 
     // All players sorted by rank (desc), then wins (desc)
     const sortedPlayers = (group?.players || [])
