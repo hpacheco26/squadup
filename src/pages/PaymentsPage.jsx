@@ -287,14 +287,14 @@ const PaymentsPage = () => {
                                         flex: 1,
                                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                                         padding: '12px', borderRadius: '10px', border: 'none',
-                                        background: iPaidSent ? theme.successLight : theme.success,
-                                        color: iPaidSent ? theme.success : '#fff',
+                                        background: iPaidSent ? '#e0f5ee' : '#2a9d6e',
+                                        color: iPaidSent ? '#2a9d6e' : '#fff',
                                         fontSize: '0.85rem', fontWeight: '700',
                                         cursor: iPaidSent ? 'default' : 'pointer',
                                         opacity: iPaidSent ? 0.8 : 1,
                                     }}
                                 >
-                                    {iPaidSent ? <><Check size={15} /> Paid</> : <><Bell size={15} /> I Paid</>}
+                                    {iPaidSent ? <><Check size={15} /> Paid</> : <><Check size={15} /> Paid</>}
                                 </button>
                             )}
                         </div>

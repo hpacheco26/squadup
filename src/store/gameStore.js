@@ -307,7 +307,8 @@ const useGameStore = create((set) => ({
         if (!targetGame) return;
 
         const payments = { ...(targetGame.payments || {}) };
-        payments[playerId] = !payments[playerId];
+        const newValue = !payments[playerId];
+        payments[playerId] = newValue;
 
         // Update local state
         if (state.game?.id === gameId) {
@@ -318,7 +319,8 @@ const useGameStore = create((set) => ({
         );
         set({ games: updatedGames });
 
-        await GameService.updateGame(gameId, { payments });
+        // Use atomic dot-notation update to avoid overwriting other players' payments
+        await GameService.updateGame(gameId, { [`payments.${playerId}`]: newValue });
 
         // If game is ended and all in-game players are effectively paid, clean it up
         if (targetGame.status === 'ended') {
