@@ -30,7 +30,7 @@ function App() {
 
   return (
     <div style={appStyles}>
-      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column' }}>
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<LoginPage />} />

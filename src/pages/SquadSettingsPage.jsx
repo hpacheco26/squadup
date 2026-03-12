@@ -98,8 +98,8 @@ function SquadSettingsPage() {
                 navigate={navigate} 
             />
             
-            <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)', overflow: 'hidden' }}>
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '16px 16px 0', minHeight: 0 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 56px)' }}>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '16px 16px 0' }}>
                     {/* Group Name - admin only */}
                     {isAdmin && (
                         <div style={{
@@ -149,7 +149,7 @@ function SquadSettingsPage() {
                             </div>
                             <label style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '4px', display: 'block' }}>Treasury Player</label>
                             <select
-                                value={group.treasuryPlayerId || ''}
+                                value={group.treasuryPlayerId || (group.players || []).find(p => p.userId === group.adminId)?.id || ''}
                                 onChange={handleTreasuryPlayerChange}
                                 style={{
                                     width: '100%',
@@ -247,10 +247,6 @@ function SquadSettingsPage() {
                             padding: '16px',
                             marginBottom: '12px',
                             border: '1px solid #e2e8f0',
-                            flex: 1,
-                            minHeight: 0,
-                            display: 'flex',
-                            flexDirection: 'column',
                         }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexShrink: 0 }}>
                                 <label style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
@@ -273,7 +269,7 @@ function SquadSettingsPage() {
                                     <UserPlus size={18} />
                                 </button>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', overflowY: 'auto', flex: 1, minHeight: 0 }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                                 {(group.players ?? []).length === 0 ? (
                                     <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px', fontSize: '0.9rem' }}>No players yet</p>
                                 ) : (

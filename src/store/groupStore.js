@@ -272,6 +272,32 @@ const useGroupStore = create(
                     console.error('Failed to clear debt:', error);
                 }
             },
+
+            sendPaymentNotification: async (groupId, playerName, amount) => {
+                try {
+                    const group = useGroupStore.getState().group;
+                    if (!group || group.id !== groupId) return;
+                    const notifications = group.paymentNotifications || [];
+                    const entry = { playerName, amount, timestamp: Date.now() };
+                    const updated = [entry, ...notifications].slice(0, 50);
+                    await GroupService.updateGroup(groupId, { paymentNotifications: updated });
+                    set({ group: { ...group, paymentNotifications: updated } });
+                } catch (error) {
+                    console.error('Failed to send payment notification:', error);
+                }
+            },
+
+            dismissNotification: async (groupId, timestamp) => {
+                try {
+                    const group = useGroupStore.getState().group;
+                    if (!group || group.id !== groupId) return;
+                    const notifications = (group.paymentNotifications || []).filter(n => n.timestamp !== timestamp);
+                    await GroupService.updateGroup(groupId, { paymentNotifications: notifications });
+                    set({ group: { ...group, paymentNotifications: notifications } });
+                } catch (error) {
+                    console.error('Failed to dismiss notification:', error);
+                }
+            },
         }),
         {
             name: 'group-store',

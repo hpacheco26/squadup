@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Wallet, Check, X as XIcon, Send, Smartphone, Banknote, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Wallet, Check, X as XIcon, Send, Smartphone, ChevronLeft, ChevronRight, Bell, Copy } from 'lucide-react';
 import useGameStore from '../store/gameStore';
 import useGroupStore from '../store/groupStore';
 import useAuthStore from '../store/authStore';
+import theme from '../theme';
 
 const PaymentsPage = () => {
     const { groupId } = useParams();
@@ -13,6 +14,7 @@ const PaymentsPage = () => {
     const scrollRef = useRef(null);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
     const [canScrollRight, setCanScrollRight] = useState(false);
+    const [iPaidSent, setIPaidSent] = useState(false);
 
     useEffect(() => {
         if (!groupId) return;
@@ -46,7 +48,8 @@ const PaymentsPage = () => {
     if (!group) return <p style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>Loading...</p>;
 
     const groupPlayers = group.players || [];
-    const treasuryId = group.treasuryPlayerId || null;
+    const adminPlayer = groupPlayers.find(p => p.userId === group.adminId);
+    const treasuryId = group.treasuryPlayerId || adminPlayer?.id || null;
 
     const treasuryPlayer = treasuryId
         ? groupPlayers.find(p => p.id === treasuryId)
@@ -108,6 +111,27 @@ const PaymentsPage = () => {
         return sum + (unpaidCount * perPlayer);
     }, 0);
 
+    // Compute each player's debt from game data (source of truth)
+    const getPlayerDebt = (playerId) => {
+        let debt = 0;
+        let gamesUnpaid = 0;
+        for (const g of (games || [])) {
+            if (g.status !== 'ended') continue;
+            const price = Number(g.price) || 0;
+            if (price === 0) continue;
+            const allInGame = getAllInGamePlayers(g);
+            const playerInGame = allInGame.find(p => p.id === playerId);
+            if (!playerInGame) continue;
+            const payments = g.payments || {};
+            if (!isPlayerPaid(playerInGame, payments)) {
+                const perPlayer = g.perPlayerCost || (allInGame.length > 0 ? price / allInGame.length : 0);
+                debt += perPlayer;
+                gamesUnpaid++;
+            }
+        }
+        return { debt, gamesUnpaid };
+    };
+
     const handleClearPlayer = async (playerId) => {
         // Mark player as paid in ended games only (not open/upcoming)
         const allGames = games || [];
@@ -135,54 +159,98 @@ const PaymentsPage = () => {
         window.location.href = 'mbway://';
     };
 
+    const myDebtInfo = myGroupPlayer ? getPlayerDebt(myGroupPlayer.id) : { debt: 0, gamesUnpaid: 0 };
+    const myDebt = myDebtInfo.debt;
+    const myGamesUnpaid = myDebtInfo.gamesUnpaid;
+
+    const handleIPaid = async () => {
+        if (!myGroupPlayer || myDebt <= 0) return;
+        await handleClearPlayer(myGroupPlayer.id);
+        setIPaidSent(true);
+    };
+
     return (
-        <>
+        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <header style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: '12px 16px',
-                backgroundColor: '#ffffff',
-                borderBottom: '1px solid #e2e8f0',
+                backgroundColor: theme.surface,
+                borderBottom: `1px solid ${theme.border}`,
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Wallet size={20} color="#5b7bb3" />
-                    <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0f172a', margin: 0 }}>
+                    <Wallet size={20} color={theme.primary} />
+                    <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: theme.text, margin: 0 }}>
                         Payments
                     </h1>
                 </div>
                 <span style={{
                     fontSize: '0.8rem', fontWeight: '700',
-                    color: totalOwed === 0 ? '#16a34a' : '#e07070',
-                    background: totalOwed === 0 ? '#dcfce7' : '#fef2f2',
+                    color: totalOwed === 0 ? theme.success : theme.danger,
+                    background: totalOwed === 0 ? theme.successLight : theme.dangerLight,
                     padding: '4px 12px', borderRadius: '20px',
                 }}>
                     {totalOwed === 0 ? '✓ All Games Paid' : `€${totalOwed.toFixed(2)} owed`}
                 </span>
             </header>
 
-            <div style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ flex: 1, padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
                 {/* MBWay card */}
-                {group.treasuryPhone && (
+                {group.treasuryPhone && !isTreasury && (
                     <div style={{
-                        background: '#fff',
+                        background: theme.surface,
                         borderRadius: '12px',
                         padding: '16px',
-                        border: '1px solid #e2e8f0',
+                        border: `1px solid ${theme.border}`,
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' }}>
-                            <Smartphone size={14} color="#5b7bb3" />
-                            <span style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
+                            <Smartphone size={14} color={theme.primary} />
+                            <span style={{ fontSize: '0.7rem', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
                                 MBWay — {treasuryPlayer ? `${treasuryPlayer.firstName} ${treasuryPlayer.lastName?.[0] || ''}`.trim() : 'Treasury'}
                             </span>
                         </div>
+
+                        {/* Amount to pay */}
+                        {myDebt > 0 && (
+                            <div style={{
+                                background: theme.dangerLight, borderRadius: '10px', padding: '12px 14px',
+                                marginBottom: '10px', border: `1px solid ${theme.danger}`,
+                                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                            }}>
+                                <div>
+                                    <p style={{ fontSize: '0.7rem', color: theme.text, margin: '0 0 2px', fontWeight: '600' }}>
+                                        Amount to pay
+                                    </p>
+                                    <p style={{ fontSize: '1.4rem', fontWeight: '800', color: theme.danger, margin: 0 }}>
+                                        €{myDebt.toFixed(2)}
+                                    </p>
+                                    <p style={{ fontSize: '0.65rem', color: theme.textSecondary, margin: '2px 0 0' }}>
+                                        {myGamesUnpaid} game{myGamesUnpaid !== 1 ? 's' : ''} unpaid
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => navigator.clipboard.writeText(myDebt.toFixed(2))}
+                                    style={{
+                                        background: theme.dangerLight, border: `1px solid ${theme.danger}`, borderRadius: '8px',
+                                        padding: '8px 12px', fontSize: '0.7rem', fontWeight: '600',
+                                        color: theme.text, cursor: 'pointer',
+                                        display: 'flex', alignItems: 'center', gap: '4px',
+                                    }}
+                                >
+                                    <Copy size={12} /> Copy
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Phone number */}
                         <div style={{
                             display: 'flex', alignItems: 'center', gap: '10px',
-                            background: '#f0f5ff', borderRadius: '10px', padding: '12px 14px',
+                            background: theme.primaryLight, borderRadius: '10px', padding: '12px 14px',
                         }}>
                             <p style={{
-                                fontSize: '1.3rem', fontWeight: 'bold', color: '#5b7bb3',
+                                fontSize: '1.3rem', fontWeight: 'bold', color: theme.primary,
                                 margin: 0, letterSpacing: '2px', flex: 1, fontFamily: 'monospace',
                             }}>
                                 {group.treasuryPhone}
@@ -190,27 +258,48 @@ const PaymentsPage = () => {
                             <button
                                 onClick={() => navigator.clipboard.writeText(group.treasuryPhone)}
                                 style={{
-                                    background: '#e2e8f0', border: 'none', borderRadius: '8px',
+                                    background: theme.border, border: 'none', borderRadius: '8px',
                                     padding: '8px 14px', fontSize: '0.75rem', fontWeight: '600',
-                                    color: '#64748b', cursor: 'pointer',
+                                    color: theme.textSecondary, cursor: 'pointer',
                                 }}
                             >
                                 Copy
                             </button>
                         </div>
-                        <button
-                            onClick={handleSendMBWay}
-                            style={{
-                                width: '100%', marginTop: '12px',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                                padding: '12px', borderRadius: '10px', border: 'none',
-                                background: '#e07070', color: '#fff',
-                                fontSize: '0.9rem', fontWeight: '700', cursor: 'pointer',
-                                letterSpacing: '0.5px',
-                            }}
-                        >
-                            <Send size={16} /> Open MBWay
-                        </button>
+
+                        {/* Action buttons */}
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                            <button
+                                onClick={handleSendMBWay}
+                                style={{
+                                    flex: 1,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                                    padding: '12px', borderRadius: '10px', border: 'none',
+                                    background: theme.primary, color: '#fff',
+                                    fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer',
+                                }}
+                            >
+                                <Send size={15} /> Open MBWay
+                            </button>
+                            {!isTreasury && myDebt > 0 && (
+                                <button
+                                    onClick={handleIPaid}
+                                    disabled={iPaidSent}
+                                    style={{
+                                        flex: 1,
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                                        padding: '12px', borderRadius: '10px', border: 'none',
+                                        background: iPaidSent ? theme.successLight : theme.success,
+                                        color: iPaidSent ? theme.success : '#fff',
+                                        fontSize: '0.85rem', fontWeight: '700',
+                                        cursor: iPaidSent ? 'default' : 'pointer',
+                                        opacity: iPaidSent ? 0.8 : 1,
+                                    }}
+                                >
+                                    {iPaidSent ? <><Check size={15} /> Paid</> : <><Bell size={15} /> I Paid</>}
+                                </button>
+                            )}
+                        </div>
                     </div>
                 )}
 
@@ -218,18 +307,18 @@ const PaymentsPage = () => {
                 {unpaidGames.length > 0 && (
                     <div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                            <span style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
+                            <span style={{ fontSize: '0.7rem', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
                                 Game Debts ({unpaidGames.length})
                             </span>
                             {unpaidGames.length > 1 && (
                                 <div style={{ display: 'flex', gap: '4px' }}>
                                     <button onClick={() => scroll(-1)} disabled={!canScrollLeft}
                                         style={{ background: 'none', border: 'none', cursor: canScrollLeft ? 'pointer' : 'default', opacity: canScrollLeft ? 1 : 0.3, padding: '2px' }}>
-                                        <ChevronLeft size={18} color="#64748b" />
+                                        <ChevronLeft size={18} color={theme.textSecondary} />
                                     </button>
                                     <button onClick={() => scroll(1)} disabled={!canScrollRight}
                                         style={{ background: 'none', border: 'none', cursor: canScrollRight ? 'pointer' : 'default', opacity: canScrollRight ? 1 : 0.3, padding: '2px' }}>
-                                        <ChevronRight size={18} color="#64748b" />
+                                        <ChevronRight size={18} color={theme.textSecondary} />
                                     </button>
                                 </div>
                             )}
@@ -259,7 +348,7 @@ const PaymentsPage = () => {
                                 return (
                                     <div key={g.id} style={{
                                         minWidth: '240px',
-                                        background: 'linear-gradient(135deg, #5b7bb3, #4a6a9e)',
+                                        background: `linear-gradient(135deg, ${theme.primary}, ${theme.primaryDark})`,
                                         borderRadius: '14px',
                                         padding: '16px',
                                         color: '#fff',
@@ -281,7 +370,6 @@ const PaymentsPage = () => {
                                         <p style={{ fontSize: '0.7rem', opacity: 0.7, margin: 0 }}>
                                             €{perPlayer.toFixed(2)} × {unpaidCount} unpaid
                                         </p>
-                                        {/* Progress bar */}
                                         <div style={{ background: 'rgba(255,255,255,0.2)', borderRadius: '3px', height: '4px', marginTop: '10px' }}>
                                             <div style={{
                                                 background: '#fff',
@@ -298,69 +386,53 @@ const PaymentsPage = () => {
                     </div>
                 )}
 
-                {totalOwed === 0 && (
-                    <div style={{
-                        textAlign: 'center', padding: '24px 20px', color: '#16a34a',
-                        background: '#f0fdf4', borderRadius: '12px', border: '1px solid #dcfce7',
-                    }}>
-                        <Check size={28} color="#16a34a" style={{ marginBottom: '8px' }} />
-                        <p style={{ fontSize: '0.9rem', fontWeight: '600', margin: 0 }}>All games paid</p>
-                    </div>
-                )}
 
                 {/* All group players */}
                 <div style={{
-                    background: '#fff',
+                    background: theme.surface,
                     borderRadius: '12px',
-                    border: '1px solid #e2e8f0',
+                    border: `1px solid ${theme.border}`,
                     overflow: 'hidden',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    minHeight: 0,
-                    flex: 1,
                 }}>
                     <div style={{
                         padding: '12px 16px',
-                        borderBottom: '1px solid #e2e8f0',
-                        flexShrink: 0,
+                        borderBottom: `1px solid ${theme.border}`,
                     }}>
-                        <span style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
+                        <span style={{ fontSize: '0.7rem', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
                             Players ({visiblePlayers.length})
                         </span>
                     </div>
-                    <div style={{ overflowY: 'auto', flex: 1 }}>
+                    <div>
                     {visiblePlayers.map((player, index) => {
-                        const debt = player.debt || 0;
-                        const gamesUnpaid = player.gamesUnpaid || 0;
+                        const { debt, gamesUnpaid } = getPlayerDebt(player.id);
                         const isMe = myGroupPlayer && player.id === myGroupPlayer.id;
                         const hasDebt = debt > 0;
                         return (
                             <div key={player.id} style={{
                                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                                 padding: '12px 16px',
-                                borderBottom: index < visiblePlayers.length - 1 ? '1px solid #f1f5f9' : 'none',
-                                background: hasDebt ? '#fffbeb' : '#fff',
+                                borderBottom: index < visiblePlayers.length - 1 ? `1px solid ${theme.border}` : 'none',
                             }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
                                     <div style={{
                                         width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
-                                        background: hasDebt ? '#fee2e2' : '#dcfce7',
+                                        background: hasDebt ? theme.dangerLight : theme.successLight,
                                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                                     }}>
                                         {hasDebt
-                                            ? <XIcon size={16} color="#dc2626" />
-                                            : <Check size={16} color="#16a34a" />
+                                            ? <XIcon size={16} color={theme.danger} />
+                                            : <Check size={16} color={theme.success} />
                                         }
                                     </div>
                                     <div style={{ minWidth: 0 }}>
                                         <span style={{
-                                            fontSize: '0.9rem', color: '#1e293b', fontWeight: '500',
+                                            fontSize: '0.9rem', color: theme.text, fontWeight: '500',
                                             display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                                         }}>
                                             {player.firstName} {player.lastName?.[0] ? `${player.lastName[0]}.` : ''}
-                                            {isMe && <span style={{ fontSize: '0.65rem', color: '#5b7bb3', marginLeft: '4px' }}>(you)</span>}
+                                            {isMe && <span style={{ fontSize: '0.65rem', color: theme.primary, marginLeft: '4px' }}>(you)</span>}
                                         </span>
-                                        <span style={{ fontSize: '0.75rem', color: hasDebt ? '#dc2626' : '#16a34a', fontWeight: '500' }}>
+                                        <span style={{ fontSize: '0.75rem', color: hasDebt ? theme.danger : theme.success, fontWeight: '500' }}>
                                             {hasDebt
                                                 ? `${gamesUnpaid} game${gamesUnpaid !== 1 ? 's' : ''} unpaid`
                                                 : 'All games paid'
@@ -371,7 +443,7 @@ const PaymentsPage = () => {
                                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
                                     <span style={{
                                         fontSize: '0.9rem', fontWeight: '700',
-                                        color: hasDebt ? '#e07070' : '#16a34a',
+                                        color: hasDebt ? theme.danger : theme.success,
                                     }}>
                                         €{debt.toFixed(2)}
                                     </span>
@@ -379,10 +451,10 @@ const PaymentsPage = () => {
                                         <button
                                             onClick={() => handleClearPlayer(player.id)}
                                             style={{
-                                                background: '#dcfce7', border: '1px solid #bbf7d0',
+                                                background: theme.successLight, border: 'none',
                                                 borderRadius: '8px',
                                                 padding: '6px 10px', fontSize: '0.7rem', fontWeight: '600',
-                                                color: '#16a34a', cursor: 'pointer',
+                                                color: theme.success, cursor: 'pointer',
                                                 display: 'flex', alignItems: 'center', gap: '4px',
                                             }}
                                         >
@@ -396,7 +468,7 @@ const PaymentsPage = () => {
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 };
 
