@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Wallet, Check, X as XIcon, Send, Smartphone, ChevronLeft, ChevronRight, Bell, Copy } from 'lucide-react';
+import { Wallet, Check, X as XIcon, Send, Smartphone, ChevronLeft, ChevronRight, Bell, Copy, Share2 } from 'lucide-react';
 import useGameStore from '../store/gameStore';
 import useGroupStore from '../store/groupStore';
 import useAuthStore from '../store/authStore';
@@ -155,6 +155,27 @@ const PaymentsPage = () => {
 
     const handleSendMBWay = () => {
         window.location.href = 'mbway://';
+    };
+
+    const handleSharePayments = () => {
+        const groupName = group?.name || 'Group';
+        const playersWithDebt = visiblePlayers
+            .map(p => ({ ...p, ...getPlayerDebt(p.id) }))
+            .filter(p => p.debt > 0);
+        let msg = `💰 ${groupName} — Payments\n\n`;
+        if (playersWithDebt.length === 0) {
+            msg += '✅ All players have paid!\n';
+        } else {
+            msg += `Total owed: €${totalOwed.toFixed(2)}\n\n`;
+            for (const p of playersWithDebt) {
+                const name = `${p.firstName} ${p.lastName?.[0] ? p.lastName[0] + '.' : ''}`.trim();
+                msg += `❌ ${name} — €${p.debt.toFixed(2)} (${p.gamesUnpaid} game${p.gamesUnpaid !== 1 ? 's' : ''})\n`;
+            }
+        }
+        if (group.treasuryPhone) {
+            msg += `\nMBWay: ${group.treasuryPhone}`;
+        }
+        window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
     };
 
     const myDebtInfo = myGroupPlayer ? getPlayerDebt(myGroupPlayer.id) : { debt: 0, gamesUnpaid: 0 };
@@ -384,6 +405,22 @@ const PaymentsPage = () => {
                     </div>
                 )}
 
+
+                {/* WhatsApp share for treasury */}
+                {isTreasury && totalOwed > 0 && (
+                    <button
+                        onClick={handleSharePayments}
+                        style={{
+                            width: '100%',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                            padding: '12px', borderRadius: '10px', border: 'none',
+                            background: '#4CAF7D', color: '#fff',
+                            fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer',
+                        }}
+                    >
+                        <Share2 size={16} /> Share via WhatsApp
+                    </button>
+                )}
 
                 {/* All group players */}
                 <div style={{

@@ -203,7 +203,7 @@ function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
                                     padding: '10px',
                                     borderRadius: '10px',
                                     border: 'none',
-                                    background: '#25D366',
+                                    background: '#4CAF7D',
                                     color: '#fff',
                                     cursor: 'pointer',
                                     display: 'flex',

@@ -11,6 +11,7 @@ const useGameStore = create((set) => ({
     // Internal unsubscribe references
     _unsubGame: null,
     _unsubGames: null,
+    _subscribedGroupId: null,
     _unsubUpcoming: [],
 
     // Game session state (persists across tab switches)
@@ -60,7 +61,13 @@ const useGameStore = create((set) => ({
     },
 
     subscribeToGamesByGroup: (groupId) => {
-        const prev = useGameStore.getState()._unsubGames;
+        // Skip if already subscribed to this group
+        const state = useGameStore.getState();
+        if (state._subscribedGroupId === groupId && state._unsubGames) {
+            return state._unsubGames;
+        }
+
+        const prev = state._unsubGames;
         if (prev) prev();
 
         const unsub = GameService.subscribeToGamesByGroup(groupId, (games) => {
@@ -73,14 +80,14 @@ const useGameStore = create((set) => ({
             });
             set({ games: unique, loading: false });
         });
-        set({ _unsubGames: unsub, loading: true });
+        set({ _unsubGames: unsub, _subscribedGroupId: groupId, loading: true });
         return unsub;
     },
 
     unsubscribeGames: () => {
         const unsub = useGameStore.getState()._unsubGames;
         if (unsub) unsub();
-        set({ _unsubGames: null });
+        set({ _unsubGames: null, _subscribedGroupId: null });
     },
 
     subscribeToUpcomingGames: (groups) => {
