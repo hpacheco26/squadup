@@ -60,6 +60,8 @@ const PreGamePage = () => {
     // Sync new group members into the game's invited list
     useEffect(() => {
         if (!game || !group || game.status !== 'open') return;
+        // Ensure the loaded group matches this game's group
+        if (group.id !== game.groupId) return;
         const allGamePlayerIds = new Set([
             ...(game.playersInvited || []).map(p => p.id),
             ...(game.playersIn || []).map(p => p.id),
