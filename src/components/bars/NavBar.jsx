@@ -105,13 +105,14 @@ const NavBar = () => {
     }
 
     const hasGame = !!gameId;
+    console.log('[NavBar] RESOLVE:', { hasGame, gameId, resolvedGameId, openGameId, singleGameId, lastGameIdRef: lastGameIdRef.current, gamesLen: games?.length, upcomingLen: upcomingGames?.length, currentGroupId });
 
     // Full navbar in group/game context
     return (
         <nav style={styles.navbar}>
             <NavItem icon={<TbTriangleSquareCircleFilled size={22} />} label={t('navHome')} onClick={() => navigate('/')} />
             <NavItem icon={<MdGroups3 size={22} />} label={t('navHub')} active={isGroupHub} onClick={() => groupId && navigate(`/groups/${groupId}`)} />
-            <NavItem icon={<FiClipboard size={20} />} label={t('navPreGame')} active={isPregame} disabled={!hasGame} onClick={() => gameId && navigate(`/pregame/${gameId}`)} />
+            <NavItem icon={<FiClipboard size={20} />} label={t('navPreGame')} active={isPregame} disabled={!hasGame} onClick={() => { console.log('[NavBar] PreGame CLICKED, gameId:', gameId, 'hasGame:', hasGame); gameId && navigate(`/pregame/${gameId}`); }} />
             <NavItem icon={<FiUsers size={20} />} label={t('navTeams')} active={isTeams} disabled={!hasGame} onClick={() => gameId && navigate(`/teams/${gameId}`)} />
             <NavItem icon={<MdSportsSoccer size={20} />} label={t('navGame')} active={isGame} disabled={!hasGame} onClick={() => gameId && navigate(`/game/${gameId}`)} />
             <NavItem icon={<Wallet size={18} />} label={t('navPay')} active={isPayments} onClick={() => groupId && navigate(`/payments/${groupId}`)} />
