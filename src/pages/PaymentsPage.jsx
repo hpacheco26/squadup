@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Wallet, Check, X as XIcon, Send, Smartphone, Copy, Share2, Calendar, MapPin } from 'lucide-react';
+import { Wallet, Check, X as XIcon, Send, Smartphone, Copy, Share2 } from 'lucide-react';
 import useGroupStore from '../store/groupStore';
 import useAuthStore from '../store/authStore';
 import theme from '../theme';
@@ -63,20 +63,6 @@ const PaymentsPage = () => {
     };
 
     const totalOwed = Object.values(playerTotals).reduce((sum, t) => sum + t.debt, 0);
-
-    const handleMarkPaid = async (gameDebtId, playerId) => {
-        await GameDebtService.markPlayerPaid(gameDebtId, playerId);
-        // Check if all players in this game debt are now paid
-        const gd = gameDebts.find(g => g.id === gameDebtId);
-        if (gd) {
-            const allPaid = Object.entries(gd.debts || {}).every(([id, info]) =>
-                id === playerId || info.paid
-            );
-            if (allPaid) {
-                await GameDebtService.deleteGameDebt(gameDebtId);
-            }
-        }
-    };
 
     const handleClearAllForPlayer = async (playerId) => {
         for (const gd of gameDebts) {
@@ -276,92 +262,7 @@ const PaymentsPage = () => {
                     </button>
                 )}
 
-                {/* Game debt cards */}
-                {gameDebts.map((gd) => {
-                    const unpaidEntries = Object.entries(gd.debts || {}).filter(([, info]) => !info.paid);
-                    const gameTotal = unpaidEntries.reduce((sum, [, info]) => sum + (info.amount || 0), 0);
-                    return (
-                        <div key={gd.id} style={{
-                            background: theme.surface,
-                            borderRadius: '12px',
-                            border: `1px solid ${theme.border}`,
-                            overflow: 'hidden',
-                        }}>
-                            {/* Game header */}
-                            <div style={{
-                                padding: '10px 16px',
-                                borderBottom: `1px solid ${theme.border}`,
-                                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                            }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    {gd.date && (
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', color: theme.textSecondary }}>
-                                            <Calendar size={12} /> {gd.date}
-                                        </span>
-                                    )}
-                                    {gd.location && (
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', color: theme.textSecondary }}>
-                                            <MapPin size={12} /> {gd.location}
-                                        </span>
-                                    )}
-                                </div>
-                                <span style={{
-                                    fontSize: '0.75rem', fontWeight: '700', color: theme.danger,
-                                    background: theme.dangerLight, padding: '2px 8px', borderRadius: '10px',
-                                }}>
-                                    €{gameTotal.toFixed(2)}
-                                </span>
-                            </div>
-                            {/* Unpaid players */}
-                            <div>
-                                {unpaidEntries.map(([playerId, info], idx) => (
-                                    <div key={playerId} style={{
-                                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                                        padding: '10px 16px',
-                                        borderBottom: idx < unpaidEntries.length - 1 ? `1px solid ${theme.border}` : 'none',
-                                    }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <div style={{
-                                                width: '28px', height: '28px', borderRadius: '50%',
-                                                background: theme.dangerLight,
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            }}>
-                                                <XIcon size={14} color={theme.danger} />
-                                            </div>
-                                            <span style={{ fontSize: '0.85rem', color: theme.text, fontWeight: '500' }}>
-                                                {info.name}
-                                                {myGroupPlayer && playerId === myGroupPlayer.id && (
-                                                    <span style={{ fontSize: '0.6rem', color: theme.primary, marginLeft: '4px' }}>({t('you')})</span>
-                                                )}
-                                            </span>
-                                        </div>
-                                        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                                            <span style={{ fontSize: '0.85rem', fontWeight: '700', color: theme.danger }}>
-                                                €{(info.amount || 0).toFixed(2)}
-                                            </span>
-                                            {canManage && (
-                                                <button
-                                                    onClick={() => handleMarkPaid(gd.id, playerId)}
-                                                    style={{
-                                                        background: theme.successLight, border: 'none',
-                                                        borderRadius: '8px',
-                                                        padding: '4px 8px', fontSize: '0.65rem', fontWeight: '600',
-                                                        color: theme.success, cursor: 'pointer',
-                                                        display: 'flex', alignItems: 'center', gap: '3px',
-                                                    }}
-                                                >
-                                                    <Check size={12} /> {t('clear')}
-                                                </button>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    );
-                })}
-
-                {/* All players debt summary */}
+                {/* Players debt list */}
                 <div style={{
                     background: theme.surface,
                     borderRadius: '12px',
@@ -413,12 +314,28 @@ const PaymentsPage = () => {
                                         )}
                                     </div>
                                 </div>
-                                <span style={{
-                                    fontSize: '0.85rem', fontWeight: '700',
-                                    color: hasDebt ? theme.danger : theme.success,
-                                }}>
-                                    {hasDebt ? `€${debt.toFixed(2)}` : '✓'}
-                                </span>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <span style={{
+                                        fontSize: '0.85rem', fontWeight: '700',
+                                        color: hasDebt ? theme.danger : theme.success,
+                                    }}>
+                                        {hasDebt ? `€${debt.toFixed(2)}` : '✓'}
+                                    </span>
+                                    {canManage && hasDebt && (
+                                        <button
+                                            onClick={() => handleClearAllForPlayer(player.id)}
+                                            style={{
+                                                background: theme.successLight, border: 'none',
+                                                borderRadius: '8px',
+                                                padding: '4px 8px', fontSize: '0.65rem', fontWeight: '600',
+                                                color: theme.success, cursor: 'pointer',
+                                                display: 'flex', alignItems: 'center', gap: '3px',
+                                            }}
+                                        >
+                                            <Check size={12} /> {t('clear')}
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         );
                     })}
