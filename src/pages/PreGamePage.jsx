@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, Columns, Card } from 'react-bulma-components';
 import PlayersList from '../components/lists/PlayersList';
@@ -24,16 +24,17 @@ const PreGamePage = () => {
     const [playersInvited, setPlayersInvited] = useState([]);
     const [isGuestModalOpen, setIsGuestModalOpen] = useState(false);
     const [isGameModalOpen, setIsGameModalOpen] = useState(false);
-    const subscribedRef = useRef(false);
+    const [ready, setReady] = useState(false);
 
     useEffect(() => {
-        subscribedRef.current = true;
+        setReady(false);
         const unsub = subscribeToGame(gameId);
-        return unsub;
+        setReady(true);
+        return () => { unsub(); setReady(false); };
     }, [gameId, subscribeToGame]);
 
     useEffect(() => {
-        if (!subscribedRef.current || loading) return;
+        if (!ready || loading) return;
         if (!game) {
             const gId = group?.id;
             if (gId) navigate(`/groups/${gId}`, { replace: true });
