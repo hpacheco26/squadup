@@ -52,7 +52,7 @@ const PaymentsPage = () => {
     });
 
     // All players except treasury
-    const visiblePlayers = groupPlayers.filter(p => p.id !== treasuryId);
+    const visiblePlayers = groupPlayers;
 
     const getPlayerDebt = (player) => {
         const totals = playerTotals[player.id];
