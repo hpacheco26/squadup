@@ -37,7 +37,7 @@ const PaymentsPage = () => {
 
     const myGroupPlayer = groupPlayers.find(p => p.userId === user?.uid);
     const isTreasury = myGroupPlayer && treasuryId === myGroupPlayer.id;
-    const canManage = group.adminId === user?.uid || isTreasury;
+    const canManage = isTreasury;
 
     // Compute per-player totals from gameDebts
     const playerTotals = {};
