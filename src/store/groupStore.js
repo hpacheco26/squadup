@@ -164,7 +164,7 @@ const useGroupStore = create(
                 }
             },
 
-            updateRank: async (groupId, winningTeam, losingTeam) => {
+            updateRank: async (groupId, winningTeam, losingTeam, isDraw = false) => {
                 if (winningTeam.length === 0 && losingTeam.length === 0) return;
             
                 try {
@@ -172,6 +172,19 @@ const useGroupStore = create(
                         if (!state.group || state.group.id !== groupId) return state;
             
                         const updatedPlayers = state.group.players.map((player) => {
+                            if (isDraw) {
+                                // Both teams draw
+                                if (winningTeam.some(p => p.id === player.id) || losingTeam.some(p => p.id === player.id)) {
+                                    return {
+                                        ...player,
+                                        stats: {
+                                            ...player.stats,
+                                            draws: (player.stats.draws || 0) + 1,
+                                        }
+                                    };
+                                }
+                                return player;
+                            }
                             // Handle the winning team stats and rank update
                             if (winningTeam.some(p => p.id === player.id)) {
                                 return {

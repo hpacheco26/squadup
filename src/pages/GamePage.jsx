@@ -186,9 +186,13 @@ const GamePage = () => {
             }
         }
 
-        const winner = team1Goals >= team2Goals ? team1 : team2;
-        const loser = team1Goals >= team2Goals ? team2 : team1;
-        updateRank(group.id, winner, loser);
+        if (team1Goals === team2Goals) {
+            updateRank(group.id, team1, team2, true);
+        } else {
+            const winner = team1Goals > team2Goals ? team1 : team2;
+            const loser = team1Goals > team2Goals ? team2 : team1;
+            updateRank(group.id, winner, loser, false);
+        }
 
         if (game.recurrence && game.recurrence !== 'none') {
             // Create next recurring game

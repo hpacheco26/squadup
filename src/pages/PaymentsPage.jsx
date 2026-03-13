@@ -361,6 +361,70 @@ const PaymentsPage = () => {
                     );
                 })}
 
+                {/* All players debt summary */}
+                <div style={{
+                    background: theme.surface,
+                    borderRadius: '12px',
+                    border: `1px solid ${theme.border}`,
+                    overflow: 'hidden',
+                }}>
+                    <div style={{
+                        padding: '12px 16px',
+                        borderBottom: `1px solid ${theme.border}`,
+                    }}>
+                        <span style={{ fontSize: '0.7rem', color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
+                            {t('playersLabel')} ({visiblePlayers.length})
+                        </span>
+                    </div>
+                    <div>
+                    {visiblePlayers.map((player, index) => {
+                        const { debt, gamesUnpaid } = getPlayerDebt(player);
+                        const isMe = myGroupPlayer && player.id === myGroupPlayer.id;
+                        const hasDebt = debt > 0;
+                        return (
+                            <div key={player.id} style={{
+                                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                padding: '10px 16px',
+                                borderBottom: index < visiblePlayers.length - 1 ? `1px solid ${theme.border}` : 'none',
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1 }}>
+                                    <div style={{
+                                        width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0,
+                                        background: hasDebt ? theme.dangerLight : theme.successLight,
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    }}>
+                                        {hasDebt
+                                            ? <XIcon size={14} color={theme.danger} />
+                                            : <Check size={14} color={theme.success} />
+                                        }
+                                    </div>
+                                    <div style={{ minWidth: 0 }}>
+                                        <span style={{
+                                            fontSize: '0.85rem', color: theme.text, fontWeight: '500',
+                                            display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                                        }}>
+                                            {player.firstName} {player.lastName?.[0] ? `${player.lastName[0]}.` : ''}
+                                            {isMe && <span style={{ fontSize: '0.6rem', color: theme.primary, marginLeft: '4px' }}>({t('you')})</span>}
+                                        </span>
+                                        {hasDebt && (
+                                            <span style={{ fontSize: '0.7rem', color: theme.danger, fontWeight: '500' }}>
+                                                {gamesUnpaid} {gamesUnpaid !== 1 ? t('gamesUnpaid') : t('gameUnpaid')}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                                <span style={{
+                                    fontSize: '0.85rem', fontWeight: '700',
+                                    color: hasDebt ? theme.danger : theme.success,
+                                }}>
+                                    {hasDebt ? `€${debt.toFixed(2)}` : '✓'}
+                                </span>
+                            </div>
+                        );
+                    })}
+                    </div>
+                </div>
+
 
             </div>
         </div>
