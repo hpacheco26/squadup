@@ -104,7 +104,7 @@ const NavBar = () => {
         );
     }
 
-    const hasGame = !!openGameId || !!singleGameId;
+    const hasGame = !!gameId;
 
     // Full navbar in group/game context
     return (
