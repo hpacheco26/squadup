@@ -113,7 +113,7 @@ const GameCard = ({ game }) => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                         <Users size={13} color="#64748b" />
                         <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '500' }}>
-                            {playersIn} in · {playersInvited} pending
+                            {playersIn} {t('confirmedCount')} · {playersInvited} {t('pendingCount')}
                         </span>
                     </div>
                     <span style={{

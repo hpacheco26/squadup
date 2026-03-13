@@ -75,6 +75,7 @@ const pt = {
   imIn: 'Estou Dentro',
   imOut: 'Estou Fora',
   invited: 'Convidado',
+  confirmedCount: 'confirmados',
   pendingCount: 'pendente',
 
   // Payments

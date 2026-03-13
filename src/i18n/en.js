@@ -75,6 +75,7 @@ const en = {
   imIn: "I'm In",
   imOut: "I'm Out",
   invited: 'Invited',
+  confirmedCount: 'confirmed',
   pendingCount: 'pending',
 
   // Payments

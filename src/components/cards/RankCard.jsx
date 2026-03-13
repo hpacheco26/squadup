@@ -4,11 +4,11 @@ import { Trophy, Swords, Shield, Minus } from 'lucide-react';
 import useLanguageStore from '../../store/languageStore';
 
 const rankThemes = {
-  0: { frame: '#b0b8c4', ring: '#dde2e8', bg: '#f4f6f8', accent: '#8994a3', label: 'Unranked' },
-  1: { frame: '#cd7f32', ring: '#e8a860', bg: '#fdf3e7', accent: '#b5692a', label: 'Bronze' },
-  2: { frame: '#a0a0a0', ring: '#c8c8c8', bg: '#f5f5f5', accent: '#808080', label: 'Silver' },
-  3: { frame: '#d4a817', ring: '#f0d04a', bg: '#fefce8', accent: '#b8920f', label: 'Gold' },
-  4: { frame: '#5ba4c9', ring: '#8dc8e8', bg: '#eef7fc', accent: '#4a8db0', label: 'Platinum' },
+  0: { frame: '#b0b8c4', ring: '#dde2e8', bg: '#f4f6f8', accent: '#8994a3', labelKey: 'unranked' },
+  1: { frame: '#cd7f32', ring: '#e8a860', bg: '#fdf3e7', accent: '#b5692a', labelKey: 'bronze' },
+  2: { frame: '#a0a0a0', ring: '#c8c8c8', bg: '#f5f5f5', accent: '#808080', labelKey: 'silver' },
+  3: { frame: '#d4a817', ring: '#f0d04a', bg: '#fefce8', accent: '#b8920f', labelKey: 'gold' },
+  4: { frame: '#5ba4c9', ring: '#8dc8e8', bg: '#eef7fc', accent: '#4a8db0', labelKey: 'platinum' },
 };
 
 const shapeConfigs = {
@@ -131,7 +131,7 @@ const RankCard = ({ rank, groupName, stats, isAnimated, onClick }) => {
           color: theme.frame,
           marginTop: '2px',
         }}>
-          {theme.label}
+          {t(theme.labelKey)}
         </span>
 
         {/* Group name */}
