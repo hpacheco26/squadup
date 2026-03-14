@@ -10,6 +10,7 @@ const useGameStore = create((set) => ({
 
     // Internal unsubscribe references
     _unsubGame: null,
+    _subscribedGameId: null,
     _unsubGames: null,
     _subscribedGroupId: null,
     _unsubUpcoming: [],
@@ -44,20 +45,25 @@ const useGameStore = create((set) => ({
     // 🔴 Real-time subscriptions
 
     subscribeToGame: (gameId) => {
-        const prev = useGameStore.getState()._unsubGame;
-        if (prev) prev();
+        const state = useGameStore.getState();
+        // Skip if already subscribed to this game
+        if (state._subscribedGameId === gameId && state._unsubGame) {
+            return () => {};
+        }
+
+        if (state._unsubGame) state._unsubGame();
 
         const unsub = GameService.subscribeToGame(gameId, (game) => {
             set({ game, loading: false });
         });
-        set({ _unsubGame: unsub, loading: true });
-        return unsub;
+        set({ _unsubGame: unsub, _subscribedGameId: gameId, loading: true });
+        return () => {};
     },
 
     unsubscribeGame: () => {
         const unsub = useGameStore.getState()._unsubGame;
         if (unsub) unsub();
-        set({ _unsubGame: null });
+        set({ _unsubGame: null, _subscribedGameId: null });
     },
 
     subscribeToGamesByGroup: (groupId) => {
@@ -210,16 +216,14 @@ const useGameStore = create((set) => ({
 
     // Update an existing game
     updateGame: async (gameId, updatedData) => {
-        set({ loading: true, error: null });
+        set({ error: null });
         try {
             const updatedGame = await GameService.updateGame(gameId, updatedData);
             set((state) => ({
                 games: state.games.map(game => game.id === gameId ? updatedGame : game),
-                game: updatedGame,
-                loading: false
             }));
         } catch (error) {
-            set({ error: error.message, loading: false });
+            set({ error: error.message });
         }
     },
 

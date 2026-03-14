@@ -64,7 +64,7 @@ const PreGamePage = () => {
 
     // Sync new group members into the game's invited list
     useEffect(() => {
-        if (!game || !group || game.status !== 'open') return;
+        if (!game || !group || (game.status !== 'open' && game.status !== 'confirmed')) return;
         // Ensure the loaded group matches this game's group
         if (group.id !== game.groupId) return;
         const allGamePlayerIds = new Set([
@@ -78,7 +78,7 @@ const PreGamePage = () => {
                 playersInvited: [...(game.playersInvited || []), ...newPlayers],
             });
         }
-    }, [game?.id, group?.players?.length]);
+    }, [game, group?.players?.length, gameId, updateGame]);
 
     const handleAddGuest = (guestPlayer) => {
         if (!game) return;
