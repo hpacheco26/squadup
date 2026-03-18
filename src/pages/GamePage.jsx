@@ -32,9 +32,15 @@ const GamePage = () => {
     const [subCounts, setSubCounts] = useState({});
     const intervalRef = useRef(null);
 
+    const prevGameIdRef = useRef(null);
+
     useEffect(() => {
         if (gameId) {
-            resetGameSession();
+            // Only reset goals/timer when switching to a different game
+            if (prevGameIdRef.current !== gameId) {
+                resetGameSession();
+                prevGameIdRef.current = gameId;
+            }
             const unsub = subscribeToGame(gameId);
             return unsub;
         }
