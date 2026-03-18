@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import useGroupStore from "../../store/groupStore";
 import useAuthStore from '../../store/authStore';
 import CreateGroupModal from '../modals/GroupModal';
+import GroupService from '../../api/groupService';
 import useLanguageStore from '../../store/languageStore';
 
 const RankList = () => {
@@ -15,6 +16,7 @@ const RankList = () => {
   const { user, playerData } = useAuthStore();
   const { ranks, subscribeToGroupsByPlayer } = useGroupStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [canCreate, setCanCreate] = useState(false);
   const { t } = useLanguageStore();
 
   useEffect(() => {
@@ -27,6 +29,12 @@ const RankList = () => {
       return () => unsub();
     }
   }, [user, playerData?.id, navigate]);
+
+  useEffect(() => {
+    if (user?.uid) {
+      GroupService.canCreateGroup(user.uid).then(setCanCreate);
+    }
+  }, [user?.uid]);
 
   return (
     <div className="rank-carousel-container">
@@ -66,13 +74,17 @@ const RankList = () => {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 20px' }}>
           <p style={{ color: '#94a3b8', fontSize: '0.95rem', marginBottom: '8px' }}>{t('noGroupsYet')}</p>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5b7bb3', fontSize: '1rem', fontWeight: '600', textDecoration: 'underline', padding: 0 }}
-          >
-            {t('createFirstGroup')}
-          </button>
-          <CreateGroupModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} />
+          {canCreate && (
+            <>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5b7bb3', fontSize: '1rem', fontWeight: '600', textDecoration: 'underline', padding: 0 }}
+              >
+                {t('createFirstGroup')}
+              </button>
+              <CreateGroupModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} />
+            </>
+          )}
         </div>
       )}
     </div>

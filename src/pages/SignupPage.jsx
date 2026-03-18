@@ -28,7 +28,9 @@ const SignupPage = () => {
 
         try {
             await signup(email, password, firstName, lastName);
-            navigate('/');
+            const returnTo = sessionStorage.getItem('returnTo');
+            sessionStorage.removeItem('returnTo');
+            navigate(returnTo || '/');
         } catch (err) {
             const code = err?.code || '';
             if (code === 'auth/weak-password') {

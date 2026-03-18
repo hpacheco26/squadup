@@ -160,6 +160,8 @@ const pt = {
   squad: 'Equipa',
   groups: 'Grupos',
   you: 'tu',
+  user: 'Utilizador',
+  noUser: 'Sem Utilizador',
 
   // Join Page
   loadingInvite: 'A carregar convite...',

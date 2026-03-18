@@ -302,11 +302,27 @@ function SquadSettingsPage() {
                                     <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px', fontSize: '0.9rem' }}>{t('noPlayersYet')}</p>
                                 ) : (
                                     (group.players ?? []).map((player) => (
-                                        <PlayerCard 
-                                            key={player.id}
-                                            player={player}
-                                            onRemovePlayer={handleRemovePlayer}
-                                        />
+                                        <div key={player.id} style={{ position: 'relative' }}>
+                                            <PlayerCard 
+                                                player={player}
+                                                onRemovePlayer={handleRemovePlayer}
+                                            />
+                                            <span style={{
+                                                position: 'absolute',
+                                                top: '6px',
+                                                right: '48px',
+                                                fontSize: '0.55rem',
+                                                fontWeight: '600',
+                                                textTransform: 'uppercase',
+                                                letterSpacing: '0.5px',
+                                                padding: '2px 6px',
+                                                borderRadius: '6px',
+                                                background: player.userId ? '#dcfce7' : '#f1f5f9',
+                                                color: player.userId ? '#16a34a' : '#94a3b8',
+                                            }}>
+                                                {player.userId ? t('user') : t('noUser')}
+                                            </span>
+                                        </div>
                                     ))
                                 )}
                             </div>

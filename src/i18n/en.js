@@ -160,6 +160,8 @@ const en = {
   squad: 'Squad',
   groups: 'Groups',
   you: 'you',
+  user: 'User',
+  noUser: 'No User',
 
   // Join Page
   loadingInvite: 'Loading invite...',

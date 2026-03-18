@@ -1,11 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import CreateGroupModal from '../modals/GroupModal';
+import useAuthStore from '../../store/authStore';
+import GroupService from '../../api/groupService';
 import useLanguageStore from '../../store/languageStore';
 
 const SquadsHeaderBar = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [canCreate, setCanCreate] = useState(false);
+    const { user } = useAuthStore();
     const { t } = useLanguageStore();
+
+    useEffect(() => {
+        if (user?.uid) {
+            GroupService.canCreateGroup(user.uid).then(setCanCreate);
+        }
+    }, [user?.uid]);
 
     return (
         <>
@@ -14,17 +24,19 @@ const SquadsHeaderBar = () => {
                 <h1 style={styles.title}>{t('groups')}</h1>
                 
                 {/* New Group Button */}
-                <button 
-                    onClick={() => setIsModalOpen(true)} 
-                    style={styles.newGroupButton}
-                    aria-label="Create New Group"
-                >
-                    <Plus size={24} />
-                </button>
+                {canCreate && (
+                    <button 
+                        onClick={() => setIsModalOpen(true)} 
+                        style={styles.newGroupButton}
+                        aria-label="Create New Group"
+                    >
+                        <Plus size={24} />
+                    </button>
+                )}
             </header>
 
             {/* Create Group Modal */}
-            <CreateGroupModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} />
+            {canCreate && <CreateGroupModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} />}
         </>
     );
 };

@@ -37,7 +37,8 @@ const PaymentsPage = () => {
 
     const myGroupPlayer = groupPlayers.find(p => p.userId === user?.uid);
     const isTreasury = myGroupPlayer && treasuryId === myGroupPlayer.id;
-    const canManage = isTreasury;
+    const isAdmin = user && group.adminId === user.uid;
+    const canManage = isTreasury || isAdmin;
 
     // Compute per-player totals from gameDebts
     const playerTotals = {};
@@ -141,7 +142,7 @@ const PaymentsPage = () => {
             <div style={{ flex: 1, padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
                 {/* MBWay card */}
-                {group.treasuryPhone && !isTreasury && (
+                {group.treasuryPhone && !isTreasury && !isAdmin && (
                     <div style={{
                         background: theme.surface,
                         borderRadius: '12px',
@@ -224,7 +225,7 @@ const PaymentsPage = () => {
                             >
                                 <Send size={15} /> {t('openMBWay')}
                             </button>
-                            {!isTreasury && myDebt > 0 && (
+                            {!isTreasury && !isAdmin && myDebt > 0 && (
                                 <button
                                     onClick={handleIPaid}
                                     disabled={iPaidSent}
@@ -246,8 +247,8 @@ const PaymentsPage = () => {
                     </div>
                 )}
 
-                {/* WhatsApp share for treasury */}
-                {isTreasury && totalOwed > 0 && (
+                {/* WhatsApp share for treasury/admin */}
+                {(isTreasury || isAdmin) && totalOwed > 0 && (
                     <button
                         onClick={handleSharePayments}
                         style={{
