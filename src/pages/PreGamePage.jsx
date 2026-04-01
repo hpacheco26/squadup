@@ -88,6 +88,26 @@ const PreGamePage = () => {
         updateGame(gameId, { playersIn: updatedPlayersIn });
     };
 
+    const handleQuickGuest = (playerId) => {
+        if (!game) return;
+        const player = (game.playersIn || []).find(p => p.id === playerId);
+        if (!player) return;
+        const guestId = `guest-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+        const guestCount = (game.playersIn || []).filter(p => p.guest && p.addedBy === player.id).length + 1;
+        const guest = {
+            id: guestId,
+            firstName: `${player.firstName}'s`,
+            lastName: `Guest ${guestCount}`,
+            userId: null,
+            rank: 0,
+            stats: { gamesPlayed: 0, gamesWon: 0 },
+            guest: true,
+            addedBy: player.id,
+        };
+        const updatedPlayersIn = [...(game.playersIn || []), guest];
+        updateGame(gameId, { playersIn: updatedPlayersIn });
+    };
+
     const buildGameSummary = () => {
         const inNames = (game.playersIn || []).map(p => p.firstName).join(', ');
         const outNames = (game.playersOut || []).map(p => p.firstName).join(', ');
@@ -189,9 +209,11 @@ const PreGamePage = () => {
                     <PlayersList 
                         players={playersIn}
                         leftSwipe={(playerId) => handlePlayerOut(gameId, playerId, notifContext)}
+                        rightSwipe={handleQuickGuest}
                         statusLabel="IN"
                         user={user}
                         isAdmin={game.adminId === user.uid}
+                        rightActionType="addGuest"
                     />
                 </div>
 

@@ -1,5 +1,5 @@
 import React, { useRef, useCallback } from "react";
-import { Check, X } from "lucide-react";
+import { Check, X, UserPlus } from "lucide-react";
 
 const STATUS_COLORS = {
     IN: "#16a34a",
@@ -8,7 +8,7 @@ const STATUS_COLORS = {
 
 const SWIPE_THRESHOLD = 25;
 
-function SwipePlayer({ player, playerStatus, onLeft, onRight }) {
+function SwipePlayer({ player, playerStatus, onLeft, onRight, rightActionType }) {
     const containerRef = useRef(null);
     const cardRef = useRef(null);
     const startXRef = useRef(null);
@@ -88,7 +88,7 @@ function SwipePlayer({ player, playerStatus, onLeft, onRight }) {
                     alignItems: "center",
                     paddingLeft: "20px",
                 }}>
-                    <Check size={22} color="#fff" strokeWidth={3} />
+                    {rightActionType === 'addGuest' ? <UserPlus size={22} color="#fff" strokeWidth={3} /> : <Check size={22} color="#fff" strokeWidth={3} />}
                 </div>
                 <div style={{
                     flex: 1,
