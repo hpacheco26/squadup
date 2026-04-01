@@ -192,6 +192,13 @@ const pt = {
   enterYourName: 'Escreve o teu nome para entrar:',
   namePlaceholder: 'O teu nome',
   imIn: 'Estou DENTRO!',
+  swipeHint: 'Desliza para a direita = DENTRO, esquerda = FORA',
+  inCount: 'Dentro',
+  outCount: 'Fora',
+  pendingCount: 'Pendente',
+  youreInvited: 'Foste convidado!',
+  joinGame: 'Junta-te ao jogo',
+  cancelGuest: 'Cancelar',
 
   // Containers
   noGamesScheduled: 'Nenhum jogo marcado',

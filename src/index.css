@@ -1,6 +1,10 @@
 /* Bulma primary color override */
 $primary: #5b7bb3;
 
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 * {
   margin: 0;
   padding: 0;

@@ -192,6 +192,13 @@ const en = {
   enterYourName: 'Enter your name to join:',
   namePlaceholder: 'Your name',
   imIn: "I'm IN!",
+  swipeHint: 'Swipe right = IN, left = OUT',
+  inCount: 'In',
+  outCount: 'Out',
+  pendingCount: 'Pending',
+  youreInvited: "You're invited!",
+  joinGame: 'Join the game',
+  cancelGuest: 'Cancel',
 
   // Containers
   noGamesScheduled: 'No games scheduled',

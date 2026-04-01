@@ -44,7 +44,7 @@ function GoalCarousel({ value, onChange, color = '#333' }) {
             onMouseLeave={() => { if (startY !== null) handleEnd(); }}
             style={{
                 position: 'relative',
-                height: '280px',
+                height: '100%',
                 overflow: 'hidden',
                 cursor: 'grab',
                 userSelect: 'none',
@@ -71,7 +71,7 @@ function GoalCarousel({ value, onChange, color = '#333' }) {
 
             {/* Current number */}
             <span style={{
-                fontSize: value >= 10 ? '10rem' : '14rem',
+                fontSize: value >= 10 ? 'min(10rem, 25vh)' : 'min(14rem, 35vh)',
                 fontWeight: 'bold',
                 color: color,
                 lineHeight: 1,

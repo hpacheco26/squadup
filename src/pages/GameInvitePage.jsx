@@ -5,6 +5,7 @@ import { auth } from '../config/firebase';
 import GameService from '../api/gameService';
 import GroupService from '../api/groupService';
 import useLanguageStore from '../store/languageStore';
+import theme from '../theme';
 
 function GameInvitePage() {
     const { gameId } = useParams();
@@ -19,17 +20,15 @@ function GameInvitePage() {
     const [showGuestInput, setShowGuestInput] = useState(false);
     const [guestSubmitting, setGuestSubmitting] = useState(false);
 
-    // Load game data with anonymous auth
     useEffect(() => {
         async function load() {
             try {
-                // Sign in anonymously so Firestore rules pass
                 if (!auth.currentUser) {
                     await signInAnonymously(auth);
                 }
                 const gameData = await GameService.getGameById(gameId);
                 if (!gameData) {
-                    setError('This game has ended or no longer exists.');
+                    setError(t('gameEndedOrGone'));
                     setLoading(false);
                     return;
                 }
@@ -40,7 +39,6 @@ function GameInvitePage() {
                     setGroup(grp);
                 }
 
-                // Check localStorage for prior response
                 const stored = localStorage.getItem(`game-response-${gameId}`);
                 if (stored) {
                     const parsed = JSON.parse(stored);
@@ -49,7 +47,7 @@ function GameInvitePage() {
                 }
             } catch (err) {
                 console.error('Failed to load game invite:', err);
-                setError('Failed to load game');
+                setError(t('failedToLoadGame'));
             }
             setLoading(false);
         }
@@ -63,12 +61,10 @@ function GameInvitePage() {
         let updatedOut = [...(game.playersOut || [])];
         let updatedInvited = [...(game.playersInvited || [])];
 
-        // Remove player from all lists first
         updatedIn = updatedIn.filter(p => p.id !== player.id);
         updatedOut = updatedOut.filter(p => p.id !== player.id);
         updatedInvited = updatedInvited.filter(p => p.id !== player.id);
 
-        // Add to appropriate list
         if (status === 'in') {
             updatedIn.push(player);
         } else {
@@ -82,13 +78,9 @@ function GameInvitePage() {
         };
 
         await GameService.updateGame(gameId, updates);
-
-        // Update local state
         setGame(prev => ({ ...prev, ...updates }));
         setRespondedPlayerId(player.id);
         setRespondedStatus(status);
-
-        // Save to localStorage to prevent re-swiping
         localStorage.setItem(`game-response-${gameId}`, JSON.stringify({
             playerId: player.id,
             status,
@@ -133,55 +125,72 @@ function GameInvitePage() {
         setGuestSubmitting(false);
     };
 
+    // --- Loading state ---
     if (loading) {
         return (
-            <div style={styles.container}>
-                <p style={styles.message}>{t('loadingGame')}</p>
+            <div style={styles.page}>
+                <div style={styles.card}>
+                    <div style={styles.spinner} />
+                    <p style={styles.loadingText}>{t('loadingGame')}</p>
+                </div>
             </div>
         );
     }
 
+    // --- Error state ---
     if (error) {
         return (
-            <div style={styles.container}>
+            <div style={styles.page}>
                 <div style={styles.card}>
-                    <p style={styles.title}>Oops</p>
+                    <div style={styles.errorIcon}>⚠️</div>
+                    <p style={{ ...styles.heading, color: theme.danger }}>{t('oops')}</p>
                     <p style={styles.subtitle}>{error}</p>
                 </div>
             </div>
         );
     }
 
-    // Check if user already responded
+    // --- Already responded ---
     if (respondedPlayerId) {
+        const isIn = respondedStatus === 'in';
         return (
-            <div style={styles.container}>
+            <div style={styles.page}>
                 <div style={styles.card}>
-                    <p style={styles.title}>{group?.name || 'Game'}</p>
-                    <GameInfo game={game} />
-                    <div style={{ marginTop: '20px', padding: '16px', borderRadius: '10px', background: respondedStatus === 'in' ? '#dcfce7' : '#fee2e2' }}>
-                        <p style={{ fontSize: '1.1rem', fontWeight: 'bold', color: respondedStatus === 'in' ? '#16a34a' : '#ef4444' }}>
-                            {respondedStatus === 'in' ? `✅ ${t('youreInGame')}` : `❌ ${t('youreOut')}`}
+                    <BrandHeader groupName={group?.name} />
+                    <GameInfo game={game} t={t} />
+                    <div style={{
+                        ...styles.responseBanner,
+                        background: isIn ? theme.successLight : theme.dangerLight,
+                        borderLeft: `4px solid ${isIn ? theme.success : theme.danger}`,
+                    }}>
+                        <span style={{ fontSize: '1.8rem' }}>{isIn ? '✅' : '❌'}</span>
+                        <p style={{
+                            fontSize: '1.1rem',
+                            fontWeight: '700',
+                            color: isIn ? theme.success : theme.danger,
+                        }}>
+                            {isIn ? t('youreInGame') : t('youreOut')}
                         </p>
                     </div>
-                    <PlayerSummary game={game} />
+                    <PlayerSummary game={game} t={t} />
                 </div>
             </div>
         );
     }
 
-    // Show player list for swiping
+    // --- Main invite view ---
     const invitedPlayers = game.playersInvited || [];
 
     return (
-        <div style={styles.container}>
+        <div style={styles.page}>
             <div style={styles.card}>
-                <p style={styles.title}>{group?.name || 'Game'}</p>
-                <GameInfo game={game} />
+                <BrandHeader groupName={group?.name} />
+                <GameInfo game={game} t={t} />
 
                 {invitedPlayers.length > 0 && (
-                    <>
-                        <p style={{ ...styles.subtitle, marginTop: '20px' }}>{t('findYourName')}</p>
+                    <div style={styles.section}>
+                        <p style={styles.sectionTitle}>{t('findYourName')}</p>
+                        <p style={styles.swipeHint}>{t('swipeHint')}</p>
                         <div style={styles.playerList}>
                             {invitedPlayers.map(player => (
                                 <InvitePlayerCard
@@ -192,85 +201,115 @@ function GameInvitePage() {
                                 />
                             ))}
                         </div>
-                    </>
+                    </div>
                 )}
 
                 {/* Guest join section */}
-                <div style={{ marginTop: '16px', borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
+                <div style={styles.guestSection}>
                     {!showGuestInput ? (
                         <button
                             onClick={() => setShowGuestInput(true)}
-                            style={{
-                                background: 'none', border: 'none', color: '#5b7bb3',
-                                fontSize: '0.9rem', cursor: 'pointer', fontWeight: '600',
-                                textDecoration: 'underline',
-                            }}
+                            style={styles.guestToggle}
                         >
                             {t('notOnTheList')}
                         </button>
                     ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
-                            <p style={{ fontSize: '0.85rem', color: '#64748b' }}>{t('enterYourName')}</p>
+                        <div style={styles.guestForm}>
+                            <p style={styles.guestLabel}>{t('enterYourName')}</p>
                             <input
                                 type="text"
                                 value={guestName}
                                 onChange={e => setGuestName(e.target.value)}
                                 placeholder={t('namePlaceholder')}
                                 maxLength={40}
-                                style={{
-                                    width: '100%', maxWidth: '260px', padding: '10px 14px',
-                                    borderRadius: '10px', border: '1px solid #e2e8f0',
-                                    fontSize: '0.95rem', textAlign: 'center', outline: 'none',
-                                }}
+                                style={styles.guestInput}
                             />
-                            <button
-                                onClick={handleGuestJoin}
-                                disabled={!guestName.trim() || guestSubmitting}
-                                style={{
-                                    background: guestName.trim() ? '#5b7bb3' : '#cbd5e1',
-                                    color: '#fff', border: 'none', borderRadius: '10px',
-                                    padding: '10px 24px', fontSize: '0.95rem', fontWeight: '600',
-                                    cursor: guestName.trim() ? 'pointer' : 'default',
-                                    opacity: guestSubmitting ? 0.6 : 1,
-                                }}
-                            >
-                                {guestSubmitting ? '...' : `✅ ${t('imIn')}`}
-                            </button>
+                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                <button
+                                    onClick={() => { setShowGuestInput(false); setGuestName(''); }}
+                                    style={styles.guestCancelBtn}
+                                >
+                                    {t('cancelGuest')}
+                                </button>
+                                <button
+                                    onClick={handleGuestJoin}
+                                    disabled={!guestName.trim() || guestSubmitting}
+                                    style={{
+                                        ...styles.guestJoinBtn,
+                                        background: guestName.trim() ? theme.primary : theme.borderDark,
+                                        cursor: guestName.trim() ? 'pointer' : 'default',
+                                        opacity: guestSubmitting ? 0.6 : 1,
+                                    }}
+                                >
+                                    {guestSubmitting ? '...' : t('imIn')}
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>
 
-                <PlayerSummary game={game} />
+                <PlayerSummary game={game} t={t} />
             </div>
         </div>
     );
 }
 
-function GameInfo({ game }) {
+/* ── Sub-components ── */
+
+function BrandHeader({ groupName }) {
+    return (
+        <div style={styles.brandHeader}>
+            <div style={styles.logoCircle}>⚽</div>
+            <p style={styles.heading}>{groupName || 'SquadUp'}</p>
+        </div>
+    );
+}
+
+function GameInfo({ game, t }) {
     const formatDate = (dateStr) => {
         if (!dateStr) return '';
         const d = new Date(dateStr + 'T00:00:00');
         return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
     };
 
+    const hasDate = game.date;
+    const hasLocation = game.location;
+    if (!hasDate && !hasLocation) return null;
+
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', color: '#64748b', fontSize: '0.9rem' }}>
-            {game.date && <p>📅 {formatDate(game.date)}{game.time ? ` at ${game.time}` : ''}</p>}
-            {game.location && <p>📍 {game.location}</p>}
+        <div style={styles.gameInfoRow}>
+            {hasDate && (
+                <div style={styles.infoPill}>
+                    <span>📅</span>
+                    <span>{formatDate(game.date)}{game.time ? ` · ${game.time}` : ''}</span>
+                </div>
+            )}
+            {hasLocation && (
+                <div style={styles.infoPill}>
+                    <span>📍</span>
+                    <span>{game.location}</span>
+                </div>
+            )}
         </div>
     );
 }
 
-function PlayerSummary({ game }) {
+function PlayerSummary({ game, t }) {
     const inCount = (game.playersIn || []).length;
     const outCount = (game.playersOut || []).length;
     const pendingCount = (game.playersInvited || []).length;
 
     return (
-        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '0.85rem', color: '#64748b' }}>
-            <span>✅ {inCount} in</span>
-            <span>❌ {outCount} out</span>
-            <span>❓ {pendingCount} pending</span>
+        <div style={styles.summaryRow}>
+            <div style={{ ...styles.summaryPill, background: theme.successLight, color: theme.success }}>
+                <span style={{ fontWeight: '700' }}>{inCount}</span> {t('inCount')}
+            </div>
+            <div style={{ ...styles.summaryPill, background: theme.dangerLight, color: theme.danger }}>
+                <span style={{ fontWeight: '700' }}>{outCount}</span> {t('outCount')}
+            </div>
+            <div style={{ ...styles.summaryPill, background: theme.warningLight, color: theme.warning }}>
+                <span style={{ fontWeight: '700' }}>{pendingCount}</span> {t('pendingCount')}
+            </div>
         </div>
     );
 }
@@ -307,6 +346,8 @@ function InvitePlayerCard({ player, onIn, onOut }) {
         setTranslateX(0);
     }
 
+    const progress = Math.abs(translateX) / 25;
+
     return (
         <div ref={ref} style={cardStyles.root}>
             <div
@@ -320,35 +361,74 @@ function InvitePlayerCard({ player, onIn, onOut }) {
                     ...cardStyles.item,
                     transform: `translateX(${translateX}%)`,
                     transition: startX === null ? '0.2s ease' : 'none',
+                    borderColor: translateX > 5 ? theme.success
+                        : translateX < -5 ? theme.danger
+                        : theme.border,
                 }}
             >
-                <span style={{ paddingLeft: '20px', fontSize: '1rem' }}>{player.firstName} {player.lastName}</span>
-                <span style={{ position: 'absolute', right: '16px', color: '#94a3b8', fontSize: '1.5rem', fontWeight: 'bold' }}>?</span>
+                <div style={cardStyles.avatar}>
+                    {player.firstName?.[0]?.toUpperCase() || '?'}
+                </div>
+                <span style={cardStyles.name}>{player.firstName} {player.lastName}</span>
+                <span style={cardStyles.arrows}>⟵ ⟶</span>
             </div>
-            <div style={cardStyles.leftSide}>✅</div>
-            <div style={cardStyles.rightSide}>❌</div>
+            <div style={{ ...cardStyles.leftSide, opacity: translateX > 0 ? progress : 0 }}>✅</div>
+            <div style={{ ...cardStyles.rightSide, opacity: translateX < 0 ? progress : 0 }}>❌</div>
         </div>
     );
 }
 
+/* ── Styles ── */
+
 const cardStyles = {
     root: {
-        height: '56px',
+        height: '60px',
         position: 'relative',
         overflow: 'hidden',
-        borderRadius: '12px',
+        borderRadius: '14px',
     },
     item: {
-        backgroundColor: '#fff',
+        backgroundColor: theme.surface,
         width: '100%',
         height: '100%',
-        borderRadius: '12px',
+        borderRadius: '14px',
         zIndex: 10,
         display: 'flex',
         alignItems: 'center',
+        gap: '12px',
         position: 'relative',
         cursor: 'grab',
-        border: '1px solid #e2e8f0',
+        border: `1.5px solid ${theme.border}`,
+        paddingLeft: '12px',
+        paddingRight: '12px',
+        boxSizing: 'border-box',
+        userSelect: 'none',
+    },
+    avatar: {
+        width: '36px',
+        height: '36px',
+        borderRadius: '50%',
+        background: theme.primaryLight,
+        color: theme.primary,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontWeight: '700',
+        fontSize: '0.9rem',
+        flexShrink: 0,
+    },
+    name: {
+        fontSize: '0.95rem',
+        fontWeight: '600',
+        color: theme.text,
+        flex: 1,
+        textAlign: 'left',
+    },
+    arrows: {
+        color: theme.textMuted,
+        fontSize: '0.8rem',
+        flexShrink: 0,
+        letterSpacing: '2px',
     },
     leftSide: {
         position: 'absolute',
@@ -362,6 +442,7 @@ const cardStyles = {
         alignItems: 'center',
         paddingLeft: '16px',
         fontSize: '1.5rem',
+        borderRadius: '14px 0 0 14px',
     },
     rightSide: {
         position: 'absolute',
@@ -376,45 +457,196 @@ const cardStyles = {
         justifyContent: 'flex-end',
         paddingRight: '16px',
         fontSize: '1.5rem',
+        borderRadius: '0 14px 14px 0',
     },
 };
 
 const styles = {
-    container: {
+    page: {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'flex-start',
         minHeight: '100vh',
-        padding: '20px',
-        paddingTop: '40px',
+        padding: '16px',
+        paddingTop: '32px',
+        background: theme.bg,
     },
     card: {
-        background: '#fff',
-        borderRadius: '16px',
-        padding: '24px 20px',
+        background: theme.surface,
+        borderRadius: '20px',
+        padding: '28px 22px',
         maxWidth: '420px',
         width: '100%',
         textAlign: 'center',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+        boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
     },
-    title: {
-        fontSize: '1.5rem',
-        fontWeight: 'bold',
-        marginBottom: '8px',
+    brandHeader: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '8px',
+        marginBottom: '16px',
+    },
+    logoCircle: {
+        width: '52px',
+        height: '52px',
+        borderRadius: '50%',
+        background: theme.primaryLight,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '1.6rem',
+    },
+    heading: {
+        fontSize: '1.4rem',
+        fontWeight: '800',
+        color: theme.text,
+        margin: 0,
     },
     subtitle: {
         fontSize: '0.9rem',
-        color: '#64748b',
-        marginBottom: '12px',
+        color: theme.textSecondary,
+        margin: 0,
     },
-    message: {
-        fontSize: '1rem',
-        color: '#64748b',
+    // Game info
+    gameInfoRow: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        gap: '8px',
+        marginBottom: '8px',
+    },
+    infoPill: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '6px',
+        background: theme.surfaceAlt,
+        padding: '6px 14px',
+        borderRadius: '20px',
+        fontSize: '0.85rem',
+        color: theme.textSecondary,
+    },
+    // Section
+    section: {
+        marginTop: '20px',
+    },
+    sectionTitle: {
+        fontSize: '0.95rem',
+        fontWeight: '700',
+        color: theme.text,
+        marginBottom: '4px',
+    },
+    swipeHint: {
+        fontSize: '0.78rem',
+        color: theme.textMuted,
+        marginBottom: '12px',
     },
     playerList: {
         display: 'flex',
         flexDirection: 'column',
         gap: '8px',
+    },
+    // Response banner
+    responseBanner: {
+        marginTop: '20px',
+        padding: '18px 16px',
+        borderRadius: '14px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '10px',
+    },
+    // Summary
+    summaryRow: {
+        marginTop: '20px',
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '10px',
+    },
+    summaryPill: {
+        padding: '6px 14px',
+        borderRadius: '20px',
+        fontSize: '0.8rem',
+        fontWeight: '600',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px',
+    },
+    // Guest section
+    guestSection: {
+        marginTop: '20px',
+        borderTop: `1px solid ${theme.border}`,
+        paddingTop: '16px',
+    },
+    guestToggle: {
+        background: 'none',
+        border: `1.5px dashed ${theme.primary}`,
+        color: theme.primary,
+        fontSize: '0.88rem',
+        cursor: 'pointer',
+        fontWeight: '600',
+        padding: '10px 20px',
+        borderRadius: '12px',
+        width: '100%',
+    },
+    guestForm: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '10px',
+        alignItems: 'center',
+    },
+    guestLabel: {
+        fontSize: '0.85rem',
+        color: theme.textSecondary,
+        margin: 0,
+    },
+    guestInput: {
+        width: '100%',
+        maxWidth: '260px',
+        padding: '10px 14px',
+        borderRadius: '12px',
+        border: `1.5px solid ${theme.border}`,
+        fontSize: '0.95rem',
+        textAlign: 'center',
+        outline: 'none',
+        color: theme.text,
+        boxSizing: 'border-box',
+    },
+    guestJoinBtn: {
+        color: '#fff',
+        border: 'none',
+        borderRadius: '12px',
+        padding: '10px 24px',
+        fontSize: '0.9rem',
+        fontWeight: '700',
+    },
+    guestCancelBtn: {
+        background: theme.surfaceAlt,
+        color: theme.textSecondary,
+        border: `1px solid ${theme.border}`,
+        borderRadius: '12px',
+        padding: '10px 18px',
+        fontSize: '0.9rem',
+        fontWeight: '600',
+        cursor: 'pointer',
+    },
+    // Loading
+    spinner: {
+        width: '36px',
+        height: '36px',
+        border: `3px solid ${theme.border}`,
+        borderTop: `3px solid ${theme.primary}`,
+        borderRadius: '50%',
+        animation: 'spin 0.8s linear infinite',
+        margin: '0 auto 12px',
+    },
+    loadingText: {
+        fontSize: '0.95rem',
+        color: theme.textSecondary,
+        margin: 0,
+    },
+    errorIcon: {
+        fontSize: '2.5rem',
         marginBottom: '8px',
     },
 };
