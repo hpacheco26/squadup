@@ -15,6 +15,9 @@ function GameInvitePage() {
     const [error, setError] = useState(null);
     const [respondedPlayerId, setRespondedPlayerId] = useState(null);
     const [respondedStatus, setRespondedStatus] = useState(null);
+    const [guestName, setGuestName] = useState('');
+    const [showGuestInput, setShowGuestInput] = useState(false);
+    const [guestSubmitting, setGuestSubmitting] = useState(false);
 
     // Load game data with anonymous auth
     useEffect(() => {
@@ -92,6 +95,44 @@ function GameInvitePage() {
         }));
     };
 
+    const handleGuestJoin = async () => {
+        const trimmed = guestName.trim();
+        if (!trimmed || !game) return;
+        setGuestSubmitting(true);
+
+        const parts = trimmed.split(/\s+/);
+        const firstName = parts[0];
+        const lastName = parts.slice(1).join(' ') || '';
+        const guestId = `guest-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+
+        const guestPlayer = {
+            id: guestId,
+            firstName,
+            lastName,
+            userId: null,
+            rank: 0,
+            stats: { gamesPlayed: 0, gamesWon: 0 },
+            isGuest: true,
+        };
+
+        const updatedIn = [...(game.playersIn || []), guestPlayer];
+        const updates = { playersIn: updatedIn };
+
+        try {
+            await GameService.updateGame(gameId, updates);
+            setGame(prev => ({ ...prev, ...updates }));
+            setRespondedPlayerId(guestId);
+            setRespondedStatus('in');
+            localStorage.setItem(`game-response-${gameId}`, JSON.stringify({
+                playerId: guestId,
+                status: 'in',
+            }));
+        } catch (err) {
+            console.error('Failed to join as guest:', err);
+        }
+        setGuestSubmitting(false);
+    };
+
     if (loading) {
         return (
             <div style={styles.container}>
@@ -153,6 +194,51 @@ function GameInvitePage() {
                         </div>
                     </>
                 )}
+
+                {/* Guest join section */}
+                <div style={{ marginTop: '16px', borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
+                    {!showGuestInput ? (
+                        <button
+                            onClick={() => setShowGuestInput(true)}
+                            style={{
+                                background: 'none', border: 'none', color: '#5b7bb3',
+                                fontSize: '0.9rem', cursor: 'pointer', fontWeight: '600',
+                                textDecoration: 'underline',
+                            }}
+                        >
+                            {t('notOnTheList')}
+                        </button>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+                            <p style={{ fontSize: '0.85rem', color: '#64748b' }}>{t('enterYourName')}</p>
+                            <input
+                                type="text"
+                                value={guestName}
+                                onChange={e => setGuestName(e.target.value)}
+                                placeholder={t('namePlaceholder')}
+                                maxLength={40}
+                                style={{
+                                    width: '100%', maxWidth: '260px', padding: '10px 14px',
+                                    borderRadius: '10px', border: '1px solid #e2e8f0',
+                                    fontSize: '0.95rem', textAlign: 'center', outline: 'none',
+                                }}
+                            />
+                            <button
+                                onClick={handleGuestJoin}
+                                disabled={!guestName.trim() || guestSubmitting}
+                                style={{
+                                    background: guestName.trim() ? '#5b7bb3' : '#cbd5e1',
+                                    color: '#fff', border: 'none', borderRadius: '10px',
+                                    padding: '10px 24px', fontSize: '0.95rem', fontWeight: '600',
+                                    cursor: guestName.trim() ? 'pointer' : 'default',
+                                    opacity: guestSubmitting ? 0.6 : 1,
+                                }}
+                            >
+                                {guestSubmitting ? '...' : `✅ ${t('imIn')}`}
+                            </button>
+                        </div>
+                    )}
+                </div>
 
                 <PlayerSummary game={game} />
             </div>

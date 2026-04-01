@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { getMessaging, isSupported } from 'firebase/messaging';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCbe0n03WFN4g-Z0TCKJtRJNiUzctffCNQ",
@@ -15,4 +16,13 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// FCM messaging — only initialized if browser supports it
+let messaging = null;
+isSupported().then(supported => {
+  if (supported) {
+    messaging = getMessaging(app);
+  }
+});
+
+export const getMessagingInstance = () => messaging;
 export { auth, db };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import NavBar from './components/bars/NavBar.jsx';
 import HomePage from './pages/HomePage.jsx';
@@ -15,10 +15,25 @@ import AppSettingsPage from './pages/AppSettingsPage.jsx';
 import JoinPage from './pages/JoinPage.jsx';
 import GameInvitePage from './pages/GameInvitePage.jsx';
 import PaymentsPage from './pages/PaymentsPage.jsx';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage.jsx';
+import TermsOfServicePage from './pages/TermsOfServicePage.jsx';
+import LicensesPage from './pages/LicensesPage.jsx';
 import ProtectedRoute from './components/ProtectedRoute';
+import useAuthStore from './store/authStore';
+import useNotificationStore from './store/notificationStore';
 
 
 function App() {
+
+  const user = useAuthStore((s) => s.user);
+  const { startListening, stopListening, enabled } = useNotificationStore();
+
+  useEffect(() => {
+    if (user?.uid && enabled) {
+      startListening(user.uid);
+    }
+    return () => stopListening();
+  }, [user?.uid, enabled]);
 
 
   const appStyles = {
@@ -26,6 +41,10 @@ function App() {
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
+    paddingTop: 'var(--sat)',
+    paddingBottom: 'var(--sab)',
+    paddingLeft: 'var(--sal)',
+    paddingRight: 'var(--sar)',
   };
 
   return (
@@ -48,6 +67,9 @@ function App() {
         <Route path="/game/:gameId" element={<ProtectedRoute><GamePage /></ProtectedRoute>} />
         <Route path="/rank" element={<ProtectedRoute><RankPage /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><AppSettingsPage /></ProtectedRoute>} />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms" element={<TermsOfServicePage />} />
+        <Route path="/licenses" element={<LicensesPage />} />
         <Route path="/join/:code" element={<ProtectedRoute><JoinPage /></ProtectedRoute>} />
         <Route path="/game-invite/:gameId" element={<GameInvitePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />

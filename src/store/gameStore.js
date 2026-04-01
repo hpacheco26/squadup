@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import GameService from '../api/gameService';
+import NotificationService from '../api/notificationService';
 
 const useGameStore = create((set) => ({
     games: [],
@@ -15,7 +16,8 @@ const useGameStore = create((set) => ({
     _subscribedGroupId: null,
     _unsubUpcoming: [],
 
-    // Game session state (persists across tab switches)
+    // Game session state
+    _activeGameId: null,
     team1Goals: 0,
     team2Goals: 0,
     timer: null,
@@ -34,13 +36,31 @@ const useGameStore = create((set) => ({
         isRunning: typeof val === 'function' ? val(state.isRunning) : val,
     })),
 
+    // Initialize session for a game — only resets if switching to a different game
+    initGameSession: (gameId) => {
+        const state = useGameStore.getState();
+        if (state._activeGameId === gameId) return; // same game, keep state
+        console.log('[gameStore] initGameSession: switching from', state._activeGameId, 'to', gameId);
+        set({
+            _activeGameId: gameId,
+            team1Goals: 0,
+            team2Goals: 0,
+            timer: null,
+            isRunning: false,
+        });
+    },
+
     // Reset game session state (goals, timer, running)
-    resetGameSession: () => set({
-        team1Goals: 0,
-        team2Goals: 0,
-        timer: null,
-        isRunning: false,
-    }),
+    resetGameSession: () => {
+        console.log('[gameStore] resetGameSession called');
+        set({
+            _activeGameId: null,
+            team1Goals: 0,
+            team2Goals: 0,
+            timer: null,
+            isRunning: false,
+        });
+    },
 
     // 🔴 Real-time subscriptions
 
@@ -208,6 +228,22 @@ const useGameStore = create((set) => ({
             const newGame = await GameService.createGame(gameData);
             console.log('[gameStore] createGame SUCCESS, new game id:', newGame.id);
             set({ game: newGame });
+
+            // Notify all invited players
+            const recipientIds = (gameData.playersInvited || [])
+                .filter(p => p.userId && p.userId !== gameData.adminId)
+                .map(p => p.userId);
+            if (recipientIds.length > 0) {
+                NotificationService.send({
+                    type: 'game_created',
+                    groupId: gameData.groupId,
+                    gameId: newGame.id,
+                    senderName: gameData._senderName || 'Someone',
+                    senderId: gameData.adminId,
+                    recipientIds,
+                    data: { groupName: gameData._groupName || '', gameDate: gameData.date || '' },
+                }).catch(() => {});
+            }
         } catch (error) {
             console.error('[gameStore] createGame ERROR:', error);
             set({ error: error.message });
@@ -228,9 +264,26 @@ const useGameStore = create((set) => ({
     },
 
     // Delete a game
-    deleteGame: async (gameId) => {
+    deleteGame: async (gameId, notifContext) => {
         console.log('[gameStore] deleteGame called for', gameId);
         try {
+            // Send cancellation notification before deleting
+            if (notifContext) {
+                const recipientIds = (notifContext.allPlayers || [])
+                    .filter(p => p.userId && p.userId !== notifContext.senderId)
+                    .map(p => p.userId);
+                if (recipientIds.length > 0) {
+                    NotificationService.send({
+                        type: 'game_cancelled',
+                        groupId: notifContext.groupId,
+                        gameId,
+                        senderName: notifContext.senderName,
+                        senderId: notifContext.senderId,
+                        recipientIds,
+                        data: { groupName: notifContext.groupName || '', gameDate: notifContext.gameDate || '' },
+                    }).catch(() => {});
+                }
+            }
             await GameService.deleteGame(gameId);
             set((state) => ({
                 games: state.games.filter(game => game.id !== gameId),
@@ -244,10 +297,12 @@ const useGameStore = create((set) => ({
         }
     },
 
-    handlePlayerIn: async (gameId, playerId) => {
+    handlePlayerIn: async (gameId, playerId, notifContext) => {
+        let previousStatus = null;
         set((state) => {
             const { game } = state;
             if (!game) return state;
+            previousStatus = game.status;
 
             let updatedPlayersIn = [...game.playersIn];
             let updatedPlayersOut = [...game.playersOut];
@@ -284,13 +339,47 @@ const useGameStore = create((set) => ({
                 playersInvited: game.playersInvited,
                 status: game.status
             });
+
+            // Send player_in notification
+            if (notifContext) {
+                const allPlayers = [...(game.playersIn || []), ...(game.playersOut || []), ...(game.playersInvited || [])];
+                const recipientIds = allPlayers
+                    .filter(p => p.userId && p.userId !== notifContext.senderId)
+                    .map(p => p.userId);
+                if (recipientIds.length > 0) {
+                    NotificationService.send({
+                        type: 'player_in',
+                        groupId: notifContext.groupId,
+                        gameId,
+                        senderName: notifContext.senderName,
+                        senderId: notifContext.senderId,
+                        recipientIds,
+                        data: { groupName: notifContext.groupName || '', gameDate: notifContext.gameDate || '' },
+                    }).catch(() => {});
+
+                    // If status changed to confirmed, send an extra notification
+                    if (previousStatus === 'open' && game.status === 'confirmed') {
+                        NotificationService.send({
+                            type: 'game_confirmed',
+                            groupId: notifContext.groupId,
+                            gameId,
+                            senderName: notifContext.senderName,
+                            senderId: notifContext.senderId,
+                            recipientIds,
+                            data: { groupName: notifContext.groupName || '', gameDate: notifContext.gameDate || '' },
+                        }).catch(() => {});
+                    }
+                }
+            }
         }
     },
 
-    handlePlayerOut: async (gameId, playerId) => {
+    handlePlayerOut: async (gameId, playerId, notifContext) => {
+        let previousStatus = null;
         set((state) => {
             const { game } = state;
             if (!game) return state;
+            previousStatus = game.status;
 
             let updatedPlayersIn = game.playersIn.filter(player => player.id !== playerId);
             let updatedPlayersInvited = game.playersInvited.filter(player => player.id !== playerId);
@@ -323,6 +412,38 @@ const useGameStore = create((set) => ({
                 playersOut: game.playersOut,
                 status: game.status
             });
+
+            // Send player_out notification
+            if (notifContext) {
+                const allPlayers = [...(game.playersIn || []), ...(game.playersOut || []), ...(game.playersInvited || [])];
+                const recipientIds = allPlayers
+                    .filter(p => p.userId && p.userId !== notifContext.senderId)
+                    .map(p => p.userId);
+                if (recipientIds.length > 0) {
+                    NotificationService.send({
+                        type: 'player_out',
+                        groupId: notifContext.groupId,
+                        gameId,
+                        senderName: notifContext.senderName,
+                        senderId: notifContext.senderId,
+                        recipientIds,
+                        data: { groupName: notifContext.groupName || '', gameDate: notifContext.gameDate || '' },
+                    }).catch(() => {});
+
+                    // If status changed from confirmed to open, warn players
+                    if (previousStatus === 'confirmed' && game.status === 'open') {
+                        NotificationService.send({
+                            type: 'game_needs_players',
+                            groupId: notifContext.groupId,
+                            gameId,
+                            senderName: notifContext.senderName,
+                            senderId: notifContext.senderId,
+                            recipientIds,
+                            data: { groupName: notifContext.groupName || '', gameDate: notifContext.gameDate || '' },
+                        }).catch(() => {});
+                    }
+                }
+            }
         }
     },
 

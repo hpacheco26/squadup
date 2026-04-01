@@ -122,6 +122,15 @@ const PreGamePage = () => {
 
     if (!game) return <div>{t('loading')}</div>;
 
+    const myPlayer = group?.players?.find(p => p.userId === user?.uid);
+    const notifContext = {
+        groupId: game.groupId,
+        groupName: group?.name || '',
+        gameDate: game.date || '',
+        senderName: myPlayer?.firstName || 'Someone',
+        senderId: user?.uid,
+    };
+
     return (
         <>
             <header style={{
@@ -179,7 +188,7 @@ const PreGamePage = () => {
                 <div>
                     <PlayersList 
                         players={playersIn}
-                        leftSwipe={(playerId) => handlePlayerOut(gameId, playerId)}
+                        leftSwipe={(playerId) => handlePlayerOut(gameId, playerId, notifContext)}
                         statusLabel="IN"
                         user={user}
                         isAdmin={game.adminId === user.uid}
@@ -191,7 +200,7 @@ const PreGamePage = () => {
                 <div>
                     <PlayersList
                         players={playersOut}
-                        rightSwipe={(playerId) => handlePlayerIn(gameId, playerId)}
+                        rightSwipe={(playerId) => handlePlayerIn(gameId, playerId, notifContext)}
                         statusLabel="OUT"
                         user={user}
                         isAdmin={game.adminId === user.uid}
@@ -201,8 +210,8 @@ const PreGamePage = () => {
                 <div>
                     <PlayersList
                         players={playersInvited}
-                        rightSwipe={(playerId) => handlePlayerIn(gameId, playerId)}
-                        leftSwipe={(playerId) => handlePlayerOut(gameId, playerId)}
+                        rightSwipe={(playerId) => handlePlayerIn(gameId, playerId, notifContext)}
+                        leftSwipe={(playerId) => handlePlayerOut(gameId, playerId, notifContext)}
                         statusLabel="?"
                         user={user}
                         isAdmin={game.adminId === user.uid}

@@ -188,6 +188,10 @@ const pt = {
   youreInGame: 'Estás DENTRO!',
   youreOut: 'Estás FORA',
   findYourName: 'Encontra o teu nome e responde:',
+  notOnTheList: 'Não estás na lista? Junta-te como convidado',
+  enterYourName: 'Escreve o teu nome para entrar:',
+  namePlaceholder: 'O teu nome',
+  imIn: 'Estou DENTRO!',
 
   // Containers
   noGamesScheduled: 'Nenhum jogo marcado',
@@ -226,6 +230,54 @@ const pt = {
 
   // Futebol sport
   futebol: 'Futebol',
+
+  // Legal & Account
+  privacyPolicy: 'Política de Privacidade',
+  termsOfService: 'Termos de Serviço',
+  openSourceLicenses: 'Licenças Open Source',
+  deleteAccount: 'Apagar Conta',
+  deleteAccountConfirm: 'Tens a certeza? Isto vai apagar permanentemente a tua conta e todos os teus dados. Esta ação não pode ser revertida.',
+  deleteAccountPasswordPrompt: 'Introduz a tua palavra-passe para confirmar:',
+  deleting: 'A apagar...',
+  deleteAccountError: 'Falha ao apagar conta. Tenta novamente.',
+  lastUpdated: 'Última atualização',
+  viewSource: 'Fonte',
+  licensesIntro: 'O SquadUp é construído com o seguinte software open source. Estamos gratos aos programadores e comunidades por trás destes projetos.',
+  legal: 'Legal',
+  account: 'Conta',
+  notifications: 'Notificações',
+  pushNotifications: 'Notificações Push',
+  notificationsDenied: 'As notificações estão bloqueadas. Ativa-as nas definições do browser/dispositivo.',
+
+  // Privacy Policy
+  ppWhatWeCollectTitle: 'O Que Recolhemos',
+  ppWhatWeCollectBody: 'Recolhemos as seguintes informações quando crias uma conta e usas o SquadUp:\n- Endereço de email e nome (fornecido no registo)\n- Participação em grupos, jogos e resultados\n- Estado de pagamento nos grupos (sem detalhes de pagamento)',
+  ppHowWeUseTitle: 'Como Usamos os Teus Dados',
+  ppHowWeUseBody: 'Os teus dados são usados para:\n- Autenticar a tua conta\n- Mostrar o teu perfil aos membros do grupo\n- Organizar jogos, equipas e registar resultados\n- Gerir registos de pagamento nos grupos',
+  ppDataStorageTitle: 'Armazenamento de Dados',
+  ppDataStorageBody: 'Os teus dados são armazenados de forma segura nos servidores Google Firebase (Cloud Firestore e Firebase Authentication). Os dados são encriptados em trânsito e em repouso. Não vendemos os teus dados a terceiros.',
+  ppThirdPartyTitle: 'Serviços de Terceiros',
+  ppThirdPartyBody: 'Usamos os seguintes serviços de terceiros:\n- Firebase Authentication (Google) para login\n- Cloud Firestore (Google) para armazenamento\n- Google Fonts para tipografia\nEstes serviços têm as suas próprias políticas de privacidade.',
+  ppYourRightsTitle: 'Os Teus Direitos',
+  ppYourRightsBody: 'Tens o direito a:\n- Aceder aos teus dados pessoais\n- Corrigir dados incorretos nas definições do perfil\n- Apagar a tua conta e todos os dados associados a qualquer momento nas definições da app\n- Solicitar uma cópia dos teus dados contactando-nos',
+  ppContactTitle: 'Contacto',
+  ppContactBody: 'Se tiveres dúvidas sobre esta política de privacidade, contacta-nos em squadup.app@gmail.com.',
+
+  // Terms of Service
+  tosAcceptanceTitle: 'Aceitação dos Termos',
+  tosAcceptanceBody: 'Ao usar o SquadUp, concordas com estes Termos de Serviço. Se não concordares, por favor não uses a app.',
+  tosUseTitle: 'Uso Aceitável',
+  tosUseBody: 'Concordas em usar o SquadUp apenas para organizar jogos desportivos e atividades de grupo. Não deves usar a app para:\n- Assediar, abusar ou prejudicar outros utilizadores\n- Carregar conteúdo ofensivo ou ilegal\n- Tentar comprometer a segurança da app',
+  tosAccountsTitle: 'Contas',
+  tosAccountsBody: 'És responsável por manter a segurança da tua conta. Deves fornecer informações corretas ao criar uma conta. Reservamo-nos o direito de suspender ou apagar contas que violem estes termos.',
+  tosContentTitle: 'Conteúdo do Utilizador',
+  tosContentBody: 'Manténs a propriedade do conteúdo que crias (nomes de grupos, nomes de jogadores, etc.). Ao usar a app, concedes ao SquadUp uma licença para armazenar e exibir esse conteúdo conforme necessário para fornecer o serviço.',
+  tosTerminationTitle: 'Rescisão',
+  tosTerminationBody: 'Podes apagar a tua conta a qualquer momento nas definições da app. Podemos também terminar ou suspender o acesso ao serviço por violações destes termos, sem aviso prévio.',
+  tosLiabilityTitle: 'Limitação de Responsabilidade',
+  tosLiabilityBody: 'O SquadUp é fornecido "como está" sem garantias de qualquer tipo. Não somos responsáveis por quaisquer danos resultantes do uso da app, incluindo mas não limitado a perda de dados ou interrupções de serviço.',
+  tosChangesTitle: 'Alterações aos Termos',
+  tosChangesBody: 'Podemos atualizar estes termos periodicamente. O uso continuado da app após alterações constitui aceitação dos novos termos.',
 };
 
 export default pt;

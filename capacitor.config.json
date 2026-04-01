@@ -1,0 +1,20 @@
+{
+  "appId": "com.squadup.app",
+  "appName": "SquadUp",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": true,
+      "androidSplashResourceName": "splash",
+      "backgroundColor": "#5b7bb3",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "LIGHT",
+      "backgroundColor": "#5b7bb3"
+    }
+  }
+}

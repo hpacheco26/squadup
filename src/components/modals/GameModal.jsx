@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import useGameStore from '../../store/gameStore';
+import useAuthStore from '../../store/authStore';
 import useLanguageStore from '../../store/languageStore';
 
 function GameModal({ isOpen, setIsOpen, group, game }) {
@@ -18,6 +19,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
     const [groupId, setGroupId] = useState('');
 
     const { createGame, updateGame, deleteGame, loading } = useGameStore();
+    const { user, playerData } = useAuthStore();
     const navigate = useNavigate();
     const { t } = useLanguageStore();
 
@@ -78,6 +80,9 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
         if (isEditMode) {
             await updateGame(game.id, gameData);
         } else {
+            gameData.adminId = user?.uid || null;
+            gameData._senderName = playerData?.firstName || 'Someone';
+            gameData._groupName = group?.name || '';
             await createGame(gameData);
         }
         console.log('[GameModal] handleSubmit DONE');
@@ -88,7 +93,15 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
     const handleCancelGame = async () => {
         if (!game) return;
         const gameGroupId = game.groupId || group?.id;
-        await deleteGame(game.id);
+        const allPlayers = [...(game.playersIn || []), ...(game.playersOut || []), ...(game.playersInvited || [])];
+        await deleteGame(game.id, {
+            groupId: gameGroupId,
+            groupName: group?.name || '',
+            gameDate: game.date || '',
+            senderName: playerData?.firstName || 'Someone',
+            senderId: user?.uid,
+            allPlayers,
+        });
         setIsOpen(false);
         if (gameGroupId) {
             navigate(`/groups/${gameGroupId}`);

@@ -6,9 +6,14 @@ import {
     signOut, 
     onAuthStateChanged, 
     GoogleAuthProvider, 
-    signInWithPopup 
+    signInWithPopup,
+    deleteUser,
+    EmailAuthProvider,
+    reauthenticateWithCredential,
+    reauthenticateWithPopup
 } from 'firebase/auth';
 import PlayerService from '../api/playerService';
+import GroupService from '../api/groupService';
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -144,6 +149,49 @@ const useAuthStore = create((set) => ({
             localStorage.setItem('playerData', JSON.stringify(updatedPlayer));
         } catch (error) {
             console.error("Update User Error:", error);
+        }
+    },
+
+    // 🔹 Delete account and all user data
+    deleteAccount: async (password) => {
+        try {
+            const user = auth.currentUser;
+            if (!user) throw new Error('No user signed in');
+
+            // Re-authenticate before deletion
+            const providerId = user.providerData[0]?.providerId;
+            if (providerId === 'google.com') {
+                await reauthenticateWithPopup(user, googleProvider);
+            } else if (password) {
+                const credential = EmailAuthProvider.credential(user.email, password);
+                await reauthenticateWithCredential(user, credential);
+            } else {
+                throw new Error('Password required for email accounts');
+            }
+
+            const { playerData } = useAuthStore.getState();
+
+            // Remove player from all groups
+            if (playerData) {
+                const groups = await GroupService.getGroupsByPlayer(playerData.id);
+                for (const group of groups) {
+                    const updatedPlayers = group.players.filter(p => p.id !== playerData.id);
+                    await GroupService.updateGroup(group.id, { players: updatedPlayers });
+                }
+                // Delete the player document
+                await PlayerService.deletePlayer(playerData.id);
+            }
+
+            // Delete the Firebase Auth account
+            await deleteUser(user);
+
+            // Clear local state
+            set({ user: null, playerData: null });
+            localStorage.removeItem('user');
+            localStorage.removeItem('playerData');
+        } catch (error) {
+            console.error("Delete Account Error:", error);
+            throw error;
         }
     },
 }));

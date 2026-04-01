@@ -18,7 +18,7 @@ const GamePage = () => {
     const {
         game, subscribeToGame, loading,
         createGame, deleteGame, updateGame,
-        resetGameSession,
+        resetGameSession, initGameSession,
         team1Goals, setTeam1Goals,
         team2Goals, setTeam2Goals,
         timer, setTimer,
@@ -32,15 +32,10 @@ const GamePage = () => {
     const [subCounts, setSubCounts] = useState({});
     const intervalRef = useRef(null);
 
-    const prevGameIdRef = useRef(null);
-
     useEffect(() => {
         if (gameId) {
-            // Only reset goals/timer when switching to a different game
-            if (prevGameIdRef.current !== gameId) {
-                resetGameSession();
-                prevGameIdRef.current = gameId;
-            }
+            // Only resets goals/timer when switching to a different game
+            initGameSession(gameId);
             const unsub = subscribeToGame(gameId);
             return unsub;
         }
@@ -288,24 +283,29 @@ const GamePage = () => {
                 padding: '12px',
             }}>
                 {/* Sub Timer */}
-                <div style={{ textAlign: 'center', padding: '8px 0', flexShrink: 0 }}>
-                    <p style={{ fontSize: '3.5rem', fontWeight: 'bold', fontFamily: 'monospace', color: '#0f1d2f' }}>
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '16px',
+                    padding: '8px 0',
+                    flexShrink: 0,
+                }}>
+                    <button onClick={toggleTimer} style={{
+                        ...styles.iconBtn,
+                        backgroundColor: isRunning ? '#f59e0b' : '#5b7bb3',
+                    }}>
+                        {isRunning ? <FiPause size={20} /> : <FiPlay size={20} />}
+                    </button>
+                    <p style={{ fontSize: '3.5rem', fontWeight: 'bold', fontFamily: 'monospace', color: '#0f1d2f', margin: 0, minWidth: '140px', textAlign: 'center' }}>
                         {formatTime(currentTimer)}
                     </p>
-                    <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', marginTop: '8px' }}>
-                        <button onClick={toggleTimer} style={{
-                            ...styles.iconBtn,
-                            backgroundColor: isRunning ? '#f59e0b' : '#5b7bb3',
-                        }}>
-                            {isRunning ? <FiPause size={20} /> : <FiPlay size={20} />}
-                        </button>
-                        <button onClick={resetTimer} style={{
-                            ...styles.iconBtn,
-                            backgroundColor: '#64748b',
-                        }}>
-                            <FiRotateCcw size={20} />
-                        </button>
-                    </div>
+                    <button onClick={resetTimer} style={{
+                        ...styles.iconBtn,
+                        backgroundColor: '#64748b',
+                    }}>
+                        <FiRotateCcw size={20} />
+                    </button>
                 </div>
 
                 {/* Score Section */}

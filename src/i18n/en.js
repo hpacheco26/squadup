@@ -188,6 +188,10 @@ const en = {
   youreInGame: "You're IN!",
   youreOut: "You're OUT",
   findYourName: 'Find your name and respond:',
+  notOnTheList: "Not on the list? Join as a guest",
+  enterYourName: 'Enter your name to join:',
+  namePlaceholder: 'Your name',
+  imIn: "I'm IN!",
 
   // Containers
   noGamesScheduled: 'No games scheduled',
@@ -226,6 +230,54 @@ const en = {
 
   // Futebol sport
   futebol: 'Futebol',
+
+  // Legal & Account
+  privacyPolicy: 'Privacy Policy',
+  termsOfService: 'Terms of Service',
+  openSourceLicenses: 'Open Source Licenses',
+  deleteAccount: 'Delete Account',
+  deleteAccountConfirm: 'Are you sure? This will permanently delete your account and all your data. This action cannot be undone.',
+  deleteAccountPasswordPrompt: 'Enter your password to confirm:',
+  deleting: 'Deleting...',
+  deleteAccountError: 'Failed to delete account. Please try again.',
+  lastUpdated: 'Last updated',
+  viewSource: 'Source',
+  licensesIntro: 'SquadUp is built with the following open source software. We are grateful to the developers and communities behind these projects.',
+  legal: 'Legal',
+  account: 'Account',
+  notifications: 'Notifications',
+  pushNotifications: 'Push Notifications',
+  notificationsDenied: 'Notifications are blocked. Enable them in your browser/device settings.',
+
+  // Privacy Policy
+  ppWhatWeCollectTitle: 'What We Collect',
+  ppWhatWeCollectBody: 'We collect the following information when you create an account and use SquadUp:\n- Email address and name (provided during sign-up)\n- Group memberships, game participation, and match results\n- Payment status within groups (no actual payment details)',
+  ppHowWeUseTitle: 'How We Use Your Data',
+  ppHowWeUseBody: 'Your data is used to:\n- Authenticate your account\n- Display your profile to group members\n- Organize games, teams, and track results\n- Manage payment records within groups',
+  ppDataStorageTitle: 'Data Storage',
+  ppDataStorageBody: 'Your data is stored securely on Google Firebase servers (Cloud Firestore and Firebase Authentication). Data is encrypted in transit and at rest. We do not sell your data to any third parties.',
+  ppThirdPartyTitle: 'Third-Party Services',
+  ppThirdPartyBody: 'We use the following third-party services:\n- Firebase Authentication (Google) for login\n- Cloud Firestore (Google) for data storage\n- Google Fonts for typography\nThese services have their own privacy policies.',
+  ppYourRightsTitle: 'Your Rights',
+  ppYourRightsBody: 'You have the right to:\n- Access your personal data\n- Correct inaccurate data via your profile settings\n- Delete your account and all associated data at any time from the app settings\n- Request a copy of your data by contacting us',
+  ppContactTitle: 'Contact',
+  ppContactBody: 'If you have questions about this privacy policy, please contact us at squadup.app@gmail.com.',
+
+  // Terms of Service
+  tosAcceptanceTitle: 'Acceptance of Terms',
+  tosAcceptanceBody: 'By using SquadUp, you agree to these Terms of Service. If you do not agree, please do not use the app.',
+  tosUseTitle: 'Acceptable Use',
+  tosUseBody: 'You agree to use SquadUp only for organizing sports games and group activities. You must not use the app to:\n- Harass, abuse, or harm other users\n- Upload offensive or illegal content\n- Attempt to compromise the security of the app',
+  tosAccountsTitle: 'Accounts',
+  tosAccountsBody: 'You are responsible for maintaining the security of your account. You must provide accurate information when creating an account. We reserve the right to suspend or delete accounts that violate these terms.',
+  tosContentTitle: 'User Content',
+  tosContentBody: 'You retain ownership of content you create (group names, player names, etc.). By using the app, you grant SquadUp a license to store and display this content as needed to provide the service.',
+  tosTerminationTitle: 'Termination',
+  tosTerminationBody: 'You may delete your account at any time from the app settings. We may also terminate or suspend access to the service for violations of these terms, without prior notice.',
+  tosLiabilityTitle: 'Limitation of Liability',
+  tosLiabilityBody: 'SquadUp is provided "as is" without warranties of any kind. We are not liable for any damages arising from your use of the app, including but not limited to loss of data or service interruptions.',
+  tosChangesTitle: 'Changes to Terms',
+  tosChangesBody: 'We may update these terms from time to time. Continued use of the app after changes constitutes acceptance of the new terms.',
 };
 
 export default en;
