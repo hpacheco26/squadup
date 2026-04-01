@@ -223,11 +223,13 @@ const useGameStore = create((set) => ({
 
     // Create a new game
     createGame: async (gameData) => {
+        if (useGameStore.getState().loading) return;
+        set({ loading: true, error: null });
         console.log('[gameStore] createGame called with groupId:', gameData.groupId);
         try {
             const newGame = await GameService.createGame(gameData);
             console.log('[gameStore] createGame SUCCESS, new game id:', newGame.id);
-            set({ game: newGame });
+            set({ game: newGame, loading: false });
 
             // Notify all invited players
             const recipientIds = (gameData.playersInvited || [])
@@ -246,7 +248,7 @@ const useGameStore = create((set) => ({
             }
         } catch (error) {
             console.error('[gameStore] createGame ERROR:', error);
-            set({ error: error.message });
+            set({ error: error.message, loading: false });
         }
     },
 

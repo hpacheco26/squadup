@@ -17,6 +17,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
     const [price, setPrice] = useState(0);
     const [invitedPlayers, setInvitedPlayers] = useState(group?.players || []);
     const [groupId, setGroupId] = useState('');
+    const [submitting, setSubmitting] = useState(false);
 
     const { createGame, updateGame, deleteGame, loading } = useGameStore();
     const { user, playerData } = useAuthStore();
@@ -56,6 +57,8 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
     }, [isOpen, group, game, isEditMode]);
 
     const handleSubmit = async () => {
+        if (submitting) return;
+        setSubmitting(true);
         console.log('[GameModal] handleSubmit called, isEditMode:', isEditMode, 'groupId:', groupId);
         const gameData = {
             status: isEditMode ? game.status : 'open',
@@ -87,6 +90,7 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
         }
         console.log('[GameModal] handleSubmit DONE');
 
+        setSubmitting(false);
         setIsOpen(false);
     };
 
@@ -212,9 +216,9 @@ function GameModal({ isOpen, setIsOpen, group, game }) {
                         className="button"
                         style={{ flex: 1, background: "#5b7bb3", color: "#fff", borderRadius: '8px', fontWeight: 'bold', letterSpacing: '0.5px', border: 'none', cursor: 'pointer' }}
                         onClick={handleSubmit}
-                        disabled={loading}
+                        disabled={loading || submitting}
                     >
-                        {loading ? (isEditMode ? t('updating') : t('creating')) : (isEditMode ? t('updateGame') : t('createGame'))}
+                        {(loading || submitting) ? (isEditMode ? t('updating') : t('creating')) : (isEditMode ? t('updateGame') : t('createGame'))}
                     </button>
                 </footer>
             </div>

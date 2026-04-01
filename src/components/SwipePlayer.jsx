@@ -83,7 +83,7 @@ function SwipePlayer({ player, playerStatus, onLeft, onRight, rightActionType })
             }}>
                 <div style={{
                     flex: 1,
-                    background: "#4ade80",
+                    background: rightActionType === 'addGuest' ? "#60a5fa" : "#4ade80",
                     display: "flex",
                     alignItems: "center",
                     paddingLeft: "20px",
