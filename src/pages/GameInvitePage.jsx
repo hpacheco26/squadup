@@ -21,10 +21,13 @@ function GameInvitePage() {
     const [guestSubmitting, setGuestSubmitting] = useState(false);
 
     useEffect(() => {
+        let createdAnonymously = false;
+
         async function load() {
             try {
                 if (!auth.currentUser) {
                     await signInAnonymously(auth);
+                    createdAnonymously = true;
                 }
                 const gameData = await GameService.getGameById(gameId);
                 if (!gameData) {
@@ -52,6 +55,14 @@ function GameInvitePage() {
             setLoading(false);
         }
         load();
+
+        return () => {
+            // Delete the anonymous account when the user leaves this page.
+            // Anonymous accounts are only needed for Firestore read access here.
+            if (createdAnonymously && auth.currentUser?.isAnonymous) {
+                auth.currentUser.delete().catch(() => {});
+            }
+        };
     }, [gameId]);
 
     const handleResponse = async (player, status) => {

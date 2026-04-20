@@ -1,7 +1,9 @@
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
+const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { initializeApp } = require("firebase-admin/app");
 const { getFirestore } = require("firebase-admin/firestore");
 const { getMessaging } = require("firebase-admin/messaging");
+const { getAuth } = require("firebase-admin/auth");
 
 initializeApp();
 const db = getFirestore();
@@ -138,3 +140,40 @@ exports.sendPushNotification = onDocumentCreated(
     }
   }
 );
+
+/**
+ * Scheduled Function: runs every 24 hours and deletes anonymous Firebase Auth
+ * accounts that were created more than 24 hours ago.
+ *
+ * Anonymous accounts are created whenever someone opens a game invite link.
+ * They are only needed for a short read session, so we clean them up daily.
+ */
+exports.cleanupAnonymousUsers = onSchedule("every 24 hours", async () => {
+  const auth = getAuth();
+  const cutoff = Date.now() - 24 * 60 * 60 * 1000; // 24 hours ago
+
+  const uidsToDelete = [];
+  let pageToken;
+
+  do {
+    const result = await auth.listUsers(1000, pageToken);
+    result.users.forEach((user) => {
+      const isAnonymous = !user.email && !user.phoneNumber && user.providerData.length === 0;
+      const createdAt = new Date(user.metadata.creationTime).getTime();
+      if (isAnonymous && createdAt < cutoff) {
+        uidsToDelete.push(user.uid);
+      }
+    });
+    pageToken = result.pageToken;
+  } while (pageToken);
+
+  if (uidsToDelete.length === 0) return;
+
+  // deleteUsers supports up to 1000 per call
+  const chunkSize = 1000;
+  for (let i = 0; i < uidsToDelete.length; i += chunkSize) {
+    await auth.deleteUsers(uidsToDelete.slice(i, i + chunkSize));
+  }
+
+  console.log(`Deleted ${uidsToDelete.length} anonymous user(s).`);
+});
