@@ -35,8 +35,9 @@ const GroupService = {
     },
 
     createGroup: async (groupData) => {
-        const { name, adminId } = groupData;
-        const formattedId = `${name.replace(/\s+/g, '').toLowerCase()}-${adminId}`;
+        const { name, adminIds, adminId } = groupData;
+        const creatorId = (adminIds && adminIds[0]) || adminId;
+        const formattedId = `${name.replace(/\s+/g, '').toLowerCase()}-${creatorId}`;
         const dataWithId = { ...groupData, id: formattedId };
         await setDoc(doc(db, 'groups', formattedId), dataWithId);
         return dataWithId;

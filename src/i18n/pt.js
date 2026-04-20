@@ -162,6 +162,9 @@ const pt = {
   you: 'tu',
   user: 'Utilizador',
   noUser: 'Sem Utilizador',
+  admin: 'Admin',
+  makeAdmin: 'Tornar Admin',
+  removeAdmin: 'Remover Admin',
 
   // Join Page
   loadingInvite: 'A carregar convite...',

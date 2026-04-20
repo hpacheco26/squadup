@@ -23,7 +23,7 @@ function GroupPage() {
 
     const [isGameCreateModalOpen, setIsGameCreateModalOpen] = useState(false);
 
-    const isAdmin = group && user && group.adminId === user.uid;
+    const isAdmin = group && user && (group.adminIds?.includes(user.uid) || group.adminId === user.uid);
 
     useEffect(() => {
         console.log('[GroupPage] useEffect subscribe, id:', id);

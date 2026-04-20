@@ -162,6 +162,9 @@ const en = {
   you: 'you',
   user: 'User',
   noUser: 'No User',
+  admin: 'Admin',
+  makeAdmin: 'Make Admin',
+  removeAdmin: 'Remove Admin',
 
   // Join Page
   loadingInvite: 'Loading invite...',

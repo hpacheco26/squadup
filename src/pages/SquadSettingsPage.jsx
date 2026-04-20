@@ -23,7 +23,7 @@ function SquadSettingsPage() {
     const saveTimerRef = useRef(null);
     const phoneSaveTimerRef = useRef(null);
 
-    const isAdmin = group?.adminId === user?.uid;
+    const isAdmin = group?.adminIds?.includes(user?.uid) || group?.adminId === user?.uid;
 
     // Subscribe to group for real-time updates
     useEffect(() => {
@@ -94,6 +94,17 @@ function SquadSettingsPage() {
         updateGroup(group.id, { ...group, players: updatedPlayers });
     };
 
+    const handleToggleAdmin = (player) => {
+        if (!player.userId) return;
+        const currentAdminIds = group.adminIds || (group.adminId ? [group.adminId] : []);
+        const isPlayerAdmin = currentAdminIds.includes(player.userId);
+        if (isPlayerAdmin && currentAdminIds.length <= 1) return; // prevent removing last admin
+        const newAdminIds = isPlayerAdmin
+            ? currentAdminIds.filter(id => id !== player.userId)
+            : [...currentAdminIds, player.userId];
+        updateGroup(group.id, { ...group, adminIds: newAdminIds });
+    };
+
     if (!group) return <p style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>{t('loading')}</p>;
 
     return (
@@ -154,8 +165,7 @@ function SquadSettingsPage() {
                             </div>
                             <label style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '4px', display: 'block' }}>{t('treasuryPlayer')}</label>
                             <select
-                                value={group.treasuryPlayerId || (group.players || []).find(p => p.userId === group.adminId)?.id || ''}
-                                onChange={handleTreasuryPlayerChange}
+                                value={group.treasuryPlayerId || (group.players || []).find(p => group.adminIds?.includes(p.userId) || p.userId === group.adminId)?.id || ''}                                onChange={handleTreasuryPlayerChange}
                                 style={{
                                     width: '100%',
                                     padding: '10px 12px',
@@ -301,29 +311,58 @@ function SquadSettingsPage() {
                                 {(group.players ?? []).length === 0 ? (
                                     <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px', fontSize: '0.9rem' }}>{t('noPlayersYet')}</p>
                                 ) : (
-                                    (group.players ?? []).map((player) => (
+                                    (group.players ?? []).map((player) => {
+                                        const currentAdminIds = group.adminIds || (group.adminId ? [group.adminId] : []);
+                                        const isPlayerAdmin = player.userId && currentAdminIds.includes(player.userId);
+                                        const canToggle = player.userId && (!isPlayerAdmin || currentAdminIds.length > 1);
+                                        return (
                                         <div key={player.id} style={{ position: 'relative' }}>
                                             <PlayerCard 
                                                 player={player}
                                                 onRemovePlayer={handleRemovePlayer}
                                             />
-                                            <span style={{
-                                                position: 'absolute',
-                                                top: '6px',
-                                                right: '48px',
-                                                fontSize: '0.55rem',
-                                                fontWeight: '600',
-                                                textTransform: 'uppercase',
-                                                letterSpacing: '0.5px',
-                                                padding: '2px 6px',
-                                                borderRadius: '6px',
-                                                background: player.userId ? '#dcfce7' : '#f1f5f9',
-                                                color: player.userId ? '#16a34a' : '#94a3b8',
-                                            }}>
-                                                {player.userId ? t('user') : t('noUser')}
-                                            </span>
+                                            {player.userId ? (
+                                                <button
+                                                    onClick={() => canToggle && handleToggleAdmin(player)}
+                                                    title={isPlayerAdmin ? t('removeAdmin') : t('makeAdmin')}
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: '6px',
+                                                        right: '48px',
+                                                        fontSize: '0.55rem',
+                                                        fontWeight: '600',
+                                                        textTransform: 'uppercase',
+                                                        letterSpacing: '0.5px',
+                                                        padding: '2px 6px',
+                                                        borderRadius: '6px',
+                                                        background: isPlayerAdmin ? '#fef9c3' : '#f1f5f9',
+                                                        color: isPlayerAdmin ? '#ca8a04' : '#94a3b8',
+                                                        border: 'none',
+                                                        cursor: canToggle ? 'pointer' : 'not-allowed',
+                                                    }}
+                                                >
+                                                    {isPlayerAdmin ? `★ ${t('admin')}` : t('user')}
+                                                </button>
+                                            ) : (
+                                                <span style={{
+                                                    position: 'absolute',
+                                                    top: '6px',
+                                                    right: '48px',
+                                                    fontSize: '0.55rem',
+                                                    fontWeight: '600',
+                                                    textTransform: 'uppercase',
+                                                    letterSpacing: '0.5px',
+                                                    padding: '2px 6px',
+                                                    borderRadius: '6px',
+                                                    background: '#f1f5f9',
+                                                    color: '#94a3b8',
+                                                }}>
+                                                    {t('noUser')}
+                                                </span>
+                                            )}
                                         </div>
-                                    ))
+                                        );
+                                    })
                                 )}
                             </div>
                         </div>

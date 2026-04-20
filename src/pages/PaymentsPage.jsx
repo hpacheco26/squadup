@@ -28,7 +28,7 @@ const PaymentsPage = () => {
     if (!group) return <p style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>{t('loading')}</p>;
 
     const groupPlayers = group.players || [];
-    const adminPlayer = groupPlayers.find(p => p.userId === group.adminId);
+    const adminPlayer = groupPlayers.find(p => group.adminIds?.includes(p.userId) || p.userId === group.adminId);
     const treasuryId = group.treasuryPlayerId || adminPlayer?.id || null;
 
     const treasuryPlayer = treasuryId
@@ -37,7 +37,7 @@ const PaymentsPage = () => {
 
     const myGroupPlayer = groupPlayers.find(p => p.userId === user?.uid);
     const isTreasury = myGroupPlayer && treasuryId === myGroupPlayer.id;
-    const isAdmin = user && group.adminId === user.uid;
+    const isAdmin = user && (group.adminIds?.includes(user.uid) || group.adminId === user.uid);
     const canManage = isTreasury || isAdmin;
 
     // Compute per-player totals from gameDebts
