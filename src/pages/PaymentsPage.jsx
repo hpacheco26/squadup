@@ -63,7 +63,8 @@ const PaymentsPage = () => {
         };
     };
 
-    const totalOwed = Object.values(playerTotals).reduce((sum, t) => sum + t.debt, 0);
+    // Sum only current group members to avoid orphan/guest records inflating the total
+    const totalOwed = visiblePlayers.reduce((sum, p) => sum + getPlayerDebt(p).debt, 0);
 
     const handleClearAllForPlayer = async (playerId) => {
         for (const gd of gameDebts) {

@@ -212,13 +212,14 @@ function SquadSettingsPage() {
                             Object.entries(gd.debts || {}).forEach(([playerId, info]) => {
                                 if (!info.paid) {
                                     if (!playerDebtMap[playerId]) playerDebtMap[playerId] = 0;
-                                    playerDebtMap[playerId] += info.amount;
+                                    playerDebtMap[playerId] += (info.amount || 0);
                                 }
                             });
                         });
                         const playersWithDebt = (group.players ?? []).filter(p => (playerDebtMap[p.id] || 0) > 0);
                         if (playersWithDebt.length === 0) return null;
-                        const totalDebt = Object.values(playerDebtMap).reduce((sum, v) => sum + v, 0);
+                        // Sum only group members to avoid orphan/guest records inflating the total
+                        const totalDebt = playersWithDebt.reduce((sum, p) => sum + (playerDebtMap[p.id] || 0), 0);
 
                         const handleClearDebt = async (playerId) => {
                             for (const gd of gameDebts) {
