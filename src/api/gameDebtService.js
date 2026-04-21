@@ -1,5 +1,5 @@
 import { db } from '../config/firebase';
-import { collection, doc, addDoc, updateDoc, deleteDoc, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, doc, addDoc, updateDoc, deleteDoc, query, where, onSnapshot, FieldPath } from 'firebase/firestore';
 
 const gameDebtsRef = collection(db, 'gameDebts');
 
@@ -20,9 +20,10 @@ const GameDebtService = {
     },
 
     // Mark a player as paid in a specific game debt
+    // Uses FieldPath to safely handle player IDs that contain dots (e.g. "Mario.Lopes-uid")
     markPlayerPaid: async (gameDebtId, playerId) => {
         const ref = doc(db, 'gameDebts', gameDebtId);
-        await updateDoc(ref, { [`debts.${playerId}.paid`]: true });
+        await updateDoc(ref, new FieldPath('debts', playerId, 'paid'), true);
     },
 
     // Delete a game debt (when fully paid)
