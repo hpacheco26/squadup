@@ -3,14 +3,18 @@ import { ArrowLeftRight, ShieldBan, HeartPulse } from "lucide-react";
 import RankIcon from "./RankIcon";
 
 const SWIPE_THRESHOLD = 25;
+// Pixels of movement required to lock into a horizontal swipe vs. let the page scroll vertically.
+const DIRECTION_LOCK_PX = 8;
 
 function SwipeTeamPlayer({ player, status, onSwipe, onInjury, onRecover, team, isCaptain, mode }) {
     const isInjured = mode === 'injured';
     const containerRef = useRef(null);
     const cardRef = useRef(null);
     const startXRef = useRef(null);
+    const startYRef = useRef(null);
     const currentXRef = useRef(0);
     const draggingRef = useRef(false);
+    const decidedRef = useRef(false);
 
     const getTranslatePercent = useCallback((clientX) => {
         if (!containerRef.current || startXRef.current === null) return 0;
@@ -28,25 +32,56 @@ function SwipeTeamPlayer({ player, status, onSwipe, onInjury, onRecover, team, i
     }, []);
 
     const onPointerDown = useCallback((e) => {
-        e.preventDefault();
-        draggingRef.current = true;
+        // Don't preventDefault or capture here — that would block native vertical scrolling.
         startXRef.current = e.clientX;
+        startYRef.current = e.clientY;
         currentXRef.current = 0;
-        applyTransform(0);
-        containerRef.current?.setPointerCapture(e.pointerId);
-    }, [applyTransform]);
+        draggingRef.current = false;
+        decidedRef.current = false;
+    }, []);
 
     const onPointerMove = useCallback((e) => {
+        if (startXRef.current === null) return;
+
+        if (!decidedRef.current) {
+            const dx = e.clientX - startXRef.current;
+            const dy = e.clientY - startYRef.current;
+            const absDx = Math.abs(dx);
+            const absDy = Math.abs(dy);
+
+            if (absDy > DIRECTION_LOCK_PX && absDy > absDx) {
+                // Vertical scroll — abandon swipe.
+                startXRef.current = null;
+                startYRef.current = null;
+                decidedRef.current = true;
+                return;
+            }
+            if (absDx > DIRECTION_LOCK_PX && absDx >= absDy) {
+                decidedRef.current = true;
+                draggingRef.current = true;
+                try { containerRef.current?.setPointerCapture(e.pointerId); } catch { /* noop */ }
+            } else {
+                return;
+            }
+        }
+
         if (!draggingRef.current) return;
+        if (e.cancelable) e.preventDefault();
         const percent = getTranslatePercent(e.clientX);
         currentXRef.current = percent;
         applyTransform(percent);
     }, [getTranslatePercent, applyTransform]);
 
     const onPointerUp = useCallback((e) => {
-        if (!draggingRef.current) return;
+        const wasDragging = draggingRef.current;
         draggingRef.current = false;
-        containerRef.current?.releasePointerCapture(e.pointerId);
+        decidedRef.current = false;
+        startXRef.current = null;
+        startYRef.current = null;
+
+        if (!wasDragging) return;
+
+        try { containerRef.current?.releasePointerCapture(e.pointerId); } catch { /* noop */ }
 
         if (isInjured) {
             if (currentXRef.current >= SWIPE_THRESHOLD) onRecover?.();
@@ -56,12 +91,11 @@ function SwipeTeamPlayer({ player, status, onSwipe, onInjury, onRecover, team, i
         }
 
         currentXRef.current = 0;
-        startXRef.current = null;
         applyTransform(0, true);
     }, [onSwipe, onInjury, onRecover, applyTransform, isInjured]);
 
     return (
-        <div style={{ margin: "6px 8px" }}>
+        <div style={{ margin: "8px 8px" }}>
             <div
                 ref={containerRef}
                 onPointerDown={onPointerDown}
@@ -72,7 +106,7 @@ function SwipeTeamPlayer({ player, status, onSwipe, onInjury, onRecover, team, i
                     position: "relative",
                     overflow: "hidden",
                     borderRadius: "6px",
-                    touchAction: "none",
+                    touchAction: "pan-y",
                     userSelect: "none",
                     background: "#fff",
                 }}
@@ -135,15 +169,16 @@ function SwipeTeamPlayer({ player, status, onSwipe, onInjury, onRecover, team, i
                         display: "flex",
                         alignItems: "center",
                         gap: "10px",
-                        padding: "8px 12px",
+                        padding: "14px 14px",
+                        minHeight: "56px",
                         cursor: "grab",
                     }}
                 >
                     {/* Status icon + Name */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                            {status && <span style={{ fontSize: "0.85rem" }}>{status}</span>}
-                            <span style={{ fontSize: "0.9rem", fontWeight: "600", color: "#1e293b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                            {status && <span style={{ fontSize: "0.9rem" }}>{status}</span>}
+                            <span style={{ fontSize: "1rem", fontWeight: "600", color: "#1e293b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                                 {player?.firstName} {player?.lastName}
                             </span>
                             {isCaptain && (() => {
