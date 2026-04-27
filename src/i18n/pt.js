@@ -211,11 +211,11 @@ const pt = {
   loading: 'A carregar...',
 
   // Rank
-  unranked: 'Sem Ranking',
-  bronze: 'Bronze',
-  silver: 'Prata',
-  gold: 'Ouro',
-  platinum: 'Platina',
+  unranked: 'Novice',
+  bronze: 'Amateur',
+  silver: 'Intermediate',
+  gold: 'Pro',
+  platinum: 'Legend',
   wins: 'Vitórias',
   draws: 'Empates',
   losses: 'Derrotas',

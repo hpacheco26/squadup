@@ -211,11 +211,11 @@ const en = {
   loading: 'Loading...',
 
   // Rank
-  unranked: 'Unranked',
-  bronze: 'Bronze',
-  silver: 'Silver',
-  gold: 'Gold',
-  platinum: 'Platinum',
+  unranked: 'Novice',
+  bronze: 'Amateur',
+  silver: 'Intermediate',
+  gold: 'Pro',
+  platinum: 'Legend',
   wins: 'Wins',
   draws: 'Draws',
   losses: 'Losses',

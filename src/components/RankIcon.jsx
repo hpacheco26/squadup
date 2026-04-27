@@ -29,7 +29,9 @@ const clampRank = (rank) => {
 
 const RankIcon = ({ rank = 0, size = 30 }) => {
     const safeRank = clampRank(rank);
-    const safeSize = Number.isFinite(size) ? Math.max(12, size) : 30;
+    const safeSize = Number.isFinite(size)
+        ? `${Math.max(12, size)}px`
+        : (typeof size === 'string' && size.trim() ? size : '30px');
     const src = rankImages[safeRank];
     const filter = rankFilters[safeRank];
 
@@ -40,8 +42,8 @@ const RankIcon = ({ rank = 0, size = 30 }) => {
             draggable={false}
             style={{
                 display: 'inline-block',
-                width: `${safeSize}px`,
-                height: `${safeSize}px`,
+                width: safeSize,
+                height: safeSize,
                 verticalAlign: 'middle',
                 userSelect: 'none',
                 pointerEvents: 'none',
