@@ -5,9 +5,24 @@ import RankIcon from "./RankIcon";
 const SWIPE_THRESHOLD = 25;
 // Pixels of movement required to lock into a horizontal swipe vs. let the page scroll vertically.
 const DIRECTION_LOCK_PX = 8;
+const SWIPE_SWITCH_BG = "#5b7bb3";
+const SWIPE_INJURY_BG = "#d97706";
 
-function SwipeTeamPlayer({ player, status, onSwipe, onInjury, onRecover, team, isCaptain, mode }) {
+function SwipeTeamPlayer({
+    player,
+    roleLabel,
+    onSwipe,
+    onInjury,
+    onRecover,
+    team,
+    isCaptain,
+    mode,
+    compactName,
+    showSwipeCue = false,
+    accentColor,
+}) {
     const isInjured = mode === 'injured';
+    const isTeam2 = team === 'team2';
     const containerRef = useRef(null);
     const cardRef = useRef(null);
     const startXRef = useRef(null);
@@ -86,16 +101,23 @@ function SwipeTeamPlayer({ player, status, onSwipe, onInjury, onRecover, team, i
         if (isInjured) {
             if (currentXRef.current >= SWIPE_THRESHOLD) onRecover?.();
         } else {
-            if (currentXRef.current >= SWIPE_THRESHOLD) onSwipe?.();
-            else if (currentXRef.current <= -SWIPE_THRESHOLD) onInjury?.();
+            if (isTeam2) {
+                if (currentXRef.current <= -SWIPE_THRESHOLD) onSwipe?.();
+                else if (currentXRef.current >= SWIPE_THRESHOLD) onInjury?.();
+            } else {
+                if (currentXRef.current >= SWIPE_THRESHOLD) onSwipe?.();
+                else if (currentXRef.current <= -SWIPE_THRESHOLD) onInjury?.();
+            }
         }
 
         currentXRef.current = 0;
         applyTransform(0, true);
-    }, [onSwipe, onInjury, onRecover, applyTransform, isInjured]);
+    }, [onSwipe, onInjury, onRecover, applyTransform, isInjured, isTeam2]);
+
+    const separatorColor = accentColor || 'rgba(148,163,184,0.35)';
 
     return (
-        <div style={{ margin: "8px 8px" }}>
+        <div style={{ margin: "1px 4px" }}>
             <div
                 ref={containerRef}
                 onPointerDown={onPointerDown}
@@ -109,6 +131,8 @@ function SwipeTeamPlayer({ player, status, onSwipe, onInjury, onRecover, team, i
                     touchAction: "pan-y",
                     userSelect: "none",
                     background: "#fff",
+                    border: "1px solid #e2e8f0",
+                    boxShadow: "0 1px 2px rgba(15,23,42,0.06)",
                 }}
             >
                 {/* Background: switch left / injury right (or recover for injured mode) */}
@@ -133,29 +157,55 @@ function SwipeTeamPlayer({ player, status, onSwipe, onInjury, onRecover, team, i
                             <HeartPulse size={16} color="#fff" strokeWidth={2.5} />
                         </div>
                     ) : (
-                        <>
-                            <div style={{
-                                flex: 1,
-                                background: "#3b82f6",
-                                display: "flex",
-                                alignItems: "center",
-                                paddingLeft: "16px",
-                                borderRadius: "5px 0 0 5px",
-                            }}>
-                                <ArrowLeftRight size={16} color="#fff" strokeWidth={2.5} />
-                            </div>
-                            <div style={{
-                                flex: 1,
-                                background: "#f59e0b",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "flex-end",
-                                paddingRight: "16px",
-                                borderRadius: "0 5px 5px 0",
-                            }}>
-                                <ShieldBan size={16} color="#fff" strokeWidth={2.5} />
-                            </div>
-                        </>
+                        isTeam2 ? (
+                            <>
+                                <div style={{
+                                    flex: 1,
+                                    background: SWIPE_INJURY_BG,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    paddingLeft: "16px",
+                                    borderRadius: "5px 0 0 5px",
+                                }}>
+                                    <ShieldBan size={16} color="#fff" strokeWidth={2.5} />
+                                </div>
+                                <div style={{
+                                    flex: 1,
+                                    background: SWIPE_SWITCH_BG,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "flex-end",
+                                    paddingRight: "16px",
+                                    borderRadius: "0 5px 5px 0",
+                                }}>
+                                    <ArrowLeftRight size={16} color="#fff" strokeWidth={2.5} />
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div style={{
+                                    flex: 1,
+                                    background: SWIPE_SWITCH_BG,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    paddingLeft: "16px",
+                                    borderRadius: "5px 0 0 5px",
+                                }}>
+                                    <ArrowLeftRight size={16} color="#fff" strokeWidth={2.5} />
+                                </div>
+                                <div style={{
+                                    flex: 1,
+                                    background: SWIPE_INJURY_BG,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "flex-end",
+                                    paddingRight: "16px",
+                                    borderRadius: "0 5px 5px 0",
+                                }}>
+                                    <ShieldBan size={16} color="#fff" strokeWidth={2.5} />
+                                </div>
+                            </>
+                        )
                     )}
                 </div>
 
@@ -168,39 +218,90 @@ function SwipeTeamPlayer({ player, status, onSwipe, onInjury, onRecover, team, i
                         background: "#fff",
                         display: "flex",
                         alignItems: "center",
-                        gap: "10px",
-                        padding: "14px 14px",
-                        minHeight: "56px",
+                        gap: "8px",
+                        padding: "9px 11px",
+                        minHeight: "44px",
                         cursor: "grab",
                     }}
                 >
-                    {/* Status icon + Name */}
+                    {/* Player name */}
                     <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                            {status && <span style={{ fontSize: "0.9rem" }}>{status}</span>}
-                            <span style={{ fontSize: "1rem", fontWeight: "600", color: "#1e293b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                                {player?.firstName} {player?.lastName}
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: roleLabel ? "1px" : 0 }}>
+                            <span style={{ fontSize: "0.9rem", fontWeight: "600", color: "#1e293b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                {compactName 
+                                    ? `${player?.firstName} ${player?.lastName?.charAt(0) || ''}${player?.lastName?.charAt(0) ? '.' : ''}`
+                                    : `${player?.firstName} ${player?.lastName}`
+                                }
                             </span>
-                            {isCaptain && (() => {
-                                const captainColor = team === 'team2' ? '#e11d48' : '#0d9488';
-                                return (
-                                <span style={{
-                                    fontSize: '0.6rem',
-                                    fontWeight: 'bold',
-                                    color: captainColor,
-                                    border: `1.5px solid ${captainColor}`,
-                                    borderRadius: '4px',
-                                    padding: '0 3px',
-                                    lineHeight: '1.4',
-                                    flexShrink: 0,
-                                }}>C</span>
-                                );
-                            })()}
                         </div>
+                        {(roleLabel || isCaptain) && (
+                            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                {roleLabel && (
+                                    <span style={{
+                                        display: "inline-block",
+                                        fontSize: "0.55rem",
+                                        fontWeight: "700",
+                                        letterSpacing: "0.04em",
+                                        textTransform: "uppercase",
+                                        color: "#64748b",
+                                        lineHeight: 1.2,
+                                    }}>
+                                        {roleLabel}
+                                    </span>
+                                )}
+                                {isCaptain && (() => {
+                                    const captainColor = team === 'team2' ? '#e11d48' : '#0d9488';
+                                    return (
+                                        <span style={{
+                                            fontSize: '0.56rem',
+                                            fontWeight: '700',
+                                            color: captainColor,
+                                            border: `1.25px solid ${captainColor}`,
+                                            borderRadius: '999px',
+                                            padding: '0 5px',
+                                            lineHeight: 1.4,
+                                            background: '#fff',
+                                            flexShrink: 0,
+                                        }}>
+                                            C
+                                        </span>
+                                    );
+                                })()}
+                            </div>
+                        )}
                     </div>
 
+                    <div style={{
+                        width: "2px",
+                        height: "24px",
+                        borderRadius: "999px",
+                        background: separatorColor,
+                        flexShrink: 0,
+                    }} />
+
+                    {showSwipeCue && !isInjured && (
+                        <div style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "3px",
+                            fontSize: "0.52rem",
+                            fontWeight: "700",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.04em",
+                            color: "#94a3b8",
+                            background: "#f8fafc",
+                            border: "1px solid #e2e8f0",
+                            borderRadius: "999px",
+                            padding: "2px 5px",
+                            flexShrink: 0,
+                        }}>
+                            <ArrowLeftRight size={10} />
+                            <span>Swipe</span>
+                        </div>
+                    )}
+
                     {/* Rank icon */}
-                    <RankIcon rank={player?.rank} size={24} />
+                    <RankIcon rank={player?.rank} size={32} />
                 </div>
             </div>
         </div>
