@@ -10,11 +10,12 @@ import useAuthStore from '../../store/authStore';
 import CreateGroupModal from '../modals/GroupModal';
 import GroupService from '../../api/groupService';
 import useLanguageStore from '../../store/languageStore';
+import GeometricSpinner from '../GeometricSpinner';
 
 const RankList = () => {
   const navigate = useNavigate();
   const { user, playerData } = useAuthStore();
-  const { ranks, subscribeToGroupsByPlayer } = useGroupStore();
+  const { ranks, ranksLoading, subscribeToGroupsByPlayer } = useGroupStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [canCreate, setCanCreate] = useState(false);
   const { t } = useLanguageStore();
@@ -37,10 +38,12 @@ const RankList = () => {
   }, [user?.uid]);
 
   return (
-    <div className="rank-carousel-container">
-      <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', marginBottom: '2px', textAlign: 'center' }}>
-        {t('myGroups')}
-      </p>
+    <div className="rank-carousel-container" style={ranksLoading ? { height: '100%', display: 'flex', flexDirection: 'column' } : {}}>
+      {!ranksLoading && (
+        <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', marginBottom: '2px', textAlign: 'center' }}>
+          {t('myGroups')}
+        </p>
+      )}
       {Array.isArray(ranks) && ranks.length > 0 && (
         <p style={{ fontSize: '0.65rem', color: '#94a3b8', textAlign: 'center', marginBottom: '4px' }}>
           {t('tapGroupToEnter')}
@@ -71,6 +74,10 @@ const RankList = () => {
             </SwiperSlide>
           ))}
         </Swiper>
+      ) : ranksLoading ? (
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <GeometricSpinner size={40} color="#5b7bb3" />
+        </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 20px' }}>
           <p style={{ color: '#94a3b8', fontSize: '0.95rem', marginBottom: '8px' }}>{t('noGroupsYet')}</p>

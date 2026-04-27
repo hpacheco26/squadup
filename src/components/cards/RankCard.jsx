@@ -43,9 +43,9 @@ const RankCard = ({ rank, groupName, stats, isAnimated, onClick }) => {
       cursor: onClick ? 'pointer' : 'grab',
       border: `1px solid ${theme.ring}30`,
     }}>
-      {/* Top half — badge area with rank-tinted background */}
+      {/* Top half — badge area */}
       <div style={{
-        background: `linear-gradient(180deg, ${theme.bg} 0%, #ffffff 100%)`,
+        background: '#fff',
         padding: 'clamp(10px, 2dvh, 20px) 16px clamp(6px, 1dvh, 12px)',
         display: 'flex',
         flexDirection: 'column',

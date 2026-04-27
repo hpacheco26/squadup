@@ -10,6 +10,7 @@ const useGroupStore = create(
             groups: [],
             group: null,
             loading: false,
+            ranksLoading: false,
             error: null,
             myPlayer: null,
             ranks: [],
@@ -58,9 +59,9 @@ const useGroupStore = create(
                             stats: player.stats
                         };
                     }).filter(Boolean);
-                    set({ groups, ranks });
+                    set({ groups, ranks, ranksLoading: false });
                 });
-                set({ _unsubGroups: unsub });
+                set({ _unsubGroups: unsub, ranks: [], ranksLoading: true });
                 return unsub;
             },
 
@@ -320,7 +321,7 @@ const useGroupStore = create(
         {
             name: 'group-store',
             getStorage: () => localStorage,
-            partialize: (state) => ({ groups: state.groups, ranks: state.ranks }),
+            partialize: (state) => ({ groups: state.groups }),
         }
     )
 );
