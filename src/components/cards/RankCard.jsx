@@ -30,21 +30,12 @@ const RankCard = ({ rank, groupName, isAnimated, onClick }) => {
 
   return (
     <div onClick={onClick} style={{
-      background: '#fff',
-      borderRadius: '16px',
-      overflow: 'hidden',
-      boxShadow: `0 7px 18px ${theme.frame}2b`,
+      background: 'transparent',
       cursor: onClick ? 'pointer' : 'grab',
-      border: `1px solid ${theme.ring}40`,
     }}>
-      <div style={{
-        height: '4px',
-        background: `linear-gradient(90deg, ${theme.frame} 0%, ${theme.ring} 100%)`,
-      }} />
-
       {/* Top half — badge area */}
       <div style={{
-        background: '#fff',
+        background: 'transparent',
         padding: 'clamp(6px, 1dvh, 12px) 14px clamp(10px, 1.4dvh, 14px)',
         display: 'flex',
         flexDirection: 'column',
