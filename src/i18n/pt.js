@@ -74,7 +74,7 @@ const pt = {
   statusCancelled: 'Cancelado',
   imIn: 'Estou Dentro',
   imOut: 'Estou Fora',
-  invited: 'Convidado',
+  invited: 'Convocados',
   confirmedCount: 'confirmados',
   pendingCount: 'pendente',
 

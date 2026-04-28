@@ -17,10 +17,10 @@ function HomePage() {
         }}
       >
         <div style={{ width: "100%", flex: 'none' }}>
-          <GameList />
+          <RankList />
         </div>
         <div style={{ width: "100%", flex: 1, minHeight: 0, overflow: 'auto' }}>
-          <RankList />
+          <GameList />
         </div>
       </div>
     </div>

@@ -1,26 +1,20 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Trophy, Swords, Minus } from 'lucide-react';
 import useLanguageStore from '../../store/languageStore';
 import RankIcon from '../RankIcon';
 
 const rankThemes = {
   0: { frame: '#b0b8c4', ring: '#dde2e8', bg: '#f4f6f8', accent: '#8994a3', labelKey: 'unranked' },
   1: { frame: '#cd7f32', ring: '#e8a860', bg: '#fdf3e7', accent: '#b5692a', labelKey: 'bronze' },
-  2: { frame: '#a0a0a0', ring: '#c8c8c8', bg: '#f5f5f5', accent: '#808080', labelKey: 'silver' },
+  2: { frame: '#3b82f6', ring: '#93c5fd', bg: '#eff6ff', accent: '#2563eb', labelKey: 'silver' },
   3: { frame: '#d4a817', ring: '#f0d04a', bg: '#fefce8', accent: '#b8920f', labelKey: 'gold' },
   4: { frame: '#5ba4c9', ring: '#8dc8e8', bg: '#eef7fc', accent: '#4a8db0', labelKey: 'platinum' },
 };
 
-const RankCard = ({ rank, groupName, stats, isAnimated, onClick }) => {
+const RankCard = ({ rank, groupName, isAnimated, onClick }) => {
   const { t } = useLanguageStore();
-  const badgeSize = 'clamp(70px, 13dvh, 110px)';
+  const badgeSize = 'clamp(112px, 19dvh, 176px)';
   const theme = rankThemes[rank] || rankThemes[0];
-  const wins = stats?.wins || 0;
-  const draws = stats?.draws || 0;
-  const losses = stats?.losses || 0;
-  const totalGames = wins + draws + losses;
-  const winRate = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0;
 
   const badge = isAnimated ? (
     <motion.div
@@ -39,80 +33,77 @@ const RankCard = ({ rank, groupName, stats, isAnimated, onClick }) => {
       background: '#fff',
       borderRadius: '16px',
       overflow: 'hidden',
-      boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+      boxShadow: `0 7px 18px ${theme.frame}2b`,
       cursor: onClick ? 'pointer' : 'grab',
-      border: `1px solid ${theme.ring}30`,
+      border: `1px solid ${theme.ring}40`,
     }}>
+      <div style={{
+        height: '4px',
+        background: `linear-gradient(90deg, ${theme.frame} 0%, ${theme.ring} 100%)`,
+      }} />
+
       {/* Top half — badge area */}
       <div style={{
         background: '#fff',
-        padding: 'clamp(10px, 2dvh, 20px) 16px clamp(6px, 1dvh, 12px)',
+        padding: 'clamp(6px, 1dvh, 12px) 14px clamp(10px, 1.4dvh, 14px)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
       }}>
-        <div style={{ height: 'clamp(65px, 12dvh, 130px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          {badge}
+        <div style={{
+          height: 'clamp(106px, 18dvh, 184px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          width: '100%',
+        }}>
+          <div style={{
+            position: 'absolute',
+            bottom: 'clamp(4px, 0.8dvh, 9px)',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: 'clamp(70px, 11dvh, 120px)',
+            height: 'clamp(14px, 2.2dvh, 24px)',
+            borderRadius: '999px',
+            background: `${theme.frame}55`,
+            filter: 'blur(10px)',
+            pointerEvents: 'none',
+          }} />
+
+          <div style={{ filter: `drop-shadow(0 8px 12px ${theme.frame}4a)` }}>
+            {badge}
+          </div>
         </div>
 
         {/* Rank label */}
         <span style={{
-          fontSize: '0.65rem',
+          fontSize: '0.62rem',
           fontWeight: '700',
           textTransform: 'uppercase',
-          letterSpacing: '2px',
+          letterSpacing: '1.8px',
           color: theme.frame,
-          marginTop: '2px',
+          marginTop: '0',
         }}>
           {t(theme.labelKey)}
         </span>
 
         {/* Group name */}
         <h2 style={{
-          fontSize: 'clamp(0.95rem, 1.5dvh, 1.2rem)',
+          fontSize: 'clamp(0.9rem, 1.5dvh, 1.12rem)',
           fontWeight: '700',
           color: '#1e293b',
-          margin: '4px 0 0',
+          margin: '3px 0 0',
           textAlign: 'center',
+          lineHeight: 1.2,
+          minHeight: '2.4em',
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
         }}>
           {groupName}
         </h2>
-      </div>
-
-      {/* Stats row */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-around',
-        padding: 'clamp(8px, 1.2dvh, 14px) 12px',
-        borderTop: '1px solid #f1f5f9',
-      }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <Trophy size={12} color="#16a34a" />
-            <span style={{ fontSize: '1.05rem', fontWeight: '700', color: '#1e293b' }}>{wins}</span>
-          </div>
-          <span style={{ fontSize: '0.6rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('wins')}</span>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <Minus size={12} color="#94a3b8" />
-            <span style={{ fontSize: '1.05rem', fontWeight: '700', color: '#1e293b' }}>{draws}</span>
-          </div>
-          <span style={{ fontSize: '0.6rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('draws')}</span>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <Swords size={12} color="#ef4444" />
-            <span style={{ fontSize: '1.05rem', fontWeight: '700', color: '#1e293b' }}>{losses}</span>
-          </div>
-          <span style={{ fontSize: '0.6rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('losses')}</span>
-        </div>
-        {totalGames > 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-            <span style={{ fontSize: '1.05rem', fontWeight: '700', color: theme.accent }}>{winRate}%</span>
-            <span style={{ fontSize: '0.6rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('winRate')}</span>
-          </div>
-        )}
       </div>
     </div>
   );

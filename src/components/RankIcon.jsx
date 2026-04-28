@@ -6,11 +6,11 @@ import rank3 from '../assets/rank-3.png';
 import rank4 from '../assets/rank-4.png';
 
 const rankFilters = {
-    0: 'drop-shadow(0 1px 1px rgba(15, 23, 42, 0.28)) drop-shadow(0 0 3px rgba(148, 163, 184, 0.45))',
-    1: 'drop-shadow(0 1px 1px rgba(15, 23, 42, 0.18)) drop-shadow(0 0 4px rgba(34, 211, 238, 0.42))',
-    2: 'drop-shadow(0 1px 1px rgba(15, 23, 42, 0.18)) drop-shadow(0 0 4px rgba(29, 78, 216, 0.35))',
-    3: 'drop-shadow(0 1px 1px rgba(15, 23, 42, 0.18)) drop-shadow(0 0 4px rgba(124, 58, 237, 0.35))',
-    4: 'drop-shadow(0 1px 1px rgba(15, 23, 42, 0.2)) drop-shadow(0 0 4px rgba(245, 158, 11, 0.38))',
+    0: 'drop-shadow(0 1px 1px rgba(15, 23, 42, 0.28)) drop-shadow(0 0 3px rgba(176, 184, 196, 0.45))',
+    1: 'drop-shadow(0 1px 1px rgba(15, 23, 42, 0.18)) drop-shadow(0 0 4px rgba(205, 127, 50, 0.42))',
+    2: 'drop-shadow(0 1px 1px rgba(15, 23, 42, 0.18)) drop-shadow(0 0 4px rgba(59, 130, 246, 0.38))',
+    3: 'drop-shadow(0 1px 1px rgba(15, 23, 42, 0.18)) drop-shadow(0 0 4px rgba(212, 168, 23, 0.38))',
+    4: 'drop-shadow(0 1px 1px rgba(15, 23, 42, 0.2)) drop-shadow(0 0 4px rgba(91, 164, 201, 0.38))',
 };
 
 const rankImages = {
