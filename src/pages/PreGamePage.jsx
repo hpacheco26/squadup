@@ -7,9 +7,8 @@ import useGameStore from '../store/gameStore';
 import useGroupStore from '../store/groupStore';
 import useAuthStore from '../store/authStore';
 import PlayerModal from '../components/modals/PlayerModal';
-import GameModal from '../components/modals/GameModal';
-import { FiSettings } from 'react-icons/fi';
-import { Share2, UserPlus, Link as LinkIcon, ClipboardList, MapPin, CalendarDays } from 'lucide-react';
+import { Share2, UserPlus, Link as LinkIcon, ClipboardList, MapPin, CalendarDays, CalendarCog } from 'lucide-react';
+import AppHeaderBar from '../components/bars/AppHeaderBar';
 import useLanguageStore from '../store/languageStore';
 import InvitationBar from '../components/bars/InvitationBar';
 import theme from '../theme';
@@ -25,11 +24,11 @@ const PreGamePage = () => {
     const [playersOut, setPlayersOut] = useState([]);
     const [playersInvited, setPlayersInvited] = useState([]);
     const [isGuestModalOpen, setIsGuestModalOpen] = useState(false);
-    const [isGameModalOpen, setIsGameModalOpen] = useState(false);
     const [ready, setReady] = useState(false);
 
     useEffect(() => {
         setReady(false);
+        if (!gameId) { setReady(true); return; }
         const unsub = subscribeToGame(gameId);
         setReady(true);
         return () => { unsub(); setReady(false); };
@@ -37,6 +36,7 @@ const PreGamePage = () => {
 
     useEffect(() => {
         if (!ready || loading) return;
+        if (!gameId) return; // Empty-state route, no redirect.
         if (!game) {
             const gId = group?.id;
             if (gId) navigate(`/groups/${gId}`, { replace: true });
@@ -46,7 +46,7 @@ const PreGamePage = () => {
         if (game.status && game.status !== 'open' && game.status !== 'confirmed') {
             navigate(`/groups/${game.groupId}`, { replace: true });
         }
-    }, [game, loading, group?.id, navigate]);
+    }, [game, gameId, loading, ready, group?.id, navigate]);
 
     // Ensure the correct group is loaded for the back button
     useEffect(() => {
@@ -142,6 +142,45 @@ const PreGamePage = () => {
         navigator.clipboard.writeText(link);
     };
 
+    if (!gameId) {
+        const { selectedGroupId } = useAuthStore.getState();
+        const targetGroupId = selectedGroupId || group?.id;
+        return (
+            <>
+                <AppHeaderBar />
+                <div style={{
+                    flex: 1, display: 'flex', flexDirection: 'column',
+                    alignItems: 'center', justifyContent: 'center',
+                    padding: '32px 24px', textAlign: 'center', gap: 16,
+                }}>
+                    <ClipboardList size={48} color={theme.muted || '#94a3b8'} />
+                    <h2 style={{ margin: 0, fontSize: '1.15rem', color: theme.text, fontWeight: 600 }}>
+                        {t('noActiveGameTitle') || 'No active game'}
+                    </h2>
+                    <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b', maxWidth: 320 }}>
+                        {t('noActiveGameSubtitle') || 'Schedule a game to get your squad ready.'}
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => targetGroupId && navigate(`/groups/${targetGroupId}/games/new`)}
+                        disabled={!targetGroupId}
+                        style={{
+                            marginTop: 8,
+                            background: theme.primary,
+                            color: '#fff', border: 'none',
+                            padding: '12px 22px', borderRadius: 10,
+                            fontSize: '0.95rem', fontWeight: 600,
+                            cursor: targetGroupId ? 'pointer' : 'not-allowed',
+                            opacity: targetGroupId ? 1 : 0.6,
+                        }}
+                    >
+                        {t('scheduleGame') || 'Schedule Game'}
+                    </button>
+                </div>
+            </>
+        );
+    }
+
     if (!game) return <div>{t('loading')}</div>;
 
     const myPlayer = group?.players?.find(p => p.userId === user?.uid);
@@ -155,34 +194,7 @@ const PreGamePage = () => {
 
     return (
         <>
-            <header style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '12px 16px',
-                backgroundColor: '#ffffff',
-                borderBottom: '1px solid #e2e8f0',
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <ClipboardList size={20} color="#5b7bb3" />
-                    <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0f172a', margin: 0 }}>
-                        {group?.name || 'PreGame'}
-                    </h1>
-                    <span style={{
-                        fontSize: '0.65rem',
-                        fontWeight: '600',
-                        color: '#64748b',
-                        background: '#f1f5f9',
-                        borderRadius: '10px',
-                        padding: '2px 8px',
-                    }}>
-                        {playersIn.length} in
-                    </span>
-                </div>
-                <button onClick={() => setIsGameModalOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', display: 'flex', alignItems: 'center', color: '#94a3b8' }} aria-label="Game Settings">
-                    <FiSettings size={22} />
-                </button>
-            </header>
+            <AppHeaderBar rightIcon={CalendarCog} onRightClick={() => navigate(`/games/${gameId}/settings`)} />
 
             <div className="p-2" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto', gap: '12px' }}>
                 {/* Action buttons */}
@@ -293,7 +305,6 @@ const PreGamePage = () => {
                     title={t('guestPlayer')}
                     buttonLabel={t('addGuest')}
                 />
-                <GameModal isOpen={isGameModalOpen} setIsOpen={setIsGameModalOpen} group={group} game={game} />
             </div>
         </>
     );

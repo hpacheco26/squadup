@@ -1,32 +1,49 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FiClipboard, FiUsers, FiUser } from 'react-icons/fi';
+import { FiClipboard, FiUsers } from 'react-icons/fi';
 import { TbTriangleSquareCircleFilled } from 'react-icons/tb';
 import { MdGroups3, MdSportsSoccer } from 'react-icons/md';
 import { Wallet } from 'lucide-react';
 import useGameStore from '../../store/gameStore';
 import useGroupStore from '../../store/groupStore';
+import useAuthStore from '../../store/authStore';
 import useLanguageStore from '../../store/languageStore';
 
-const NavItem = ({ icon, label, active, disabled, onClick }) => (
+const NavItem = ({ icon, label, active, onClick }) => (
     <button
-        onClick={disabled ? undefined : onClick}
+        onClick={onClick}
         style={{
             background: 'none',
             border: 'none',
-            cursor: disabled ? 'default' : 'pointer',
+            cursor: 'pointer',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '2px',
-            padding: '4px 8px',
-            color: disabled ? '#64748b' : active ? '#ffffff' : '#94a3b8',
-            opacity: disabled ? 0.5 : 1,
-            pointerEvents: disabled ? 'none' : 'auto',
+            gap: '1px',
+            padding: '2px 4px',
+            color: active ? '#ffffff' : '#94a3b8',
+            flex: 1,
+            minWidth: 0,
+            position: 'relative',
+            transition: 'color 0.15s',
         }}
     >
-        <span style={{ fontSize: '20px', display: 'flex' }}>{icon}</span>
-        <span style={{ fontSize: '0.6rem', fontWeight: active ? '600' : '400' }}>{label}</span>
+        <span
+            style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 32,
+                height: 24,
+                borderRadius: 12,
+                background: active ? 'rgba(91, 123, 179, 0.28)' : 'transparent',
+                position: 'relative',
+                transition: 'background 0.15s',
+            }}
+        >
+            {icon}
+        </span>
+        <span style={{ fontSize: '0.6rem', fontWeight: 500 }}>{label}</span>
     </button>
 );
 
@@ -35,87 +52,122 @@ const NavBar = () => {
     const location = useLocation();
     const { game, games, upcomingGames, subscribeToGamesByGroup } = useGameStore();
     const { group } = useGroupStore();
+    const { selectedGroupId, setSelectedGroupId } = useAuthStore();
     const { t } = useLanguageStore();
-    const lastGameIdRef = useRef(null);
-    const lastGroupIdRef = useRef(null);
+    // Sticky last gameId per group so a stale gameId from one group never
+    // leaks into another after switching.
+    const lastGameByGroupRef = useRef({});
 
     const pathname = location.pathname;
 
-    // Parse route context early so we can use it in the effect
+    // Parse route context
     const groupMatch = pathname.match(/^\/groups\/([^/]+)/);
     const pregameMatch = pathname.match(/^\/pregame\/([^/]+)/);
     const teamsMatch = pathname.match(/^\/teams\/([^/]+)/);
     const paymentsMatch = pathname.match(/^\/payments\/([^/]+)/);
     const gamePageMatch = pathname.match(/^\/game\/([^/]+)/);
+    // Bare empty-state routes (no gameId) — still light up the corresponding tab
+    const isPregameEmpty = pathname === '/pregame';
+    const isTeamsEmpty = pathname === '/teams';
+    const isGameEmpty = pathname === '/game';
+    const gameSettingsMatch = pathname.match(/^\/games\/([^/]+)\/settings/);
+    const groupSettingsMatch = pathname.match(/^\/groups\/([^/]+)\/settings/);
+    const newGameMatch = pathname.match(/^\/groups\/([^/]+)\/games\/new/);
 
-    // Decode URI-encoded IDs from pathname (e.g. %C3%A7 → ç) to match Firestore doc IDs
     const decode = (s) => { try { return decodeURIComponent(s); } catch { return s; } };
-    const currentGroupId = (groupMatch?.[1] && decode(groupMatch[1]))
-        || (paymentsMatch?.[1] && decode(paymentsMatch[1]))
-        || game?.groupId || group?.id || null;
 
-    // Ensure games are loaded for the current group context
+    // Sync selectedGroupId from URL when user navigates into a group/payments page
+    const urlGroupId = (groupMatch?.[1] && decode(groupMatch[1]))
+        || (paymentsMatch?.[1] && decode(paymentsMatch[1]))
+        || null;
+
     useEffect(() => {
-        if (!currentGroupId) return;
-        console.log('[NavBar] useEffect calling subscribeToGamesByGroup for', currentGroupId);
-        subscribeToGamesByGroup(currentGroupId);
-    }, [currentGroupId, subscribeToGamesByGroup]);
+        if (urlGroupId && urlGroupId !== selectedGroupId) {
+            setSelectedGroupId(urlGroupId);
+        }
+    }, [urlGroupId, selectedGroupId, setSelectedGroupId]);
+
+    // Also sync from active game's groupId, but ONLY on game-context routes
+    // (pregame/teams/game). On group/payments routes the URL is authoritative,
+    // and a stale `game` from a previous group would otherwise fight the URL
+    // sync and cause an infinite update loop.
+    const onGameRoute = !!(pregameMatch || teamsMatch || gamePageMatch);
+    useEffect(() => {
+        if (!onGameRoute) return;
+        const gid = game?.groupId;
+        if (gid && gid !== selectedGroupId) setSelectedGroupId(gid);
+    }, [onGameRoute, game?.groupId, selectedGroupId, setSelectedGroupId]);
+
+    const groupId = selectedGroupId || urlGroupId || group?.id || game?.groupId || null;
+
+    // Ensure games are loaded for the active group context
+    useEffect(() => {
+        if (groupId) subscribeToGamesByGroup(groupId);
+    }, [groupId, subscribeToGamesByGroup]);
 
     // Hide on certain routes
-    if (['/login', '/signup', '/rank', '/settings'].includes(pathname) || pathname.startsWith('/game-invite') || pathname.startsWith('/join')) {
+    if (
+        ['/login', '/signup', '/rank', '/settings'].includes(pathname)
+        || pathname.startsWith('/game-invite')
+        || pathname.startsWith('/join')
+        || gameSettingsMatch
+        || groupSettingsMatch
+        || newGameMatch
+    ) {
         return null;
     }
 
-    const isGroupContext = groupMatch || pregameMatch || teamsMatch || paymentsMatch || gamePageMatch;
-
-    // Clear cached game when group changes
-    if (currentGroupId && currentGroupId !== lastGroupIdRef.current) {
-        lastGroupIdRef.current = currentGroupId;
-        lastGameIdRef.current = null;
-    }
-
+    // Resolve a usable gameId for game-context tabs
     const isActive = (g) => g.status === 'open' || g.status === 'confirmed';
-    const openGame = games?.find(g => isActive(g) && (!currentGroupId || g.groupId === currentGroupId))
-        || upcomingGames?.find(g => isActive(g) && g.groupId === currentGroupId);
+    const openGame = games?.find(g => isActive(g) && (!groupId || g.groupId === groupId))
+        || upcomingGames?.find(g => isActive(g) && g.groupId === groupId);
     const openGameId = openGame?.id || null;
-    // Only use single game if it belongs to current group and is active
-    const singleGameId = game && isActive(game) && (!currentGroupId || game.groupId === currentGroupId) ? game.id : null;
+    const singleGameId = game && isActive(game) && (!groupId || game.groupId === groupId) ? game.id : null;
     const resolvedGameId = pregameMatch?.[1] || teamsMatch?.[1] || gamePageMatch?.[1] || singleGameId || openGameId;
 
-    // Remember the last known open game ID so it persists across page navigations
-    if (resolvedGameId) lastGameIdRef.current = resolvedGameId;
-    const gameId = resolvedGameId || lastGameIdRef.current;
-    const groupId = currentGroupId;
+    if (resolvedGameId && groupId) lastGameByGroupRef.current[groupId] = resolvedGameId;
+
+    // Validate any sticky id is still a real, active game in this group.
+    // Without this, a canceled/deleted game stays pinned and the PreGame/Teams/Game
+    // tabs route to a dead id, which then redirects back to the hub.
+    const stickyId = groupId ? lastGameByGroupRef.current[groupId] : null;
+    const stickyStillActive = stickyId
+        && (games || []).some(g => g.id === stickyId && isActive(g) && g.groupId === groupId);
+    if (stickyId && !resolvedGameId && !stickyStillActive && groupId) {
+        delete lastGameByGroupRef.current[groupId];
+    }
+    const gameId = resolvedGameId || (stickyStillActive ? stickyId : null);
 
     // Active states
-    const isGroupHub = !!groupMatch;
-    const isPregame = !!pregameMatch;
-    const isTeams = !!teamsMatch;
-    const isPayments = !!paymentsMatch;
-    const isGame = !!gamePageMatch;
     const isHome = pathname === '/';
-    const isSettings = pathname === '/settings';
+    const isGroupHub = !!groupMatch && !groupSettingsMatch && !newGameMatch;
+    const isPregame = !!pregameMatch || isPregameEmpty;
+    const isTeams = !!teamsMatch || isTeamsEmpty;
+    const isPayments = !!paymentsMatch;
+    const isGame = !!gamePageMatch || isGameEmpty;
 
-    if (!isGroupContext) {
-        return (
-            <nav style={{ ...styles.navbar, justifyContent: 'center' }}>
-                <NavItem icon={<FiUser size={22} />} label={t('navProfile')} onClick={() => navigate('/settings')} />
-            </nav>
-        );
-    }
+    const hasGroup = !!groupId;
 
-    const hasGame = !!gameId;
-    console.log('[NavBar] RESOLVE:', { hasGame, gameId, resolvedGameId, openGameId, singleGameId, lastGameIdRef: lastGameIdRef.current, gamesLen: games?.length, upcomingLen: upcomingGames?.length, currentGroupId });
+    // Smart fallback: tabs are always tappable.
+    // - Hub/Pay without a group go Home.
+    // - PreGame/Teams/Game without an active game go to /pregame, which
+    //   renders the empty state with a “Schedule game” CTA.
+    const goHub = () => navigate(groupId ? `/groups/${groupId}` : '/');
+    const goGameTab = (route) => {
+        if (gameId) navigate(`/${route}/${gameId}`);
+        else navigate(`/${route}`);
+    };
 
-    // Full navbar in group/game context
     return (
         <nav style={styles.navbar}>
-            <NavItem icon={<TbTriangleSquareCircleFilled size={22} />} label={t('navHome')} onClick={() => navigate('/')} />
-            <NavItem icon={<MdGroups3 size={22} />} label={t('navHub')} active={isGroupHub} onClick={() => groupId && navigate(`/groups/${groupId}`)} />
-            <NavItem icon={<FiClipboard size={20} />} label={t('navPreGame')} active={isPregame} disabled={!hasGame} onClick={() => { console.log('[NavBar] PreGame CLICKED, gameId:', gameId, 'hasGame:', hasGame); gameId && navigate(`/pregame/${gameId}`); }} />
-            <NavItem icon={<FiUsers size={20} />} label={t('navTeams')} active={isTeams} disabled={!hasGame} onClick={() => gameId && navigate(`/teams/${gameId}`)} />
-            <NavItem icon={<MdSportsSoccer size={20} />} label={t('navGame')} active={isGame} disabled={!hasGame} onClick={() => gameId && navigate(`/game/${gameId}`)} />
-            <NavItem icon={<Wallet size={18} />} label={t('navPay')} active={isPayments} onClick={() => groupId && navigate(`/payments/${groupId}`)} />
+            <NavItem icon={<TbTriangleSquareCircleFilled size={20} />} label={t('navHome')} active={isHome} onClick={() => navigate('/')} />
+            <NavItem icon={<MdGroups3 size={20} />} label={t('navHub')} active={isGroupHub} onClick={goHub} />
+            <div style={styles.cluster}>
+                <NavItem icon={<FiClipboard size={18} />} label={t('navPreGame')} active={isPregame} onClick={() => goGameTab('pregame')} />
+                <NavItem icon={<FiUsers size={18} />} label={t('navTeams')} active={isTeams} onClick={() => goGameTab('teams')} />
+                <NavItem icon={<MdSportsSoccer size={18} />} label={t('navGame')} active={isGame} onClick={() => goGameTab('game')} />
+            </div>
+            <NavItem icon={<Wallet size={16} />} label={t('navPay')} active={isPayments} onClick={() => navigate(groupId ? `/payments/${groupId}` : '/')} />
         </nav>
     );
 };
@@ -124,11 +176,22 @@ const styles = {
     navbar: {
         display: 'flex',
         justifyContent: 'space-around',
-        alignItems: 'center',
-        padding: '6px 0',
+        alignItems: 'stretch',
+        padding: '3px 6px',
         backgroundColor: '#1e293b',
         borderTop: '1px solid #334155',
         flexShrink: 0,
+        gap: 4,
+    },
+    cluster: {
+        display: 'flex',
+        flex: 3,
+        minWidth: 0,
+        alignItems: 'center',
+        borderRadius: 14,
+        background: 'rgba(148,163,184,0.10)',
+        border: '1px solid rgba(148,163,184,0.18)',
+        padding: '0 2px',
     },
 };
 

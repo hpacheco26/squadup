@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import useGroupStore from '../store/groupStore';
 import useGameStore from '../store/gameStore';
 import useAuthStore from '../store/authStore';
 import useLanguageStore from '../store/languageStore';
 import { Loader, Button } from 'react-bulma-components';
-import GameModal from '../components/modals/GameModal'; 
-import SquadHeaderBar from '../components/bars/SquadHeaderBar';
+import AppHeaderBar from '../components/bars/AppHeaderBar';
+import { FiSettings } from 'react-icons/fi';
 import RankIcon from '../components/RankIcon';
+import RankTierList from '../components/RankTierList';
+import StatHighlights from '../components/cards/StatHighlights';
 
 import { Trophy, Swords, Minus } from 'lucide-react';
 
@@ -15,12 +17,11 @@ const positionColors = ['#d4a817', '#a0a0a0', '#cd7f32'];
 
 function GroupPage() {
     const { id } = useParams();
+    const navigate = useNavigate();
     const { group, subscribeToGroup } = useGroupStore();
     const { games, subscribeToGamesByGroup } = useGameStore();
     const { user } = useAuthStore();
     const { t } = useLanguageStore();
-
-    const [isGameCreateModalOpen, setIsGameCreateModalOpen] = useState(false);
 
     const isAdmin = group && user && (group.adminIds?.includes(user.uid) || group.adminId === user.uid);
 
@@ -48,7 +49,7 @@ function GroupPage() {
 
     return (
         <>
-            <SquadHeaderBar />
+            <AppHeaderBar rightIcon={FiSettings} onRightClick={() => navigate(`/groups/${group.id}/settings`)} />
             <div style={{
                 maxHeight: "100vh",
                 overflowY: "auto",
@@ -57,34 +58,13 @@ function GroupPage() {
                 margin: "0 auto",
                 width: "100%",
             }}>
-                {/* Create Game Modal */}
-                <GameModal 
-                    isOpen={isGameCreateModalOpen} 
-                    setIsOpen={setIsGameCreateModalOpen} 
-                    group={group} 
-                />
+                {/* Rank Tier List */}
+                <div style={{ marginBottom: '16px' }}>
+                    <RankTierList />
+                </div>
 
-                {/* Show Schedule Button only if no open games and user is admin */}
-                {games.filter(g => g.status === 'open' || g.status === 'confirmed').length === 0 && isAdmin && (
-                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-                        <Button 
-                            onClick={() => setIsGameCreateModalOpen(true)} 
-                            style={{
-                                padding: '12px 24px',  
-                                borderRadius: '15px',
-                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                                fontSize: '16px',
-                                fontWeight: 'bold',
-                                background: '#5b7bb3',
-                                color: '#fff',
-                                border: 'none',
-                                cursor: 'pointer',
-                            }}
-                        >
-                            {t('scheduleGame')}
-                        </Button>
-                    </div>
-                )}
+                {/* Stat highlights */}
+                <StatHighlights players={group?.players || []} t={t} />
 
                 {/* Player Leaderboard */}
                 {sortedPlayers.length > 0 && (

@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage.jsx';
 
 import GroupPage from './pages/GroupPage';
 import SquadSettingsPage from './pages/SquadSettingsPage';
+import GameSettingsPage from './pages/GameSettingsPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import PregamePage from './pages/PreGamePage';
@@ -59,11 +60,16 @@ function App() {
         <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
 
         <Route path="/groups/:id" element={<ProtectedRoute><GroupPage /></ProtectedRoute>} />
-        <Route path="/groups/:id/settings" element={<ProtectedRoute><SquadSettingsPage /></ProtectedRoute>} /> 
+        <Route path="/groups/:id/settings" element={<ProtectedRoute><SquadSettingsPage /></ProtectedRoute>} />
+        <Route path="/groups/:groupId/games/new" element={<ProtectedRoute><GameSettingsPage /></ProtectedRoute>} />
+        <Route path="/games/:gameId/settings" element={<ProtectedRoute><GameSettingsPage /></ProtectedRoute>} />
 
+        <Route path="/pregame" element={<ProtectedRoute><PregamePage /></ProtectedRoute>} />
         <Route path="/pregame/:gameId" element={<ProtectedRoute><PregamePage /></ProtectedRoute>} />
+        <Route path="/teams" element={<ProtectedRoute><PregamePage /></ProtectedRoute>} />
         <Route path="/teams/:gameId" element={<ProtectedRoute><TeamsPage /></ProtectedRoute>} />
         <Route path="/payments/:groupId" element={<ProtectedRoute><PaymentsPage /></ProtectedRoute>} />
+        <Route path="/game" element={<ProtectedRoute><PregamePage /></ProtectedRoute>} />
         <Route path="/game/:gameId" element={<ProtectedRoute><GamePage /></ProtectedRoute>} />
         <Route path="/rank" element={<ProtectedRoute><RankPage /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><AppSettingsPage /></ProtectedRoute>} />

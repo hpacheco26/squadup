@@ -6,6 +6,7 @@ import useAuthStore from '../store/authStore';
 import theme from '../theme';
 import useLanguageStore from '../store/languageStore';
 import GameDebtService from '../api/gameDebtService';
+import AppHeaderBar from '../components/bars/AppHeaderBar';
 
 const PaymentsPage = () => {
     const { groupId } = useParams();
@@ -116,29 +117,19 @@ const PaymentsPage = () => {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-            <header style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '12px 16px',
-                backgroundColor: theme.surface,
-                borderBottom: `1px solid ${theme.border}`,
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Wallet size={20} color={theme.primary} />
-                    <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: theme.text, margin: 0 }}>
-                        {t('payments')}
-                    </h1>
-                </div>
-                <span style={{
-                    fontSize: '0.8rem', fontWeight: '700',
-                    color: totalOwed === 0 ? theme.success : theme.danger,
-                    background: totalOwed === 0 ? theme.successLight : theme.dangerLight,
-                    padding: '4px 12px', borderRadius: '20px',
-                }}>
-                    {totalOwed === 0 ? `✓ ${t('allGamesPaid')}` : `€${totalOwed.toFixed(2)} ${t('owed')}`}
-                </span>
-            </header>
+            <AppHeaderBar
+                right={totalOwed > 0 ? (
+                    <span style={{
+                        fontSize: '0.8rem', fontWeight: '700',
+                        color: theme.danger,
+                        background: theme.dangerLight,
+                        padding: '4px 12px', borderRadius: '20px',
+                        marginRight: 6,
+                    }}>
+                        {`€${totalOwed.toFixed(2)} ${t('owed')}`}
+                    </span>
+                ) : null}
+            />
 
             <div style={{ flex: 1, padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
 

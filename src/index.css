@@ -5,6 +5,134 @@ $primary: #5b7bb3;
   to { transform: rotate(360deg); }
 }
 
+/* RankCard orbiting sparks */
+@keyframes rank-orbit {
+  from { transform: translate(-50%, -50%) rotate(0deg) translateX(var(--orbit-radius)) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg) translateX(var(--orbit-radius)) rotate(-360deg); }
+}
+@keyframes rank-spark-pulse {
+  0%, 100% { opacity: 0.55; transform: scale(0.85); }
+  50%      { opacity: 1;    transform: scale(1.15); }
+}
+
+/* Super-Saiyan style lightning crackle */
+@keyframes rank-lightning {
+  0%, 100%   { opacity: 0; transform: translate(-50%, -50%) scale(0.6) rotate(var(--rot, 0deg)); }
+  3%         { opacity: 1; transform: translate(-50%, -50%) scale(1.1) rotate(var(--rot, 0deg)); }
+  6%         { opacity: 0.9; transform: translate(-50%, -50%) scale(1) rotate(calc(var(--rot, 0deg) + 8deg)); }
+  9%         { opacity: 0; transform: translate(-50%, -50%) scale(0.8) rotate(var(--rot, 0deg)); }
+}
+
+/* Intense Super-Saiyan crackle (rank 3+): more flashes per cycle, harder rotation jitter */
+@keyframes rank-lightning-intense {
+  0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.5) rotate(var(--rot, 0deg)); }
+  2%       { opacity: 1; transform: translate(-50%, -50%) scale(1.25) rotate(var(--rot, 0deg)); }
+  4%       { opacity: 0.9; transform: translate(-50%, -50%) scale(1.05) rotate(calc(var(--rot, 0deg) + 14deg)); }
+  6%       { opacity: 0; transform: translate(-50%, -50%) scale(0.8) rotate(var(--rot, 0deg)); }
+  18%      { opacity: 0; transform: translate(-50%, -50%) scale(0.5) rotate(var(--rot, 0deg)); }
+  20%      { opacity: 1; transform: translate(-50%, -50%) scale(1.2) rotate(calc(var(--rot, 0deg) - 10deg)); }
+  23%      { opacity: 0; transform: translate(-50%, -50%) scale(0.7) rotate(var(--rot, 0deg)); }
+}
+
+/* Pentagon orbiter spin: rotate the shape itself while orbit-rotating its parent */
+@keyframes rank-shape-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes rank-shape-spin-rev {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-360deg); }
+}
+
+/* Rank 4 fire flames — rising, flickering, fading */
+@keyframes rank-flame-rise {
+  0%   { opacity: 0;   transform: translate(var(--fx, 0), 0)        scale(0.6, 0.4); }
+  15%  { opacity: 0.95; transform: translate(var(--fx, 0), -8px)    scale(1, 1); }
+  60%  { opacity: 0.7; transform: translate(calc(var(--fx, 0) + var(--sway, 4px)), -36px) scale(0.85, 1.15); }
+  100% { opacity: 0;   transform: translate(calc(var(--fx, 0) - var(--sway, 4px)), -72px) scale(0.4, 0.6); }
+}
+@keyframes rank-flame-flicker {
+  0%, 100% { filter: brightness(1)   saturate(1); }
+  50%      { filter: brightness(1.25) saturate(1.2); }
+}
+
+/* ---- Rank change FX ---- */
+
+/* Outward shockwave ring (rank up) */
+@keyframes rank-shockwave {
+  0%   { opacity: 0.85; transform: translate(-50%, -50%) scale(0.2); }
+  100% { opacity: 0;    transform: translate(-50%, -50%) scale(4); }
+}
+
+/* Card power-up flash + jolt (rank up) */
+@keyframes rank-up-jolt {
+  0%   { transform: scale(1);    filter: brightness(1); }
+  20%  { transform: scale(0.94); filter: brightness(1); }
+  35%  { transform: scale(1.18); filter: brightness(1.8) saturate(1.4); }
+  60%  { transform: scale(1);    filter: brightness(1); }
+  100% { transform: scale(1);    filter: brightness(1); }
+}
+
+/* Card sink + desaturate (rank down) */
+@keyframes rank-down-sink {
+  0%   { transform: scale(1)    translateY(0);  filter: grayscale(0)   brightness(1); }
+  35%  { transform: scale(0.92) translateY(4px); filter: grayscale(0.7) brightness(0.85); }
+  70%  { transform: scale(0.94) translateY(2px); filter: grayscale(0.5) brightness(0.9); }
+  100% { transform: scale(1)    translateY(0);  filter: grayscale(0)   brightness(1); }
+}
+
+/* Implode particle: starts far, falls toward center while fading & shrinking */
+@keyframes rank-implode {
+  0%   { opacity: 0;    transform: translate(var(--ix, 0), var(--iy, 0)) scale(1.2); }
+  15%  { opacity: 0.95; transform: translate(var(--ix, 0), var(--iy, 0)) scale(1.2); }
+  100% { opacity: 0;    transform: translate(0, 0) scale(0.2); }
+}
+
+/* Rank-change banner — drop in from above with a small bounce */
+@keyframes rank-banner-in {
+  0%   { opacity: 0; transform: translateY(-24px) scale(0.92); }
+  60%  { opacity: 1; transform: translateY(4px)  scale(1.04); }
+  100% { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+/* Dual-thumb range slider (RosterRangeSlider) */
+.range-thumb,
+input[type="range"].range-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+}
+input[type="range"].range-thumb::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #5b7bb3;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.15);
+  cursor: grab;
+  margin-top: -9px;
+  pointer-events: auto;
+}
+input[type="range"].range-thumb::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #5b7bb3;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.15);
+  cursor: grab;
+  pointer-events: auto;
+}
+input[type="range"].range-thumb::-webkit-slider-runnable-track {
+  background: transparent;
+  height: 4px;
+}
+input[type="range"].range-thumb::-moz-range-track {
+  background: transparent;
+  height: 4px;
+}
+
 * {
   margin: 0;
   padding: 0;

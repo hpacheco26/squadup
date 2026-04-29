@@ -8,14 +8,14 @@ import RankTierList from '../components/RankTierList';
 import TeamPowerCard from '../components/TeamPowerCard';
 import useGameStore from '../store/gameStore';
 import useGroupStore from '../store/groupStore';
-import { FiSettings } from 'react-icons/fi';
-import { ShieldBan, Shuffle, Swords } from 'lucide-react';
-import GameModal from '../components/modals/GameModal';
+import { ShieldBan, Shuffle, Swords, CalendarCog } from 'lucide-react';
 import useLanguageStore from '../store/languageStore';
+import AppHeaderBar from '../components/bars/AppHeaderBar';
 
-const getPlayerRoleLabelKey = (index) => {
-    if (index < 4) return 'roleField';
-    if (index === 4) return 'roleKeeper';
+const getPlayerRoleLabelKey = (index, playersPerTeam = 5) => {
+    const fieldCount = Math.max(1, playersPerTeam - 1);
+    if (index < fieldCount) return 'roleField';
+    if (index === fieldCount) return 'roleKeeper';
     return 'roleBench';
 };
 
@@ -26,7 +26,6 @@ const TeamsPage = () => {
     const { group, subscribeToGroup } = useGroupStore();
     const { t } = useLanguageStore();
     const [pressed, setPressed] = useState(false);
-    const [isGameModalOpen, setIsGameModalOpen] = useState(false);
     const [shuffling, setShuffling] = useState(false);
     const [animateIn, setAnimateIn] = useState(false);
 
@@ -62,7 +61,7 @@ const TeamsPage = () => {
             setShuffling(true);
             setAnimateIn(false);
             await new Promise(r => setTimeout(r, 700));
-            const { team1, team2 } = balanceTeams(game.playersIn);
+            const { team1, team2 } = balanceTeams(game.playersIn, game.playersPerTeam || 5);
             await updateGame(gameId, { team1, team2 });
             setShuffling(false);
             setAnimateIn(true);
@@ -187,7 +186,7 @@ const TeamsPage = () => {
     };
 
     const renderTeamPlayerCard = (player, index, teamKey, captainId, injured = false) => {
-        const roleKey = injured ? 'injured' : getPlayerRoleLabelKey(index);
+        const roleKey = injured ? 'injured' : getPlayerRoleLabelKey(index, game?.playersPerTeam || 5);
         const roleLabel = t(roleKey);
         const isCaptain = captainId === player.id;
         const teamAccent = teamKey === 'team2' ? 'rgba(225, 29, 72, 0.4)' : 'rgba(13, 148, 136, 0.4)';
@@ -210,25 +209,7 @@ const TeamsPage = () => {
 
     return (
         <>
-            <header style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '12px 16px',
-                backgroundColor: '#ffffff',
-                borderBottom: '1px solid #e2e8f0',
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Swords size={20} color="#5b7bb3" />
-                    <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0f172a', margin: 0 }}>
-                        {group?.name || t('teams')}
-                    </h1>
-                </div>
-                <button onClick={() => setIsGameModalOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', display: 'flex', alignItems: 'center', color: '#94a3b8' }} aria-label="Game Settings">
-                    <FiSettings size={22} />
-                </button>
-            </header>
-            <GameModal isOpen={isGameModalOpen} setIsOpen={setIsGameModalOpen} group={group} game={game} />
+            <AppHeaderBar rightIcon={CalendarCog} onRightClick={() => navigate(`/games/${gameId}/settings`)} />
             <div className="p-4" style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1, overflow: 'hidden' }}>
                 {/* Rank Tier List — Always visible */}
                 <RankTierList />

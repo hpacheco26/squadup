@@ -20,6 +20,14 @@ const googleProvider = new GoogleAuthProvider();
 const useAuthStore = create((set) => ({
     user: JSON.parse(localStorage.getItem('user')) || null, // Persisted user
     playerData: JSON.parse(localStorage.getItem('playerData')) || null, // Persisted player
+    selectedGroupId: localStorage.getItem('selectedGroupId') || null, // Persisted group selection
+
+    // 🔹 Set the currently selected group (for header switcher / navbar context)
+    setSelectedGroupId: (groupId) => {
+        set({ selectedGroupId: groupId || null });
+        if (groupId) localStorage.setItem('selectedGroupId', groupId);
+        else localStorage.removeItem('selectedGroupId');
+    },
 
     // 🔹 Fetch player data from Firestore
     fetchPlayerData: async (userId) => {
@@ -42,9 +50,10 @@ const useAuthStore = create((set) => ({
                 localStorage.setItem('user', JSON.stringify(user));
                 await useAuthStore.getState().fetchPlayerData(user.uid);
             } else {
-                set({ user: null, playerData: null });
+                set({ user: null, playerData: null, selectedGroupId: null });
                 localStorage.removeItem('user');
                 localStorage.removeItem('playerData');
+                localStorage.removeItem('selectedGroupId');
             }
         });
     },
@@ -128,9 +137,10 @@ const useAuthStore = create((set) => ({
     logout: async () => {
         try {
             await signOut(auth);
-            set({ user: null, playerData: null });
+            set({ user: null, playerData: null, selectedGroupId: null });
             localStorage.removeItem('user');
             localStorage.removeItem('playerData');
+            localStorage.removeItem('selectedGroupId');
         } catch (error) {
             console.error("Logout Error:", error);
         }
@@ -186,9 +196,10 @@ const useAuthStore = create((set) => ({
             await deleteUser(user);
 
             // Clear local state
-            set({ user: null, playerData: null });
+            set({ user: null, playerData: null, selectedGroupId: null });
             localStorage.removeItem('user');
             localStorage.removeItem('playerData');
+            localStorage.removeItem('selectedGroupId');
         } catch (error) {
             console.error("Delete Account Error:", error);
             throw error;

@@ -89,6 +89,10 @@ function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
 
                 {/* Body */}
                 <div style={{ padding: '20px' }}>
+                    {/* Non-member section */}
+                    <label style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '700', display: 'block', marginBottom: '8px' }}>
+                        {t('nonMember')}
+                    </label>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
                         <input
                             type="text"
@@ -143,16 +147,15 @@ function PlayerModal({ isOpen, setIsOpen, onAddPlayer }) {
                     </button>
 
                     {/* Divider */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-                        <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
-                        <span style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: '600' }}>{t('or')}</span>
-                        <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
-                    </div>
+                    <div style={{ height: '1px', background: '#e2e8f0', margin: '0 0 20px' }} />
 
-                    {/* Invite link */}
-                    <label style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '8px' }}>
-                        {t('inviteViaLink')}
+                    {/* Member section */}
+                    <label style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '700', display: 'block', marginBottom: '8px' }}>
+                        {t('member')}
                     </label>
+                    <p style={{ fontSize: '0.7rem', color: '#94a3b8', margin: '0 0 10px' }}>
+                        {t('memberInviteHint')}
+                    </p>
                     {!inviteLink ? (
                         <button
                             onClick={handleGenerateInvite}

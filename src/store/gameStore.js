@@ -246,9 +246,11 @@ const useGameStore = create((set) => ({
                     data: { groupName: gameData._groupName || '', gameDate: gameData.date || '' },
                 }).catch(() => {});
             }
+            return newGame;
         } catch (error) {
             console.error('[gameStore] createGame ERROR:', error);
             set({ error: error.message, loading: false });
+            return null;
         }
     },
 

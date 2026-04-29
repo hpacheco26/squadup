@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiPlay, FiPause, FiRotateCcw } from 'react-icons/fi';
-import { Share2, Timer } from 'lucide-react';
+import { Share2, Timer, CalendarCog } from 'lucide-react';
 import useGameStore from '../store/gameStore';
 import useGroupStore from '../store/groupStore';
 import { getCaptain } from '../utils/teamBalancer';
-import { FiSettings } from 'react-icons/fi';
-import GameModal from '../components/modals/GameModal';
 import SubTimerModal from '../components/modals/SubTimerModal';
 import GoalCarousel from '../components/GoalCarousel';
 import useLanguageStore from '../store/languageStore';
 import GameDebtService from '../api/gameDebtService';
+import AppHeaderBar from '../components/bars/AppHeaderBar';
 
 const GamePage = () => {
     const { gameId } = useParams();
@@ -28,7 +27,6 @@ const GamePage = () => {
     const { t } = useLanguageStore();
 
     const [isSubModalOpen, setIsSubModalOpen] = useState(false);
-    const [isGameModalOpen, setIsGameModalOpen] = useState(false);
     const [subCounts, setSubCounts] = useState({});
     const intervalRef = useRef(null);
 
@@ -256,25 +254,7 @@ const GamePage = () => {
 
     return (
         <>
-            <header style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '12px 16px',
-                backgroundColor: '#ffffff',
-                borderBottom: '1px solid #e2e8f0',
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Timer size={20} color="#5b7bb3" />
-                    <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#0f172a', margin: 0 }}>
-                        {group?.name || t('game')}
-                    </h1>
-                </div>
-                <button onClick={() => setIsGameModalOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px', display: 'flex', alignItems: 'center', color: '#94a3b8' }} aria-label="Game Settings">
-                    <FiSettings size={22} />
-                </button>
-            </header>
-            <GameModal isOpen={isGameModalOpen} setIsOpen={setIsGameModalOpen} group={group} game={game} />
+            <AppHeaderBar rightIcon={CalendarCog} onRightClick={() => navigate(`/games/${gameId}/settings`)} />
             <div style={{
                 display: 'flex',
                 flexDirection: 'column',

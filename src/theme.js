@@ -35,13 +35,13 @@ const theme = {
   
   // Rank progression — distinct tiers
   rank: {
-    0: '#b0b8c4',  // Unranked — silver
-    1: '#cd7f32',  // Bronze — copper
-    2: '#9b59b6',  // Amethyst — purple
-    3: '#f0c832',  // Gold — bright gold
-    4: '#a8b4d4',  // Platinum — diamond
+    0: '#c0c0c0',  // Novice — silver
+    1: '#14b8a6',  // Amateur — turquoise green
+    2: '#3b82f6',  // Intermediate — blue
+    3: '#9b59b6',  // Pro — purple
+    4: '#f0c832',  // Legend — gold
   },
-  rankDefault: '#b0b8c4',
+  rankDefault: '#c0c0c0',
   rankAccent: '#f0c832',
 };
 

@@ -40,14 +40,23 @@ const RankList = () => {
   return (
     <div className="rank-carousel-container" style={ranksLoading ? { height: '100%', display: 'flex', flexDirection: 'column' } : {}}>
       {!ranksLoading && (
-        <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', marginBottom: '2px', textAlign: 'center' }}>
-          {t('myGroups')}
-        </p>
-      )}
-      {Array.isArray(ranks) && ranks.length > 0 && (
-        <p style={{ fontSize: '0.65rem', color: '#94a3b8', textAlign: 'center', marginBottom: '4px' }}>
-          {t('tapGroupToEnter')}
-        </p>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          margin: '4px 0 12px',
+        }}>
+          <span style={{ flex: 1, height: 1, background: 'linear-gradient(to right, transparent, #cbd5e1)' }} />
+          <h2 style={{
+            margin: 0,
+            fontSize: '1.25rem',
+            fontWeight: 600,
+            letterSpacing: '2px',
+            textTransform: 'uppercase',
+            color: '#1e293b',
+          }}>
+            {t('myRanks')}
+          </h2>
+          <span style={{ flex: 1, height: 1, background: 'linear-gradient(to left, transparent, #cbd5e1)' }} />
+        </div>
       )}
       {Array.isArray(ranks) && ranks.length > 0 ? (
         <Swiper
@@ -69,7 +78,6 @@ const RankList = () => {
                 groupName={rank.groupName || "Unknown Group"} 
                 stats={rank.stats}
                 isAnimated={false}
-                onClick={() => navigate(`/groups/${rank.groupId}`)}
               />
             </SwiperSlide>
           ))}

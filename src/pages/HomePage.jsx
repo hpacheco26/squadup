@@ -1,11 +1,14 @@
 import RankList from "../components/lists/RankList";
 import GameList from "../components/lists/GameList";
-import HeaderBar from "../components/bars/HeaderBar";
+import AppHeaderBar from "../components/bars/AppHeaderBar";
+import { FiUser } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 function HomePage() {
+  const navigate = useNavigate();
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <HeaderBar />
+      <AppHeaderBar variant="logo" rightIcon={FiUser} onRightClick={() => navigate('/settings')} />
       <div
         style={{
           flex: 1,

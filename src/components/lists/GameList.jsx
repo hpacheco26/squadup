@@ -32,11 +32,8 @@ const GameList = () => {
 
   return (
     <div>
-      <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', marginBottom: '2px', textAlign: 'center' }}>
+      <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', marginBottom: '6px', textAlign: 'center' }}>
         {t('upcomingGames')}
-      </p>
-      <p style={{ fontSize: '0.65rem', color: '#94a3b8', textAlign: 'center', marginBottom: '4px' }}>
-        {t('tapGameToEnter')}
       </p>
       <Swiper
         modules={[Pagination]}

@@ -1,433 +1,296 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { UserPlus, LogOut, Trash2, Wallet, X } from 'lucide-react';
-import useGroupStore from '../store/groupStore';
-import useAuthStore from '../store/authStore';
+import React, { useState } from 'react';
+import { Wallet, Trash2, LogOut, UserPlus, AlertCircle, Shield, UserCheck, UserX } from 'lucide-react';
 import PlayerCard from '../components/cards/PlayerCard';
 import PlayerModal from '../components/modals/PlayerModal';
-import SquadSettingsHeaderBar from '../components/bars/SquadSettingsHeaderBar';
+import AppHeaderBar from '../components/bars/AppHeaderBar';
+import { BottomSheet, ConfirmSheet } from '../components/modals/BottomSheet';
+import {
+    SectionLabel, SettingsGroup, SettingsRow, settingsInputStyle,
+} from '../components/lists/SettingsList';
 import useLanguageStore from '../store/languageStore';
-import GameDebtService from '../api/gameDebtService';
+import useSquadSettings from './_useSquadSettings';
 
 function SquadSettingsPage() {
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const { group, subscribeToGroup, updateGroup, deleteGroup } = useGroupStore();
-
-    const [groupName, setGroupName] = useState('');
-    const [treasuryPhone, setTreasuryPhone] = useState('');
-    const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
-    const [gameDebts, setGameDebts] = useState([]);
-    const { user } = useAuthStore();
     const { t } = useLanguageStore();
-    const saveTimerRef = useRef(null);
-    const phoneSaveTimerRef = useRef(null);
+    const s = useSquadSettings();
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [treasuryOpen, setTreasuryOpen] = useState(false);
+    if (!s.group) return <p style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>{t('loading')}</p>;
 
-    const isAdmin = group?.adminIds?.includes(user?.uid) || group?.adminId === user?.uid;
-
-    // Subscribe to group for real-time updates
-    useEffect(() => {
-        const unsubGroup = subscribeToGroup(id);
-        const unsubDebts = GameDebtService.subscribeToGameDebtsByGroup(id, setGameDebts);
-        return () => { unsubGroup(); unsubDebts(); };
-    }, [id, subscribeToGroup]);
-
-    useEffect(() => {
-        if (group?.name) {
-            setGroupName(group.name);
-        }
-        setTreasuryPhone(group?.treasuryPhone || '');
-    }, [group]);
-
-    const handleUpdateGroup = () => {
-        if (groupName.trim() && groupName !== group?.name) {
-            updateGroup(group.id, { ...group, name: groupName });
-        }
-    };
-
-    const handleGroupNameChange = (e) => {
-        const value = e.target.value;
-        setGroupName(value);
-        if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-        saveTimerRef.current = setTimeout(() => {
-            if (value.trim() && value !== group?.name) {
-                updateGroup(group.id, { ...group, name: value });
-            }
-        }, 800);
-    };
-
-    const handleTreasuryPlayerChange = (e) => {
-        const playerId = e.target.value || null;
-        updateGroup(group.id, { ...group, treasuryPlayerId: playerId });
-    };
-
-    const handleTreasuryPhoneChange = (e) => {
-        const value = e.target.value;
-        setTreasuryPhone(value);
-        if (phoneSaveTimerRef.current) clearTimeout(phoneSaveTimerRef.current);
-        phoneSaveTimerRef.current = setTimeout(() => {
-            updateGroup(group.id, { ...group, treasuryPhone: value || null });
-        }, 800);
-    };
-
-    const handleDeleteGroup = () => {
-        deleteGroup(group.id);
-        navigate('/');
-    };
-
-    const handleLeaveGroup = () => {
-        if (!group || !user) return;
-        const updatedPlayers = (group.players ?? []).filter(player => player.userId !== user.uid);
-        updateGroup(group.id, { ...group, players: updatedPlayers });
-        navigate('/');
-    };
-
-    const handleAddPlayer = (newPlayer) => {
-        if (!group) return;
-        const updatedPlayers = [...(group.players ?? []), newPlayer];
-        updateGroup(group.id, { ...group, players: updatedPlayers });
-    };
-
-    const handleRemovePlayer = (playerId) => {
-        if (!group) return;
-        const updatedPlayers = (group.players ?? []).filter(player => player.id !== playerId);
-        updateGroup(group.id, { ...group, players: updatedPlayers });
-    };
-
-    const handleToggleAdmin = (player) => {
-        if (!player.userId) return;
-        const currentAdminIds = group.adminIds || (group.adminId ? [group.adminId] : []);
-        const isPlayerAdmin = currentAdminIds.includes(player.userId);
-        if (isPlayerAdmin && currentAdminIds.length <= 1) return; // prevent removing last admin
-        const newAdminIds = isPlayerAdmin
-            ? currentAdminIds.filter(id => id !== player.userId)
-            : [...currentAdminIds, player.userId];
-        updateGroup(group.id, { ...group, adminIds: newAdminIds });
-    };
-
-    if (!group) return <p style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>{t('loading')}</p>;
+    const adminCount = s.sortedPlayers.filter(p => p.userId && s.currentAdminIds.includes(p.userId)).length;
+    const memberCount = s.sortedPlayers.filter(p => p.userId && !s.currentAdminIds.includes(p.userId)).length;
+    const nonMemberCount = s.sortedPlayers.filter(p => !p.userId).length;
 
     return (
         <>
-            <SquadSettingsHeaderBar 
-                group={group} 
-                navigate={navigate} 
-            />
-            
-            <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 56px)' }}>
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '16px 16px 0' }}>
-                    {/* Group Name - admin only */}
-                    {isAdmin && (
-                        <div style={{
-                            background: '#fff',
-                            borderRadius: '12px',
-                            padding: '16px',
-                            marginBottom: '12px',
-                            border: '1px solid #e2e8f0',
-                        }}>
-                            <label style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-                                {t('groupName')}
-                            </label>
-                            <input
-                                type="text"
-                                placeholder={t('enterGroupName')}
-                                value={groupName}
-                                onChange={handleGroupNameChange}
-                                onBlur={handleUpdateGroup}
-                                style={{
-                                    width: '100%',
-                                    padding: '10px 12px',
-                                    borderRadius: '8px',
-                                    border: '1px solid #e2e8f0',
-                                    fontSize: '0.95rem',
-                                    color: '#1e293b',
-                                    outline: 'none',
-                                    boxSizing: 'border-box',
-                                }}
-                            />
-                        </div>
-                    )}
+            <AppHeaderBar onBack={() => s.navigate(`/groups/${s.group.id}`)} />
 
-                    {/* Treasury - admin only */}
-                    {isAdmin && (
-                        <div style={{
-                            background: '#fff',
-                            borderRadius: '12px',
-                            padding: '16px',
-                            marginBottom: '12px',
-                            border: '1px solid #e2e8f0',
-                        }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
-                                <Wallet size={14} color="#5b7bb3" />
-                                <label style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
-                                    {t('treasury')}
-                                </label>
+            <div style={{ padding: '20px 0 32px', maxWidth: 640, margin: '0 auto' }}>
+
+                {/* GROUP NAME */}
+                {s.isAdmin && (
+                    <>
+                        <SectionLabel>{t('groupName')}</SectionLabel>
+                        <SettingsGroup>
+                            <div style={{ display: 'flex', alignItems: 'center', padding: '12px 14px' }}>
+                                <input
+                                    type="text"
+                                    placeholder={t('enterGroupName')}
+                                    value={s.groupName}
+                                    onChange={s.handleGroupNameChange}
+                                    onBlur={s.handleUpdateGroup}
+                                    style={{ ...settingsInputStyle, textAlign: 'left' }}
+                                />
                             </div>
-                            <label style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '4px', display: 'block' }}>{t('treasuryPlayer')}</label>
-                            <select
-                                value={group.treasuryPlayerId || (group.players || []).find(p => group.adminIds?.includes(p.userId) || p.userId === group.adminId)?.id || ''}                                onChange={handleTreasuryPlayerChange}
-                                style={{
-                                    width: '100%',
-                                    padding: '10px 12px',
-                                    borderRadius: '8px',
-                                    border: '1px solid #e2e8f0',
-                                    fontSize: '0.95rem',
-                                    color: '#1e293b',
-                                    outline: 'none',
-                                    boxSizing: 'border-box',
-                                    background: '#fff',
-                                    marginBottom: '10px',
-                                }}
-                            >
-                                <option value="">{t('selectPlayer')}</option>
-                                {(group.players ?? []).map(p => (
-                                    <option key={p.id} value={p.id}>{p.firstName} {p.lastName || ''}</option>
-                                ))}
-                            </select>
-                            <label style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '4px', display: 'block' }}>MBWay Phone</label>
-                            <input
-                                type="tel"
-                                placeholder="912345678"
-                                value={treasuryPhone}
-                                onChange={handleTreasuryPhoneChange}
-                                style={{
-                                    width: '100%',
-                                    padding: '10px 12px',
-                                    borderRadius: '8px',
-                                    border: '1px solid #e2e8f0',
-                                    fontSize: '0.95rem',
-                                    color: '#1e293b',
-                                    outline: 'none',
-                                    boxSizing: 'border-box',
-                                }}
-                            />
-                        </div>
-                    )}
+                        </SettingsGroup>
+                    </>
+                )}
 
-                    {/* Debts - admin only */}
-                    {isAdmin && (() => {
-                        // Compute per-player debt totals from gameDebts
-                        const playerDebtMap = {};
-                        gameDebts.forEach(gd => {
-                            Object.entries(gd.debts || {}).forEach(([playerId, info]) => {
-                                if (!info.paid) {
-                                    if (!playerDebtMap[playerId]) playerDebtMap[playerId] = 0;
-                                    playerDebtMap[playerId] += (info.amount || 0);
-                                }
-                            });
-                        });
-                        const playersWithDebt = (group.players ?? []).filter(p => (playerDebtMap[p.id] || 0) > 0);
-                        if (playersWithDebt.length === 0) return null;
-                        // Sum only group members to avoid orphan/guest records inflating the total
-                        const totalDebt = playersWithDebt.reduce((sum, p) => sum + (playerDebtMap[p.id] || 0), 0);
-
-                        const handleClearDebt = async (playerId) => {
-                            for (const gd of gameDebts) {
-                                if (gd.debts?.[playerId] && !gd.debts[playerId].paid) {
-                                    await GameDebtService.markPlayerPaid(gd.id, playerId);
-                                    const allPaid = Object.entries(gd.debts || {}).every(([id, info]) =>
-                                        id === playerId || info.paid
-                                    );
-                                    if (allPaid) await GameDebtService.deleteGameDebt(gd.id);
-                                }
-                            }
-                        };
-
-                        return (
-                            <div style={{
-                                background: '#fff',
-                                borderRadius: '12px',
-                                padding: '16px',
-                                marginBottom: '12px',
-                                border: '1px solid #e2e8f0',
-                            }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                                    <label style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
-                                        {t('outstandingDebts')}
-                                    </label>
-                                    <span style={{ fontSize: '0.8rem', fontWeight: '700', color: '#dc2626' }}>€{totalDebt.toFixed(2)}</span>
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                    {playersWithDebt.map(player => (
-                                        <div key={player.id} style={{
-                                            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                                            padding: '8px 10px', borderRadius: '8px', background: '#fef2f2', border: '1px solid #fecaca',
+                {/* TREASURY */}
+                {s.isAdmin && (() => {
+                    const treasurerId = s.group.treasuryPlayerId
+                        || (s.group.players || []).find(p => s.currentAdminIds.includes(p.userId))?.id
+                        || '';
+                    const treasurer = (s.group.players || []).find(p => p.id === treasurerId);
+                    const treasurerName = treasurer
+                        ? `${treasurer.firstName}${treasurer.lastName ? ' ' + treasurer.lastName : ''}`
+                        : t('noTreasurerSet');
+                    const isTreasurerAdmin = treasurer && s.currentAdminIds.includes(treasurer.userId);
+                    const ring = isTreasurerAdmin ? '#d4a817' : '#5b7bb3';
+                    const tint = isTreasurerAdmin ? '#fef9c3' : '#dbe4f0';
+                    const textColor = isTreasurerAdmin ? '#a37610' : '#4a6694';
+                    const initials = treasurer
+                        ? `${(treasurer.firstName || '?')[0]}${(treasurer.lastName || '')[0] || ''}`.toUpperCase()
+                        : '?';
+                    return (
+                        <>
+                            <SectionLabel>{t('treasury')}</SectionLabel>
+                            <SettingsGroup footer="MBWay phone is used for in-app payment links">
+                                {/* Treasurer chip row */}
+                                <div style={{
+                                    display: 'flex', alignItems: 'center', gap: 12,
+                                    padding: '12px 14px',
+                                    borderBottom: '1px solid #f1f5f9',
+                                }}>
+                                    <div style={{
+                                        flexShrink: 0,
+                                        width: 40, height: 40, borderRadius: '50%',
+                                        background: treasurer ? tint : '#f1f5f9',
+                                        color: treasurer ? textColor : '#94a3b8',
+                                        border: `2px solid ${treasurer ? ring : '#e2e8f0'}`,
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        fontSize: '0.85rem', fontWeight: 700,
+                                    }}>
+                                        {initials}
+                                    </div>
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <p style={{
+                                            margin: 0, fontSize: '0.95rem', fontWeight: 600,
+                                            color: treasurer ? '#1e293b' : '#94a3b8',
+                                            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                                         }}>
-                                            <div>
-                                                <span style={{ fontSize: '0.9rem', fontWeight: '500', color: '#1e293b' }}>
-                                                    {player.firstName} {player.lastName?.[0] ? `${player.lastName[0]}.` : ''}
-                                                </span>
-                                                <span style={{ fontSize: '0.85rem', fontWeight: '600', color: '#dc2626', marginLeft: '8px' }}>
-                                                    €{(playerDebtMap[player.id] || 0).toFixed(2)}
-                                                </span>
-                                            </div>
-                                            <button
-                                                onClick={() => handleClearDebt(player.id)}
-                                                style={{
-                                                    background: '#dcfce7', border: 'none', borderRadius: '6px',
-                                                    padding: '4px 10px', fontSize: '0.75rem', fontWeight: '600',
-                                                    color: '#16a34a', cursor: 'pointer',
-                                                }}
-                                            >
-                                                {t('clear')}
-                                            </button>
-                                        </div>
-                                    ))}
+                                            {treasurerName}
+                                        </p>
+                                        <span style={{
+                                            display: 'inline-block', marginTop: 3,
+                                            fontSize: '0.6rem', fontWeight: 700, letterSpacing: 0.5,
+                                            textTransform: 'uppercase',
+                                            color: treasurer ? textColor : '#94a3b8',
+                                            background: treasurer ? tint : '#f1f5f9',
+                                            padding: '2px 8px', borderRadius: 999,
+                                        }}>
+                                            {t('treasuryPlayer')}
+                                        </span>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setTreasuryOpen(true)}
+                                        style={{
+                                            background: 'transparent', border: 'none',
+                                            color: '#5b7bb3', fontSize: '0.85rem', fontWeight: 600,
+                                            cursor: 'pointer', fontFamily: 'inherit', padding: '6px 4px',
+                                        }}
+                                    >
+                                        {t('change') || 'Change'}
+                                    </button>
                                 </div>
-                            </div>
-                        );
-                    })()}
+                                {/* MBWay row */}
+                                <div style={{
+                                    display: 'flex', alignItems: 'center', gap: 12,
+                                    padding: '12px 14px',
+                                }}>
+                                    <Wallet size={16} color="#5b7bb3" />
+                                    <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 500, color: '#1e293b' }}>
+                                        MBWay
+                                    </p>
+                                    <input
+                                        type="tel"
+                                        placeholder="912345678"
+                                        value={s.treasuryPhone}
+                                        onChange={s.handleTreasuryPhoneChange}
+                                        style={settingsInputStyle}
+                                    />
+                                </div>
+                            </SettingsGroup>
+                        </>
+                    );
+                })()}
 
-                    {/* Players - admin only */}
-                    {isAdmin && (
-                        <div style={{
-                            background: '#fff',
-                            borderRadius: '12px',
-                            padding: '16px',
-                            marginBottom: '12px',
-                            border: '1px solid #e2e8f0',
-                        }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexShrink: 0 }}>
-                                <label style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>
-                                    {t('playersLabel')} ({(group.players ?? []).length})
-                                </label>
-                                <button
-                                    onClick={() => setIsPlayerModalOpen(true)}
-                                    style={{
-                                        background: '#f1f5f9',
-                                        border: 'none',
-                                        borderRadius: '8px',
-                                        cursor: 'pointer',
-                                        padding: '6px',
-                                        color: '#5b7bb3',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                    }}
-                                    aria-label="Add Player"
+                {/* DEBTS */}
+                {s.isAdmin && s.playersWithDebt.length > 0 && (
+                    <>
+                        <SectionLabel>{t('outstandingDebts')} · €{s.totalDebt.toFixed(2)}</SectionLabel>
+                        <SettingsGroup>
+                            {s.playersWithDebt.map((p, i, arr) => (
+                                <SettingsRow
+                                    key={p.id}
+                                    label={`${p.firstName} ${p.lastName?.[0] ? `${p.lastName[0]}.` : ''}`}
+                                    icon={AlertCircle}
+                                    danger
+                                    chevron={false}
+                                    last={i === arr.length - 1}
                                 >
-                                    <UserPlus size={18} />
-                                </button>
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                {(group.players ?? []).length === 0 ? (
-                                    <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px', fontSize: '0.9rem' }}>{t('noPlayersYet')}</p>
-                                ) : (
-                                    (group.players ?? []).map((player) => {
-                                        const currentAdminIds = group.adminIds || (group.adminId ? [group.adminId] : []);
-                                        const isPlayerAdmin = player.userId && currentAdminIds.includes(player.userId);
-                                        const canToggle = player.userId && (!isPlayerAdmin || currentAdminIds.length > 1);
-                                        return (
-                                        <div key={player.id} style={{ position: 'relative' }}>
-                                            <PlayerCard 
-                                                player={player}
-                                                onRemovePlayer={handleRemovePlayer}
-                                            />
-                                            {player.userId ? (
-                                                <button
-                                                    onClick={() => canToggle && handleToggleAdmin(player)}
-                                                    title={isPlayerAdmin ? t('removeAdmin') : t('makeAdmin')}
-                                                    style={{
-                                                        position: 'absolute',
-                                                        top: '6px',
-                                                        right: '48px',
-                                                        fontSize: '0.55rem',
-                                                        fontWeight: '600',
-                                                        textTransform: 'uppercase',
-                                                        letterSpacing: '0.5px',
-                                                        padding: '2px 6px',
-                                                        borderRadius: '6px',
-                                                        background: isPlayerAdmin ? '#fef9c3' : '#f1f5f9',
-                                                        color: isPlayerAdmin ? '#ca8a04' : '#94a3b8',
-                                                        border: 'none',
-                                                        cursor: canToggle ? 'pointer' : 'not-allowed',
-                                                    }}
-                                                >
-                                                    {isPlayerAdmin ? `★ ${t('admin')}` : t('user')}
-                                                </button>
-                                            ) : (
-                                                <span style={{
-                                                    position: 'absolute',
-                                                    top: '6px',
-                                                    right: '48px',
-                                                    fontSize: '0.55rem',
-                                                    fontWeight: '600',
-                                                    textTransform: 'uppercase',
-                                                    letterSpacing: '0.5px',
-                                                    padding: '2px 6px',
-                                                    borderRadius: '6px',
-                                                    background: '#f1f5f9',
-                                                    color: '#94a3b8',
-                                                }}>
-                                                    {t('noUser')}
-                                                </span>
-                                            )}
-                                        </div>
-                                        );
-                                    })
-                                )}
-                            </div>
-                        </div>
-                    )}
-                </div>
+                                    <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#dc2626' }}>
+                                        €{(s.playerDebtMap[p.id] || 0).toFixed(2)}
+                                    </span>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); s.handleClearDebt(p.id); }}
+                                        style={{
+                                            marginLeft: 8, background: '#dcfce7', border: 'none',
+                                            borderRadius: 6, padding: '4px 10px', fontSize: '0.7rem',
+                                            fontWeight: 700, color: '#16a34a', cursor: 'pointer',
+                                        }}
+                                    >{t('clear')}</button>
+                                </SettingsRow>
+                            ))}
+                        </SettingsGroup>
+                    </>
+                )}
 
-                {/* Fixed bottom action */}
-                <div style={{
-                    flexShrink: 0,
-                    padding: '16px',
-                    background: '#f0f2f5',
-                    borderTop: '1px solid #e2e8f0',
-                }}>
-                    {isAdmin ? (
-                        <button
-                            onClick={handleDeleteGroup}
-                            style={{
-                                width: '100%',
-                                padding: '12px',
-                                borderRadius: '10px',
-                                border: '1px solid #fca5a5',
-                                background: '#fff',
-                                color: '#e07070',
-                                fontSize: '0.9rem',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '8px',
-                            }}
+                {/* MEMBERS */}
+                {s.isAdmin && (
+                    <>
+                        <SectionLabel
+                            action={
+                                <button
+                                    onClick={() => s.setIsPlayerModalOpen(true)}
+                                    style={{
+                                        background: '#5b7bb3', color: '#fff', border: 'none',
+                                        borderRadius: 8, padding: '4px 8px', fontSize: '0.7rem',
+                                        fontWeight: 600, cursor: 'pointer',
+                                        display: 'flex', alignItems: 'center', gap: 4,
+                                    }}
+                                ><UserPlus size={12} /> {t('addPlayer')}</button>
+                            }
                         >
-                            <Trash2 size={16} /> {t('deleteGroup')}
-                        </button>
-                    ) : (
-                        <button
-                            onClick={handleLeaveGroup}
-                            style={{
-                                width: '100%',
-                                padding: '12px',
-                                borderRadius: '10px',
-                                border: '1px solid #fca5a5',
-                                background: '#fff',
-                                color: '#e07070',
-                                fontSize: '0.9rem',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '8px',
-                            }}
-                        >
-                            <LogOut size={16} /> {t('leaveGroup')}
-                        </button>
-                    )}
-                </div>
+                            {t('playersLabel')}
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginLeft: 8, textTransform: 'none', letterSpacing: 0 }}>
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: '#a37610' }}>
+                                    <Shield size={11} strokeWidth={2.5} /> {adminCount}
+                                </span>
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: '#4a6694' }}>
+                                    <UserCheck size={11} strokeWidth={2.5} /> {memberCount}
+                                </span>
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: '#64748b' }}>
+                                    <UserX size={11} strokeWidth={2.5} /> {nonMemberCount}
+                                </span>
+                            </span>
+                        </SectionLabel>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 24 }}>
+                            {s.sortedPlayers.length === 0 ? (
+                                <p style={{ textAlign: 'center', color: '#94a3b8', padding: 20, fontSize: '0.9rem' }}>{t('noPlayersYet')}</p>
+                            ) : s.sortedPlayers.map((player) => {
+                                const isPlayerAdmin = !!(player.userId && s.currentAdminIds.includes(player.userId));
+                                const canToggle = s.isAdmin && player.userId && (!isPlayerAdmin || s.currentAdminIds.length > 1);
+                                return (
+                                    <PlayerCard
+                                        key={player.id}
+                                        player={player}
+                                        isAdmin={isPlayerAdmin}
+                                        canManageAdmins={canToggle}
+                                        onToggleAdmin={s.handleToggleAdmin}
+                                        onRemovePlayer={s.isAdmin ? s.handleRemovePlayer : undefined}
+                                    />
+                                );
+                            })}
+                        </div>
+                    </>
+                )}
+
+                {/* DANGER */}
+                <SettingsGroup>
+                    <SettingsRow
+                        label={s.isAdmin ? t('deleteGroup') : t('leaveGroup')}
+                        icon={s.isAdmin ? Trash2 : LogOut}
+                        danger
+                        onClick={() => setConfirmOpen(true)}
+                        last
+                    />
+                </SettingsGroup>
             </div>
 
-            {/* Add Player Modal */}
-            <PlayerModal 
-                isOpen={isPlayerModalOpen} 
-                setIsOpen={setIsPlayerModalOpen} 
-                onAddPlayer={handleAddPlayer} 
+            <PlayerModal isOpen={s.isPlayerModalOpen} setIsOpen={s.setIsPlayerModalOpen} onAddPlayer={s.handleAddPlayer} />
+
+            <BottomSheet open={treasuryOpen} onClose={() => setTreasuryOpen(false)} title={t('treasuryPlayer')}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: '50vh', overflowY: 'auto' }}>
+                    {(s.group.players ?? []).map(p => {
+                        const selected = (s.group.treasuryPlayerId
+                            || (s.group.players || []).find(x => s.currentAdminIds.includes(x.userId))?.id) === p.id;
+                        const isAdmin = s.currentAdminIds.includes(p.userId);
+                        const ring = isAdmin ? '#d4a817' : '#5b7bb3';
+                        const tint = isAdmin ? '#fef9c3' : '#dbe4f0';
+                        const textColor = isAdmin ? '#a37610' : '#4a6694';
+                        const initials = `${(p.firstName || '?')[0]}${(p.lastName || '')[0] || ''}`.toUpperCase();
+                        return (
+                            <button
+                                key={p.id}
+                                type="button"
+                                onClick={() => {
+                                    s.handleTreasuryPlayerChange({ target: { value: p.id } });
+                                    setTreasuryOpen(false);
+                                }}
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: 12,
+                                    padding: '10px 12px', borderRadius: 12,
+                                    background: selected ? '#eef4ff' : '#fff',
+                                    border: `1px solid ${selected ? '#5b7bb3' : '#e2e8f0'}`,
+                                    cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
+                                }}
+                            >
+                                <div style={{
+                                    flexShrink: 0,
+                                    width: 36, height: 36, borderRadius: '50%',
+                                    background: tint, color: textColor,
+                                    border: `2px solid ${ring}`,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    fontSize: '0.8rem', fontWeight: 700,
+                                }}>
+                                    {initials}
+                                </div>
+                                <span style={{ flex: 1, fontSize: '0.95rem', fontWeight: 600, color: '#1e293b' }}>
+                                    {p.firstName} {p.lastName || ''}
+                                </span>
+                                {selected && (
+                                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#5b7bb3' }}>✓</span>
+                                )}
+                            </button>
+                        );
+                    })}
+                </div>
+            </BottomSheet>
+
+            <ConfirmSheet
+                open={confirmOpen}
+                onClose={() => setConfirmOpen(false)}
+                onConfirm={() => {
+                    setConfirmOpen(false);
+                    if (s.isAdmin) s.handleDeleteGroup(); else s.handleLeaveGroup();
+                }}
+                title={s.isAdmin
+                    ? (t('deleteGroupConfirmTitle') || 'Delete this group?')
+                    : (t('leaveGroupConfirmTitle') || 'Leave this group?')}
+                confirmLabel={s.isAdmin ? t('deleteGroup') : t('leaveGroup')}
+                cancelLabel={t('cancel') || 'Cancel'}
             />
         </>
     );

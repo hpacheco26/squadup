@@ -1,14 +1,33 @@
 import React, { useState } from 'react';
-import { Trash2 } from 'lucide-react';
-import RankIcon from '../RankIcon';
+import { Trash2, Shield, ShieldOff, UserCheck, UserX } from 'lucide-react';
 import useLanguageStore from '../../store/languageStore';
 
-function PlayerCard({ player, onRemovePlayer, onUpdatePlayer }) {
-    const { id, firstName, lastName, rank, stats, userId } = player;
+/**
+ * PlayerCard — focused on the *type* of person (Admin / Member / Guest)
+ * rather than match performance.
+ *
+ * Props:
+ *  - player: { id, firstName, lastName, userId? }
+ *  - isAdmin?: boolean        — is this player an admin of the group
+ *  - canManageAdmins?: boolean — viewer can promote/demote
+ *  - onToggleAdmin?: (player) => void
+ *  - onRemovePlayer?: (playerId) => void
+ */
+function PlayerCard({ player, isAdmin = false, canManageAdmins = false, onToggleAdmin, onRemovePlayer }) {
+    const { id, firstName, lastName, userId } = player;
     const [confirmRemove, setConfirmRemove] = useState(false);
     const { t } = useLanguageStore();
 
-    const rankNames = [t('unranked'), t('bronze'), t('silver'), t('gold'), t('platinum')];
+    const isGuest = !userId;
+    const type = isAdmin ? 'admin' : isGuest ? 'guest' : 'member';
+
+    const palette = {
+        admin:  { ring: '#d4a817', tint: '#fef9c3', text: '#a37610', label: t('admin'),  Icon: Shield },
+        member: { ring: '#5b7bb3', tint: '#dbe4f0', text: '#4a6694', label: t('member'), Icon: UserCheck },
+        guest:  { ring: '#a0aab9', tint: '#eef0f4', text: '#64748b', label: t('nonMember'),  Icon: UserX },
+    }[type];
+
+    const initials = `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase() || '?';
 
     const handleRemove = () => {
         if (!confirmRemove) {
@@ -19,37 +38,56 @@ function PlayerCard({ player, onRemovePlayer, onUpdatePlayer }) {
         if (onRemovePlayer) onRemovePlayer(id);
     };
 
-    const totalGames = (stats?.wins || 0) + (stats?.draws || 0) + (stats?.losses || 0);
-    const isGuest = !userId;
-
     return (
         <div style={{
             display: 'flex',
             alignItems: 'center',
             gap: '12px',
-            background: isGuest ? '#f8fafc' : '#fff',
+            background: '#fff',
             borderRadius: '12px',
             padding: '12px',
-            border: '1px solid #e2e8f0',
-            position: 'relative',
+            border: `1px solid ${isAdmin ? `${palette.ring}55` : '#e2e8f0'}`,
+            boxShadow: `inset 4px 0 0 0 ${palette.ring}`,
         }}>
-            {/* Rank badge */}
+            {/* Avatar with type ring + small icon overlay */}
             <div style={{
                 flexShrink: 0,
-                width: '40px',
-                height: '40px',
+                width: '44px',
+                height: '44px',
+                borderRadius: '50%',
+                background: palette.tint,
+                color: palette.text,
+                border: `2px solid ${palette.ring}`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                fontSize: '0.9rem',
+                fontWeight: 700,
+                position: 'relative',
             }}>
-                <RankIcon rank={rank || 0} size={36} />
+                {initials}
+                <span style={{
+                    position: 'absolute',
+                    bottom: -2,
+                    right: -2,
+                    width: '18px',
+                    height: '18px',
+                    borderRadius: '50%',
+                    background: '#fff',
+                    border: `1.5px solid ${palette.ring}`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}>
+                    <palette.Icon size={10} color={palette.ring} strokeWidth={2.5} />
+                </span>
             </div>
 
-            {/* Name + rank label */}
+            {/* Name + role pill */}
             <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{
                     fontSize: '0.95rem',
-                    fontWeight: '600',
+                    fontWeight: 600,
                     color: '#1e293b',
                     margin: 0,
                     overflow: 'hidden',
@@ -57,38 +95,51 @@ function PlayerCard({ player, onRemovePlayer, onUpdatePlayer }) {
                     whiteSpace: 'nowrap',
                 }}>
                     {firstName} {lastName}
-                    {isGuest && (
-                        <span style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: '400', marginLeft: '6px' }}>{t('guest')}</span>
-                    )}
                 </p>
-                <p style={{ fontSize: '0.7rem', color: '#94a3b8', margin: '2px 0 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    {rankNames[rank] || t('unranked')}
-                </p>
+                <span style={{
+                    display: 'inline-block',
+                    marginTop: '4px',
+                    fontSize: '0.6rem',
+                    fontWeight: 700,
+                    letterSpacing: '0.5px',
+                    textTransform: 'uppercase',
+                    color: palette.text,
+                    background: palette.tint,
+                    padding: '2px 8px',
+                    borderRadius: '999px',
+                }}>
+                    {palette.label}
+                </span>
             </div>
 
-            {/* Stats mini */}
-            <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                <div style={{ textAlign: 'center' }}>
-                    <p style={{ fontSize: '0.85rem', fontWeight: '700', color: '#16a34a', margin: 0 }}>{stats?.wins || 0}</p>
-                    <p style={{ fontSize: '0.55rem', color: '#94a3b8', margin: 0, textTransform: 'uppercase' }}>W</p>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                    <p style={{ fontSize: '0.85rem', fontWeight: '600', color: '#94a3b8', margin: 0 }}>{stats?.draws || 0}</p>
-                    <p style={{ fontSize: '0.55rem', color: '#94a3b8', margin: 0, textTransform: 'uppercase' }}>D</p>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                    <p style={{ fontSize: '0.85rem', fontWeight: '600', color: '#e07070', margin: 0 }}>{stats?.losses || 0}</p>
-                    <p style={{ fontSize: '0.55rem', color: '#94a3b8', margin: 0, textTransform: 'uppercase' }}>L</p>
-                </div>
-            </div>
+            {/* Admin toggle (linked users only, when viewer can manage) */}
+            {canManageAdmins && !isGuest && onToggleAdmin && (
+                <button
+                    onClick={() => onToggleAdmin(player)}
+                    title={isAdmin ? t('removeAdmin') : t('makeAdmin')}
+                    style={{
+                        flexShrink: 0,
+                        background: isAdmin ? '#fef9c3' : '#f8fafc',
+                        border: `1px solid ${isAdmin ? '#d4a81755' : '#e2e8f0'}`,
+                        borderRadius: '8px',
+                        padding: '6px 8px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        color: isAdmin ? '#a37610' : '#64748b',
+                    }}
+                >
+                    {isAdmin ? <ShieldOff size={14} /> : <Shield size={14} />}
+                </button>
+            )}
 
-            {/* Remove button */}
+            {/* Remove */}
             {onRemovePlayer && (
                 <button
                     onClick={handleRemove}
                     style={{
                         flexShrink: 0,
-                        background: confirmRemove ? '#e07070' : 'none',
+                        background: confirmRemove ? '#cf8b90' : '#f8fafc',
                         border: confirmRemove ? 'none' : '1px solid #e2e8f0',
                         borderRadius: '8px',
                         padding: '6px',
