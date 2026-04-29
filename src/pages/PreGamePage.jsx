@@ -9,8 +9,10 @@ import useAuthStore from '../store/authStore';
 import PlayerModal from '../components/modals/PlayerModal';
 import GameModal from '../components/modals/GameModal';
 import { FiSettings } from 'react-icons/fi';
-import { Share2, UserPlus, Link as LinkIcon, ClipboardList } from 'lucide-react';
+import { Share2, UserPlus, Link as LinkIcon, ClipboardList, MapPin, CalendarDays } from 'lucide-react';
 import useLanguageStore from '../store/languageStore';
+import InvitationBar from '../components/bars/InvitationBar';
+import theme from '../theme';
 
 const PreGamePage = () => {
     const { gameId } = useParams();
@@ -203,6 +205,48 @@ const PreGamePage = () => {
                     >
                         <LinkIcon size={14} /> {t('link')}
                     </button>
+                </div>
+
+                {/* Game info strip */}
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '6px',
+                    padding: '0 4px',
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+                            <MapPin size={14} color={theme.primary} style={{ flexShrink: 0 }} />
+                            <span style={{
+                                fontSize: '0.85rem', fontWeight: 600, color: theme.text,
+                                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                            }}>
+                                {game?.location || 'TBD'}
+                            </span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <CalendarDays size={13} color={theme.textMuted} style={{ flexShrink: 0 }} />
+                            <span style={{ fontSize: '0.78rem', color: theme.textSecondary, fontWeight: 600 }}>
+                                {game?.date}
+                            </span>
+                            {game?.time && (
+                                <>
+                                    <span style={{ color: theme.border }}>•</span>
+                                    <span style={{ fontSize: '0.78rem', color: theme.textSecondary, fontWeight: 600 }}>
+                                        {game.time}
+                                    </span>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                    <InvitationBar
+                        inCount={playersIn.length}
+                        outCount={playersOut.length}
+                        invitedCount={playersInvited.length}
+                        maxPlayers={game?.maxPlayers || 0}
+                        t={t}
+                        showHeader={false}
+                    />
                 </div>
 
                 <div>

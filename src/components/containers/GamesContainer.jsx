@@ -25,9 +25,9 @@ const GamesContainer = ({ games, readOnly = false }) => {
               onClick={() => handleGameClick(game.id)}
               onMouseEnter={readOnly ? undefined : () => handleMouseEnter(game.id)}
               onMouseLeave={readOnly ? undefined : handleMouseLeave}
-              style={readOnly ? {} : getStyle(game.id)}
+              style={readOnly ? { cursor: 'default' } : { cursor: 'pointer', ...getStyle(game.id) }}
             >
-              <GameCard game={game} />
+              <GameCard game={game} t={t} showGroupName={false} />
             </div>
           ))}
         </div>

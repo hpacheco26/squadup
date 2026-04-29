@@ -1,4 +1,9 @@
 const en = {
+  // Date labels
+  today: 'Today',
+  tomorrow: 'Tomorrow',
+  inDays: 'In {n} days',
+
   // App Settings / Profile
   myProfile: 'My Profile',
   firstName: 'First Name',

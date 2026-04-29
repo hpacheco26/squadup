@@ -6,7 +6,6 @@ import useAuthStore from '../store/authStore';
 import useLanguageStore from '../store/languageStore';
 import { Loader, Button } from 'react-bulma-components';
 import GameModal from '../components/modals/GameModal'; 
-import GamesContainer from '../components/containers/GamesContainer'; 
 import SquadHeaderBar from '../components/bars/SquadHeaderBar';
 import RankIcon from '../components/RankIcon';
 
@@ -50,7 +49,14 @@ function GroupPage() {
     return (
         <>
             <SquadHeaderBar />
-            <div className="p-4" style={{ maxHeight: "100vh", overflowY: "auto" }}>
+            <div style={{
+                maxHeight: "100vh",
+                overflowY: "auto",
+                padding: "20px 16px 32px",
+                maxWidth: "720px",
+                margin: "0 auto",
+                width: "100%",
+            }}>
                 {/* Create Game Modal */}
                 <GameModal 
                     isOpen={isGameCreateModalOpen} 
@@ -58,22 +64,9 @@ function GroupPage() {
                     group={group} 
                 />
 
-                {/* Next Game */}
-                {games.filter(g => g.status === 'open' || g.status === 'confirmed').length > 0 && (
-                    <>
-                        <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', textAlign: 'center', marginBottom: '4px' }}>
-                            {t('nextGame')}
-                        </p>
-                        <p style={{ fontSize: '0.7rem', color: '#94a3b8', textAlign: 'center', marginBottom: '8px' }}>
-                            {t('goToPreGame')}
-                        </p>
-                    </>
-                )}
-                <GamesContainer games={games.filter(g => g.status === 'open' || g.status === 'confirmed')} readOnly />
-
                 {/* Show Schedule Button only if no open games and user is admin */}
                 {games.filter(g => g.status === 'open' || g.status === 'confirmed').length === 0 && isAdmin && (
-                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
                         <Button 
                             onClick={() => setIsGameCreateModalOpen(true)} 
                             style={{
@@ -95,8 +88,8 @@ function GroupPage() {
 
                 {/* Player Leaderboard */}
                 {sortedPlayers.length > 0 && (
-                    <div style={{ marginTop: '24px' }}>
-                        <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', textAlign: 'center', marginBottom: '12px' }}>
+                    <div style={{ marginBottom: '24px' }}>
+                        <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', textAlign: 'center', marginBottom: '16px' }}>
                             {t('leaderboard')}
                         </p>
 
@@ -105,7 +98,7 @@ function GroupPage() {
                             display: 'grid',
                             gridTemplateColumns: '28px 1fr 28px repeat(3, 32px) 44px',
                             alignItems: 'center',
-                            padding: '0 12px 6px',
+                            padding: '0 12px 8px',
                             fontSize: '0.6rem',
                             color: '#94a3b8',
                             textTransform: 'uppercase',

@@ -2,8 +2,8 @@ import React, { useRef, useCallback } from "react";
 import { Check, X, UserPlus } from "lucide-react";
 
 const STATUS_COLORS = {
-    IN: "#16a34a",
-    OUT: "#ef4444",
+    IN: "#5fb088",  // muted sage (matches InvitationBar)
+    OUT: "#cf8b90", // dusty rose (matches InvitationBar)
 };
 
 const SWIPE_THRESHOLD = 25;
@@ -95,7 +95,7 @@ function SwipePlayer({ player, playerStatus, onLeft, onRight, rightActionType })
         applyTransform(0, true);
     }, [onLeft, onRight, applyTransform]);
 
-    const statusColor = STATUS_COLORS[playerStatus] || "#94a3b8";
+    const statusColor = STATUS_COLORS[playerStatus] || "#a0aab9";
 
     return (
         <div
@@ -120,22 +120,22 @@ function SwipePlayer({ player, playerStatus, onLeft, onRight, rightActionType })
             }}>
                 <div style={{
                     flex: 1,
-                    background: rightActionType === 'addGuest' ? "#60a5fa" : "#4ade80",
+                    background: rightActionType === 'addGuest' ? "#60a5fa" : "#5fb088",
                     display: "flex",
                     alignItems: "center",
                     paddingLeft: "20px",
                 }}>
-                    {rightActionType === 'addGuest' ? <UserPlus size={22} color="#fff" strokeWidth={3} /> : <Check size={22} color="#fff" strokeWidth={3} />}
+                    {rightActionType === 'addGuest' ? <UserPlus size={20} color="#fff" strokeWidth={3} /> : <Check size={20} color="#fff" strokeWidth={3} />}
                 </div>
                 <div style={{
                     flex: 1,
-                    background: "#f87171",
+                    background: "#cf8b90",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "flex-end",
                     paddingRight: "20px",
                 }}>
-                    <X size={22} color="#fff" strokeWidth={3} />
+                    <X size={20} color="#fff" strokeWidth={3} />
                 </div>
             </div>
 
@@ -150,8 +150,8 @@ function SwipePlayer({ player, playerStatus, onLeft, onRight, rightActionType })
                     display: "flex",
                     alignItems: "center",
                     gap: "12px",
-                    padding: "14px 14px",
-                    minHeight: "56px",
+                    padding: "10px 14px",
+                    minHeight: "44px",
                     cursor: "grab",
                     boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
                 }}
@@ -160,22 +160,22 @@ function SwipePlayer({ player, playerStatus, onLeft, onRight, rightActionType })
                 <div style={{
                     position: "absolute",
                     left: 0,
-                    top: "14px",
-                    bottom: "14px",
+                    top: "10px",
+                    bottom: "10px",
                     width: "4px",
                     borderRadius: "0 4px 4px 0",
                     background: statusColor,
                 }} />
 
                 {/* Name */}
-                <span style={{ fontSize: "1rem", fontWeight: "600", color: "#1e293b", flex: 1, paddingLeft: "8px" }}>
+                <span style={{ fontSize: "0.95rem", fontWeight: "600", color: "#1e293b", flex: 1, paddingLeft: "8px" }}>
                     {player.firstName} {player.lastName}
                 </span>
 
                 {/* Status icon */}
-                {playerStatus === "IN" && <Check size={22} color={statusColor} strokeWidth={2.5} />}
-                {playerStatus === "OUT" && <X size={22} color={statusColor} strokeWidth={2.5} />}
-                {playerStatus === "?" && <span style={{ fontSize: "1.25rem", color: statusColor, fontWeight: "bold" }}>?</span>}
+                {playerStatus === "IN" && <Check size={20} color={statusColor} strokeWidth={2.5} />}
+                {playerStatus === "OUT" && <X size={20} color={statusColor} strokeWidth={2.5} />}
+                {playerStatus === "?" && <span style={{ fontSize: "1.15rem", color: statusColor, fontWeight: "bold" }}>?</span>}
             </div>
         </div>
     );

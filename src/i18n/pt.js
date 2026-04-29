@@ -1,4 +1,9 @@
 const pt = {
+  // Date labels
+  today: 'Hoje',
+  tomorrow: 'Amanhã',
+  inDays: 'Em {n} dias',
+
   // App Settings / Profile
   myProfile: 'O Meu Perfil',
   firstName: 'Primeiro Nome',

@@ -1,152 +1,113 @@
 import React from "react";
-import { CheckCircle, XCircle, Clock, Lock, UserCheck, UserX, Mail, MapPin, Calendar, Users, Euro } from "lucide-react";
-import getMyInviteStatus from "../../utils/myInviteStatus";
-import useAuthStore from '../../store/authStore';
-import useLanguageStore from '../../store/languageStore';
+import { MapPin, CalendarDays } from "lucide-react";
+import theme from "../../theme";
+import InvitationBar from "../bars/InvitationBar";
 
-const statusConfig = {
-    open: { bg: '#dbeafe', color: '#1d4ed8', icon: <Clock size={14} />, labelKey: 'statusOpen' },
-    confirmed: { bg: '#dcfce7', color: '#16a34a', icon: <CheckCircle size={14} />, labelKey: 'statusConfirmed' },
-    closed: { bg: '#dcfce7', color: '#16a34a', icon: <Lock size={14} />, labelKey: 'statusClosed' },
-    cancelled: { bg: '#fee2e2', color: '#dc2626', icon: <XCircle size={14} />, labelKey: 'statusCancelled' }
+const getDayLabel = (dateStr, t) => {
+  if (!dateStr) return null;
+  const d = new Date(`${dateStr}T00:00`);
+  if (Number.isNaN(d.getTime())) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((d - today) / 86400000);
+  if (diffDays === 0) return (t('today') || 'Today');
+  if (diffDays === 1) return (t('tomorrow') || 'Tomorrow');
+  if (diffDays > 1 && diffDays < 7) {
+    const tpl = t('inDays');
+    return tpl ? tpl.replace('{n}', diffDays) : `In ${diffDays} days`;
+  }
+  return null;
 };
 
-const inviteConfigMap = {
-    in: { bg: '#dcfce7', color: '#16a34a', icon: <UserCheck size={14} />, labelKey: 'imIn' },
-    out: { bg: '#fee2e2', color: '#dc2626', icon: <UserX size={14} />, labelKey: 'imOut' },
-    invited: { bg: '#fef3c7', color: '#d97706', icon: <Mail size={14} />, labelKey: 'invited' }
-};
+const GameCard = ({ game, t, showGroupName = true, backgroundImage }) => {
+  const inCount = (game.playersIn || []).length;
+  const outCount = (game.playersOut || []).length;
+  const invitedCount = (game.playersInvited || []).length;
+  const maxPlayers = game.maxPlayers || 0;
+  const isFull = maxPlayers > 0 && inCount >= maxPlayers;
+  const dayLabel = getDayLabel(game.date, t);
+  const accentColor = isFull ? theme.success : theme.primary;
 
-const GameCard = ({ game }) => {
-    const status = statusConfig[game.status] || { bg: '#f1f5f9', color: '#64748b', icon: null, labelKey: null };
-    const { playerData } = useAuthStore();
-    const { t } = useLanguageStore();
-
-    const myInviteStatus = getMyInviteStatus(game, playerData.id);
-    const invite = inviteConfigMap[myInviteStatus] || { bg: '#f1f5f9', color: '#64748b', icon: null, labelKey: null };
-
-    const playersIn = (game.playersIn || []).length;
-    const playersInvited = (game.playersInvited || []).length;
-    const total = playersIn + playersInvited + (game.playersOut || []).length;
-    const fillPercent = total > 0 ? (playersIn / total) * 100 : 0;
-
-    return (
-        <div style={{
-            background: '#fff',
-            borderRadius: '16px',
-            padding: '16px',
-            boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-            border: '1px solid #e2e8f0',
-        }}>
-            {/* Top row: Location + Status badge */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
-                    <div style={{
-                        background: '#f1f5f9',
-                        borderRadius: '10px',
-                        width: '36px',
-                        height: '36px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                    }}>
-                        <MapPin size={18} color="#5b7bb3" />
-                    </div>
-                    <div style={{ minWidth: 0 }}>
-                        <p
-                            onClick={game.location ? (e) => { e.stopPropagation(); window.open(game.locationUrl || `https://www.google.com/maps/search/${encodeURIComponent(game.location)}`, '_blank'); } : undefined}
-                            style={{
-                                fontSize: '1rem', fontWeight: '700', color: game.location ? '#5b7bb3' : '#1e293b', margin: 0,
-                                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-                                cursor: game.location ? 'pointer' : 'inherit',
-                                textDecoration: game.location ? 'underline' : 'none',
-                            }}
-                        >
-                            {game.location}
-                        </p>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
-                            <Calendar size={12} color="#94a3b8" />
-                            <p style={{ fontSize: '0.78rem', color: '#64748b', margin: 0 }}>
-                                {game.date} · {game.time}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
-                    {game.price > 0 && (
-                        <span style={{
-                            background: '#f0fdf4',
-                            color: '#16a34a',
-                            fontSize: '0.7rem',
-                            fontWeight: '700',
-                            padding: '4px 8px',
-                            borderRadius: '20px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '2px',
-                            whiteSpace: 'nowrap',
-                        }}>
-                            <Euro size={12} /> {Number(game.price).toFixed(0)}
-                        </span>
-                    )}
-                    <span style={{
-                        background: status.bg,
-                        color: status.color,
-                        fontSize: '0.7rem',
-                        fontWeight: '700',
-                        padding: '4px 10px',
-                        borderRadius: '20px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        whiteSpace: 'nowrap',
-                    }}>
-                        {status.icon} {status.labelKey ? t(status.labelKey) : game.status}
-                    </span>
-                </div>
-            </div>
-
-            {/* Player bar */}
-            <div style={{ marginBottom: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <Users size={13} color="#64748b" />
-                        <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '500' }}>
-                            {playersIn} {t('confirmedCount')} · {playersInvited} {t('pendingCount')}
-                        </span>
-                    </div>
-                    <span style={{
-                        background: invite.bg,
-                        color: invite.color,
-                        fontSize: '0.7rem',
-                        fontWeight: '700',
-                        padding: '3px 8px',
-                        borderRadius: '20px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                    }}>
-                        {invite.icon} {invite.labelKey ? t(invite.labelKey) : '—'}
-                    </span>
-                </div>
-                <div style={{
-                    height: '4px',
-                    borderRadius: '2px',
-                    background: '#e2e8f0',
-                    overflow: 'hidden',
-                }}>
-                    <div style={{
-                        height: '100%',
-                        width: `${fillPercent}%`,
-                        borderRadius: '2px',
-                        background: 'linear-gradient(90deg, #5b7bb3, #7c9fd4)',
-                        transition: 'width 0.4s ease',
-                    }} />
-                </div>
-            </div>
+  return (
+    <div style={{
+      backgroundColor: '#fff',
+      backgroundImage: backgroundImage
+        ? `linear-gradient(rgba(255,255,255,0.35), rgba(255,255,255,0.35)), url(${backgroundImage})`
+        : undefined,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      borderRadius: '16px',
+      overflow: 'hidden',
+      boxShadow: `0 7px 18px ${accentColor}26`,
+      height: '100%',
+      border: `1px solid ${theme.border}`,
+    }}>
+      <div style={{ padding: 'clamp(10px, 1.8dvh, 16px)' }}>
+        {/* Header: group + status */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+          {showGroupName && game.groupName ? (
+            <span style={{
+              fontSize: '0.6rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px',
+              color: theme.primary, background: theme.primaryLight,
+              padding: '3px 8px', borderRadius: '999px',
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '70%',
+            }}>
+              {game.groupName}
+            </span>
+          ) : <span />}
+          {isFull ? (
+            <span style={{
+              fontSize: '0.6rem', fontWeight: '700', color: theme.success,
+              background: theme.successLight, padding: '3px 8px', borderRadius: '999px',
+              textTransform: 'uppercase', letterSpacing: '0.5px',
+            }}>
+              {t('full') || 'Full'}
+            </span>
+          ) : dayLabel ? (
+            <span style={{
+              fontSize: '0.6rem', fontWeight: '700', color: theme.warning,
+              background: theme.warningLight, padding: '3px 8px', borderRadius: '999px',
+              textTransform: 'uppercase', letterSpacing: '0.5px',
+            }}>
+              {dayLabel}
+            </span>
+          ) : null}
         </div>
-    );
+
+        {/* Location */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+          <MapPin size={16} color={theme.primary} style={{ flexShrink: 0 }} />
+          <span style={{
+            fontSize: '1.02rem', fontWeight: '700', color: theme.text,
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          }}>
+            {game.location || 'TBD'}
+          </span>
+        </div>
+
+        {/* Date & Time */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+          <CalendarDays size={13} color={theme.textMuted} style={{ flexShrink: 0 }} />
+          <span style={{ fontSize: '0.8rem', color: theme.textSecondary, fontWeight: 600 }}>
+            {game.date}
+          </span>
+          <span style={{ color: theme.border }}>•</span>
+          <span style={{ fontSize: '0.8rem', color: theme.textSecondary, fontWeight: 600 }}>
+            {game.time || '--:--'}
+          </span>
+        </div>
+
+        <InvitationBar
+          inCount={inCount}
+          outCount={outCount}
+          invitedCount={invitedCount}
+          maxPlayers={maxPlayers}
+          t={t}
+        />
+      </div>
+    </div>
+  );
 };
 
 export default GameCard;
