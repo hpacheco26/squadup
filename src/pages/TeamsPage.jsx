@@ -70,18 +70,15 @@ const TeamsPage = () => {
     };
 
     const hurricaneStyle = (i, total) => {
-        const angle = (360 / total) * i;
-        const rad = angle * (Math.PI / 180);
-        const radius = 60;
-        const x = Math.cos(rad) * radius;
-        const y = Math.sin(rad) * radius;
-        const spin = 360 + angle;
+        const startAngle = (360 / total) * i;
         return {
-            transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease',
-            transform: shuffling
-                ? `translate(${x}px, ${y}px) rotate(${spin}deg) scale(0.7)`
-                : 'translate(0, 0) rotate(0deg) scale(1)',
-            opacity: shuffling ? 0.3 : 1,
+            ['--hurricane-start']: `${startAngle}deg`,
+            animation: shuffling
+                ? 'hurricane-swirl 0.7s cubic-bezier(0.55, 0, 0.65, 1) both'
+                : 'none',
+            animationDelay: shuffling ? `${i * 0.035}s` : '0s',
+            transformOrigin: 'center center',
+            willChange: 'transform, opacity, filter',
         };
     };
 
@@ -209,6 +206,30 @@ const TeamsPage = () => {
 
     return (
         <>
+            <style>{`
+                @keyframes hurricane-swirl {
+                    0% {
+                        transform: rotate(var(--hurricane-start, 0deg)) translateX(0px) rotate(calc(-1 * var(--hurricane-start, 0deg))) scale(1);
+                        opacity: 1;
+                        filter: blur(0);
+                    }
+                    25% {
+                        transform: rotate(calc(var(--hurricane-start, 0deg) + 360deg)) translateX(90px) rotate(calc(-1 * (var(--hurricane-start, 0deg) + 360deg))) scale(0.9);
+                        opacity: 0.95;
+                        filter: blur(0.5px);
+                    }
+                    65% {
+                        transform: rotate(calc(var(--hurricane-start, 0deg) + 1080deg)) translateX(45px) rotate(calc(-1 * (var(--hurricane-start, 0deg) + 1080deg))) scale(0.55);
+                        opacity: 0.6;
+                        filter: blur(1.5px);
+                    }
+                    100% {
+                        transform: rotate(calc(var(--hurricane-start, 0deg) + 1800deg)) translateX(0px) scale(0.1);
+                        opacity: 0;
+                        filter: blur(3px);
+                    }
+                }
+            `}</style>
             <AppHeaderBar rightIcon={CalendarCog} onRightClick={() => navigate(`/games/${gameId}/settings`)} />
             <div className="p-4" style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1, overflow: 'hidden' }}>
                 {/* Rank Tier List — Always visible */}

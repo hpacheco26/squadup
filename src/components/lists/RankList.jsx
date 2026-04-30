@@ -14,7 +14,7 @@ import GeometricSpinner from '../GeometricSpinner';
 
 const RankList = () => {
   const navigate = useNavigate();
-  const { user, playerData } = useAuthStore();
+  const { user, playerData, selectedGroupId, setSelectedGroupId } = useAuthStore();
   const { ranks, ranksLoading, subscribeToGroupsByPlayer } = useGroupStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [canCreate, setCanCreate] = useState(false);
@@ -64,6 +64,13 @@ const RankList = () => {
           spaceBetween={15} 
           slidesPerView={1.2} 
           centeredSlides={true}
+          initialSlide={Math.max(0, ranks.findIndex(r => r.groupId === selectedGroupId))}
+          onSlideChange={(swiper) => {
+            const next = ranks[swiper.activeIndex];
+            if (next?.groupId && next.groupId !== selectedGroupId) {
+              setSelectedGroupId(next.groupId);
+            }
+          }}
           breakpoints={{
             640: { slidesPerView: 2, centeredSlides: true },  
             1024: { slidesPerView: 3, centeredSlides: true } 
