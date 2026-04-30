@@ -10,7 +10,26 @@ const SWIPE_THRESHOLD = 25;
 // Pixels of movement required to lock into a horizontal swipe vs. let the page scroll vertically.
 const DIRECTION_LOCK_PX = 8;
 
-function SwipePlayer({ player, playerStatus, onLeft, onRight, rightActionType }) {
+/**
+ * Reusable horizontal swipe card with a green left-reveal and red right-reveal.
+ *
+ * Two usage modes:
+ *  1. **Default mode** (back-compat with PlayersList): pass `player` + `playerStatus`
+ *     and the component renders its own avatar/name/status row.
+ *  2. **Slot mode**: pass `children` to render any custom card content. Optional
+ *     `leftAction` / `rightAction` override the reveal background + icon
+ *     (e.g. blue + UserPlus for "add as guest").
+ */
+function SwipePlayer({
+    player,
+    playerStatus,
+    onLeft,
+    onRight,
+    rightActionType,
+    children,
+    leftAction,
+    rightAction,
+}) {
     const containerRef = useRef(null);
     const cardRef = useRef(null);
     const startXRef = useRef(null);
@@ -97,6 +116,19 @@ function SwipePlayer({ player, playerStatus, onLeft, onRight, rightActionType })
 
     const statusColor = STATUS_COLORS[playerStatus] || "#a0aab9";
 
+    // Reveal action defaults — `rightActionType="addGuest"` is preserved for
+    // PlayersList back-compat. New callers should pass `leftAction`/`rightAction`.
+    const resolvedLeft = leftAction || {
+        color: rightActionType === 'addGuest' ? '#60a5fa' : '#5fb088',
+        icon: rightActionType === 'addGuest'
+            ? <UserPlus size={20} color="#fff" strokeWidth={3} />
+            : <Check size={20} color="#fff" strokeWidth={3} />,
+    };
+    const resolvedRight = rightAction || {
+        color: '#cf8b90',
+        icon: <X size={20} color="#fff" strokeWidth={3} />,
+    };
+
     return (
         <div
             ref={containerRef}
@@ -114,32 +146,32 @@ function SwipePlayer({ player, playerStatus, onLeft, onRight, rightActionType })
                 background: "#fff",
             }}
         >
-            {/* Background: green left / red right */}
+            {/* Background: configurable left/right reveal */}
             <div style={{
                 position: "absolute", top: "1px", left: "1px", right: "1px", bottom: "1px", display: "flex", borderRadius: "5px", overflow: "hidden",
             }}>
                 <div style={{
                     flex: 1,
-                    background: rightActionType === 'addGuest' ? "#60a5fa" : "#5fb088",
+                    background: resolvedLeft.color,
                     display: "flex",
                     alignItems: "center",
                     paddingLeft: "20px",
                 }}>
-                    {rightActionType === 'addGuest' ? <UserPlus size={20} color="#fff" strokeWidth={3} /> : <Check size={20} color="#fff" strokeWidth={3} />}
+                    {resolvedLeft.icon}
                 </div>
                 <div style={{
                     flex: 1,
-                    background: "#cf8b90",
+                    background: resolvedRight.color,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "flex-end",
                     paddingRight: "20px",
                 }}>
-                    <X size={20} color="#fff" strokeWidth={3} />
+                    {resolvedRight.icon}
                 </div>
             </div>
 
-            {/* Foreground card */}
+            {/* Foreground card — custom slot or default player row */}
             <div
                 ref={cardRef}
                 style={{
@@ -156,26 +188,30 @@ function SwipePlayer({ player, playerStatus, onLeft, onRight, rightActionType })
                     boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
                 }}
             >
-                {/* Colored status bar on left edge */}
-                <div style={{
-                    position: "absolute",
-                    left: 0,
-                    top: "10px",
-                    bottom: "10px",
-                    width: "4px",
-                    borderRadius: "0 4px 4px 0",
-                    background: statusColor,
-                }} />
+                {children ? children : (
+                    <>
+                        {/* Colored status bar on left edge */}
+                        <div style={{
+                            position: "absolute",
+                            left: 0,
+                            top: "10px",
+                            bottom: "10px",
+                            width: "4px",
+                            borderRadius: "0 4px 4px 0",
+                            background: statusColor,
+                        }} />
 
-                {/* Name */}
-                <span style={{ fontSize: "0.95rem", fontWeight: "600", color: "#1e293b", flex: 1, paddingLeft: "8px" }}>
-                    {player.firstName} {player.lastName}
-                </span>
+                        {/* Name */}
+                        <span style={{ fontSize: "0.95rem", fontWeight: "600", color: "#1e293b", flex: 1, paddingLeft: "8px" }}>
+                            {player.firstName} {player.lastName}
+                        </span>
 
-                {/* Status icon */}
-                {playerStatus === "IN" && <Check size={20} color={statusColor} strokeWidth={2.5} />}
-                {playerStatus === "OUT" && <X size={20} color={statusColor} strokeWidth={2.5} />}
-                {playerStatus === "?" && <span style={{ fontSize: "1.15rem", color: statusColor, fontWeight: "bold" }}>?</span>}
+                        {/* Status icon */}
+                        {playerStatus === "IN" && <Check size={20} color={statusColor} strokeWidth={2.5} />}
+                        {playerStatus === "OUT" && <X size={20} color={statusColor} strokeWidth={2.5} />}
+                        {playerStatus === "?" && <span style={{ fontSize: "1.15rem", color: statusColor, fontWeight: "bold" }}>?</span>}
+                    </>
+                )}
             </div>
         </div>
     );

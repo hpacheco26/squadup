@@ -246,6 +246,13 @@ const en = {
   youreInvited: "You're invited!",
   joinGame: 'Join the game',
   cancelGuest: 'Cancel',
+  responseSaved: 'Your response is saved',
+  squadKnowsIn: 'The squad knows you’re in. See you on the pitch!',
+  squadKnowsOut: 'The squad knows you can’t make it.',
+  changeMyMind: 'Change my mind',
+  guestCardTitle: 'Not on the list?',
+  guestCardSubtitle: 'Add yourself as a guest — takes 5 seconds.',
+  addAsGuest: 'Add me as a guest',
 
   // Containers
   noGamesScheduled: 'No games scheduled',

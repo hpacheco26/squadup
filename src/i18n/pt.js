@@ -246,6 +246,13 @@ const pt = {
   youreInvited: 'Foste convidado!',
   joinGame: 'Junta-te ao jogo',
   cancelGuest: 'Cancelar',
+  responseSaved: 'A tua resposta foi guardada',
+  squadKnowsIn: 'A equipa já sabe que vais. Até já no campo!',
+  squadKnowsOut: 'A equipa já sabe que não consegues ir.',
+  changeMyMind: 'Mudei de ideias',
+  guestCardTitle: 'Não estás na lista?',
+  guestCardSubtitle: 'Adiciona-te como convidado — leva 5 segundos.',
+  addAsGuest: 'Adicionar-me como convidado',
 
   // Containers
   noGamesScheduled: 'Nenhum jogo marcado',

@@ -1,0 +1,410 @@
+/* GameInvitePage.module.css
+ *
+ * Static styles for the public game-invite landing page.
+ * Color literals here mirror src/theme.js — when changing palette values,
+ * update both. Dynamic colors (state-dependent banners, etc.) stay inline
+ * in the JSX so they can read directly from `theme`.
+ *
+ * The page is wrapped in the same soft top→bottom gradient used by other
+ * in-app pages (e.g. GameSettingsPage), and a white header strip mimics
+ * AppHeaderBar so anonymous visitors see the same chrome as logged-in users.
+ */
+
+.page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+}
+
+/* Top header strip — mirrors AppHeaderBar */
+.appHeader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    background: #ffffff; /* theme.surface */
+    border-bottom: 1px solid #e2e8f0; /* theme.border */
+}
+
+.appHeaderLogo {
+    height: 32px;
+    display: block;
+}
+
+/* Centered content shell */
+.content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px 16px 40px;
+}
+
+.card {
+    background: #ffffff; /* theme.surface */
+    border: 1px solid #e2e8f0; /* theme.border */
+    border-radius: 16px;
+    padding: 22px 18px;
+    max-width: 460px;
+    width: 100%;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
+    text-align: center;
+}
+
+/* Group / brand block */
+.brandHeader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 14px;
+}
+
+.eyebrow {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: #94a3b8; /* theme.textMuted */
+    margin: 0;
+}
+
+.heading {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #1e293b; /* theme.text */
+    margin: 0;
+    line-height: 1.2;
+}
+
+.subtitle {
+    font-size: 0.9rem;
+    color: #64748b; /* theme.textSecondary */
+    margin: 0;
+}
+
+/* Game info pills */
+.gameInfoRow {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+    margin-bottom: 4px;
+}
+
+/* "You're invited!" eyebrow above the embedded GameCard */
+.invitedEyebrow {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: #5b7bb3; /* theme.primary */
+    margin: 0 0 8px;
+    text-align: center;
+}
+
+/* Wrapper around the embedded home GameCard */
+.gameCardWrap {
+    margin-bottom: 4px;
+}
+
+.infoPill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f7f8fa; /* theme.surfaceAlt */
+    border: 1px solid #e2e8f0; /* theme.border */
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    color: #475569;
+}
+
+/* Section */
+.section {
+    margin-top: 18px;
+    text-align: left;
+}
+
+.sectionTitle {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1e293b; /* theme.text */
+    margin: 0 0 2px;
+}
+
+.swipeHint {
+    font-size: 0.78rem;
+    color: #94a3b8; /* theme.textMuted */
+    margin: 0 0 10px;
+}
+
+.playerList {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Custom card content used in the SwipePlayer slot */
+.inviteRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #dbe4f0; /* theme.primaryLight */
+    color: #5b7bb3;       /* theme.primary */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.playerName {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1e293b; /* theme.text */
+    flex: 1;
+    text-align: left;
+}
+
+.swipeArrows {
+    color: #94a3b8; /* theme.textMuted */
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    letter-spacing: 2px;
+}
+
+/* Response banner — celebratory hero block. Background gradient + accent
+ * color set inline since they depend on IN/OUT state. */
+.responseBanner {
+    margin-top: 18px;
+    padding: 22px 18px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+}
+
+.responseIconCircle {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+}
+
+.responseHeading {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0;
+    line-height: 1.15;
+}
+
+.responseSubtext {
+    font-size: 0.85rem;
+    color: #475569;
+    margin: 0;
+    max-width: 280px;
+}
+
+.responseSavedRow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    color: #64748b; /* theme.textSecondary */
+    margin-top: 4px;
+}
+
+.changeMindBtn {
+    margin-top: 8px;
+    background: none;
+    border: 1px solid #cbd5e1; /* theme.borderDark */
+    color: #64748b;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 7px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+.changeMindBtn:hover {
+    border-color: #94a3b8;
+    color: #1e293b;
+}
+
+/* Invitation bar wrapper (replaces the old summary pills) */
+.invitationWrap {
+    margin-top: 18px;
+}
+
+/* Guest section */
+.guestSection {
+    margin-top: 18px;
+    border-top: 1px solid #e2e8f0; /* theme.border */
+    padding-top: 14px;
+}
+
+/* Bigger, more inviting guest card (replaces the old dashed button) */
+.guestCard {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1.5px dashed #cbd5e1; /* theme.borderDark */
+    background: #f7f8fa;          /* theme.surfaceAlt */
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+    font-family: inherit;
+}
+
+.guestCard:hover {
+    border-color: #5b7bb3;        /* theme.primary */
+    background: #eef3fb;
+    transform: translateY(-1px);
+}
+
+.guestCardIcon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #dbe4f0; /* theme.primaryLight */
+    color: #5b7bb3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.guestCardBody {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.guestCardTitle {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1e293b; /* theme.text */
+    margin: 0;
+}
+
+.guestCardSubtitle {
+    font-size: 0.8rem;
+    color: #64748b; /* theme.textSecondary */
+    margin: 0;
+}
+
+.guestCardChevron {
+    color: #94a3b8; /* theme.textMuted */
+    flex-shrink: 0;
+}
+
+.guestToggle {
+    background: none;
+    border: 1.5px dashed #5b7bb3; /* theme.primary */
+    color: #5b7bb3;
+    font-size: 0.86rem;
+    cursor: pointer;
+    font-weight: 600;
+    padding: 9px 18px;
+    border-radius: 10px;
+}
+
+.guestForm {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.guestLabel {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1e293b; /* theme.text */
+    margin: 0;
+    text-align: left;
+}
+
+.guestInput {
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1.5px solid #cbd5e1; /* theme.borderDark */
+    font-size: 1rem;
+    font-family: inherit;
+    outline: none;
+}
+
+.guestInput:focus {
+    border-color: #5b7bb3; /* theme.primary */
+}
+
+.guestActions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.guestCancelBtn {
+    background: none;
+    border: 1px solid #cbd5e1; /* theme.borderDark */
+    color: #64748b; /* theme.textSecondary */
+    font-size: 0.85rem;
+    padding: 8px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.guestJoinBtn {
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border: none;
+    padding: 8px 22px;
+    border-radius: 10px;
+}
+
+/* Loading + spinner */
+.loadingText {
+    font-size: 0.95rem;
+    color: #64748b; /* theme.textSecondary */
+    margin: 12px 0 0;
+}
+
+.spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid #e2e8f0; /* theme.border */
+    border-top-color: #5b7bb3; /* theme.primary */
+    border-radius: 50%;
+    margin: 0 auto;
+    animation: spinnerSpin 0.9s linear infinite;
+}
+
+@keyframes spinnerSpin {
+    to { transform: rotate(360deg); }
+}
+
+.errorIcon {
+    font-size: 2.2rem;
+    margin-bottom: 6px;
+}
