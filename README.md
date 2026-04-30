@@ -28,8 +28,9 @@ The dev server runs at <http://localhost:5173>.
 | `npm test` | Vitest in watch mode |
 | `npm run test:run` | Single Vitest pass |
 | `npm run test:coverage` | Vitest with coverage |
-| `npm run test:rules` | Firestore security rules tests (needs Firebase emulators) |
-| `npm run test:e2e` | Playwright end-to-end tests |
+| `npm run test:rules` | Firestore security rules tests (needs Firebase emulators + Java 17) |
+| `npm run test:e2e` | Playwright end-to-end tests (public surface, no backend) |
+| `npm run test:e2e:lifecycle` | Game lifecycle e2e against the Firebase emulators (needs Java 17 + `firebase-tools`) |
 | `npm run cap:sync` | Build web + sync iOS & Android |
 | `npm run cap:android` | Build, sync, open Android Studio |
 | `npm run cap:ios` | Build, sync, open Xcode (macOS only) |

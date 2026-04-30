@@ -46,10 +46,14 @@ export default defineConfig({
         { name: 'chromium-desktop', use: { ...devices['Desktop Chrome'] } },
     ],
     webServer: {
-        command: `npm run build && npm run preview -- --port ${PORT} --strictPort`,
+        // Use vite directly so we don't depend on `npm run -- --port` arg
+        // forwarding (which has been flaky on Windows + PowerShell).
+        // Bind to 127.0.0.1 explicitly so the baseURL probe matches the
+        // listening socket (vite preview defaults to localhost only).
+        command: `npm run build && npx vite preview --host 127.0.0.1 --port ${PORT} --strictPort`,
         url: `http://127.0.0.1:${PORT}`,
         reuseExistingServer: !process.env.CI,
-        timeout: 180_000,
+        timeout: 300_000,
         env: {
             VITE_USE_FIREBASE_EMULATOR: '1',
             VITE_FIREBASE_EMULATOR_HOST: FIREBASE_HOST,
