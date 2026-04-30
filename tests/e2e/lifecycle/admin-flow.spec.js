@@ -20,32 +20,22 @@ test.describe('Game lifecycle — admin flow', () => {
     test('admin can schedule a new game', async ({ page }) => {
         await page.goto(`/groups/${world.group.id}/games/new`);
 
-        // Form is pre-filled with sensible defaults (today's date, 20:00, etc.).
-        // Just override the location and submit.
-        const dateInput = page.locator('input[type="date"]').first();
-        const timeInput = page.locator('input[type="time"]').first();
-        await dateInput.fill('2026-12-15');
-        await timeInput.fill('19:30');
+        // Form ships with sensible defaults (today's date, 20:00, 5-a-side).
+        // Filling Location is enough to submit.
+        await page.getByPlaceholder(/^location$/i).fill('Lifecycle Test Pitch');
 
-        const locationInput = page.locator('input[type="text"]').first();
-        await locationInput.fill('Lifecycle Test Pitch');
+        await page.getByRole('button', { name: /^(schedule game|agendar jogo|create game|criar jogo)$/i }).click();
 
-        await page.getByRole('button', { name: /^(create game|schedule game|criar jogo|agendar jogo)$/i }).click();
+        // App routes to /pregame/{newGameId} after create.
+        await page.waitForURL(/\/pregame\/(.+)/, { timeout: 10_000 });
+        const url = new URL(page.url());
+        const newGameId = url.pathname.split('/').pop();
 
-        // App routes back to the group page after create.
-        await page.waitForURL(/\/groups\//, { timeout: 10_000 });
-
-        // Verify a game was actually persisted for this group.
-        // Poll Firestore via our admin handle until at least one doc exists.
-        await expect.poll(async () => {
-            // Use a quick fetch through the Firestore REST emulator endpoint.
-            const res = await fetch(
-                `http://127.0.0.1:8080/v1/projects/squadup-a3a55/databases/(default)/documents/games`,
-            );
-            const json = await res.json();
-            const docs = json.documents || [];
-            return docs.filter((d) => d.fields?.groupId?.stringValue === world.group.id).length;
-        }, { timeout: 10_000 }).toBeGreaterThanOrEqual(1);
+        // Verify the doc exists for the right group.
+        const created = await getGame(newGameId);
+        expect(created).not.toBeNull();
+        expect(created.groupId).toBe(world.group.id);
+        expect(created.location).toBe('Lifecycle Test Pitch');
     });
 
     test('admin can cancel an existing game', async ({ page }) => {
@@ -57,12 +47,18 @@ test.describe('Game lifecycle — admin flow', () => {
 
         await page.goto(`/games/${game.id}/settings`);
 
-        // The "Cancel Game" button lives in a danger-zone section toward the
-        // bottom of the form. Click it then confirm in the modal.
-        await page.getByRole('button', { name: /(cancel game|cancelar jogo)/i }).first().click();
-        await page.getByRole('button', { name: /(yes,?\s*cancel game|sim,?\s*cancelar jogo)/i }).click();
+        // The "Cancel Game" SettingsRow lives in the Danger Zone toward the
+        // bottom of the form. SettingsRow renders as a div, not a button.
+        const cancelRow = page.getByText(/^cancel game$/i).first();
+        await cancelRow.scrollIntoViewIfNeeded();
+        await cancelRow.click();
 
-        // The game document should disappear within a few seconds.
+        // Confirmation modal opens: the danger button inside the BottomSheet
+        // is a real <button> with the same label.
+        const confirmBtn = page.getByRole('button', { name: /^cancel game$/i });
+        await confirmBtn.waitFor({ state: 'visible', timeout: 5_000 });
+        await confirmBtn.click();
+
         await expect.poll(async () => await getGame(game.id), { timeout: 10_000 }).toBeNull();
     });
 });

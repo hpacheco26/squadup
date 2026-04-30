@@ -20,6 +20,24 @@ const DIRECTION_LOCK_PX = 8;
  *     `leftAction` / `rightAction` override the reveal background + icon
  *     (e.g. blue + UserPlus for "add as guest").
  */
+// Visually-hidden but focusable + clickable. Used for the WCAG SC 2.5.1
+// keyboard / non-swipe alternatives below. zIndex sits above the foreground
+// card (which is z=10) so programmatic clicks reach the button instead of
+// being intercepted by the swipe surface.
+const SR_ONLY = {
+    position: 'absolute',
+    width: 1,
+    height: 1,
+    padding: 0,
+    margin: -1,
+    overflow: 'hidden',
+    clip: 'rect(0,0,0,0)',
+    whiteSpace: 'nowrap',
+    border: 0,
+    background: 'transparent',
+    zIndex: 20,
+};
+
 function SwipePlayer({
     player,
     playerStatus,
@@ -129,9 +147,18 @@ function SwipePlayer({
         icon: <X size={20} color="#fff" strokeWidth={3} />,
     };
 
+    const playerName = player ? `${player.firstName || ''} ${player.lastName || ''}`.trim() : '';
+    // Labels are swipe-direction based, NOT semantic. Each page chooses what
+    // a left-swipe vs. right-swipe means. Tests should follow the page.
+    const leftLabel = resolvedLeft.label
+        || (playerName ? `Swipe ${playerName} left` : 'Swipe left');
+    const rightLabel = resolvedRight.label
+        || (playerName ? `Swipe ${playerName} right` : 'Swipe right');
+
     return (
         <div
             ref={containerRef}
+            data-player-id={player?.id}
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
@@ -146,6 +173,17 @@ function SwipePlayer({
                 background: "#fff",
             }}
         >
+            {/* WCAG 2.5.1 — keyboard / non-swipe alternative for the swipe gesture. */}
+            {onLeft && (
+                <button type="button" aria-label={leftLabel}
+                    onClick={(e) => { e.stopPropagation(); onLeft(); }}
+                    style={SR_ONLY}>{leftLabel}</button>
+            )}
+            {onRight && (
+                <button type="button" aria-label={rightLabel}
+                    onClick={(e) => { e.stopPropagation(); onRight(); }}
+                    style={SR_ONLY}>{rightLabel}</button>
+            )}
             {/* Background: configurable left/right reveal */}
             <div style={{
                 position: "absolute", top: "1px", left: "1px", right: "1px", bottom: "1px", display: "flex", borderRadius: "5px", overflow: "hidden",

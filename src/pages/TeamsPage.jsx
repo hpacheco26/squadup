@@ -28,16 +28,19 @@ const TeamsPage = () => {
     const [pressed, setPressed] = useState(false);
     const [shuffling, setShuffling] = useState(false);
     const [animateIn, setAnimateIn] = useState(false);
+    const [ready, setReady] = useState(false);
 
     useEffect(() => {
+        setReady(false);
         if (gameId) {
             const unsub = subscribeToGame(gameId);
-            return unsub;
+            setReady(true);
+            return () => { unsub(); setReady(false); };
         }
     }, [gameId, subscribeToGame]);
 
     useEffect(() => {
-        if (loading) return;
+        if (!ready || loading) return;
         if (!game) {
             const gId = group?.id;
             if (gId) navigate(`/groups/${gId}`, { replace: true });
@@ -47,7 +50,7 @@ const TeamsPage = () => {
         if (game.status && game.status !== 'open' && game.status !== 'confirmed') {
             navigate(`/groups/${game.groupId}`, { replace: true });
         }
-    }, [game, loading, group?.id, navigate]);
+    }, [game, loading, ready, group?.id, navigate]);
 
     useEffect(() => {
         if (game?.groupId) {

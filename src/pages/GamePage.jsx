@@ -28,19 +28,22 @@ const GamePage = () => {
 
     const [isSubModalOpen, setIsSubModalOpen] = useState(false);
     const [subCounts, setSubCounts] = useState({});
+    const [ready, setReady] = useState(false);
     const intervalRef = useRef(null);
 
     useEffect(() => {
+        setReady(false);
         if (gameId) {
             // Only resets goals/timer when switching to a different game
             initGameSession(gameId);
             const unsub = subscribeToGame(gameId);
-            return unsub;
+            setReady(true);
+            return () => { unsub(); setReady(false); };
         }
     }, [gameId, subscribeToGame]);
 
     useEffect(() => {
-        if (loading) return;
+        if (!ready || loading) return;
         if (!game) {
             const gId = group?.id;
             if (gId) navigate(`/groups/${gId}`, { replace: true });
@@ -50,7 +53,7 @@ const GamePage = () => {
         if (game.status && game.status !== 'open' && game.status !== 'confirmed') {
             navigate(`/groups/${game.groupId}`, { replace: true });
         }
-    }, [game, loading, group?.id, navigate]);
+    }, [game, loading, ready, group?.id, navigate]);
 
     useEffect(() => {
         if (game?.groupId) {

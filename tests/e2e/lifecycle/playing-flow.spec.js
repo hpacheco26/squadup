@@ -3,9 +3,7 @@
  *
  * Scenarios:
  *   1. Squad Up — admin balances teams; team1 + team2 arrays get populated.
- *   2. End Game — admin ends a game with a recorded score; the game document
- *      is removed from Firestore (and player ranks would be updated, but we
- *      assert only on the deletion to keep the test deterministic).
+ *   2. End Game — admin ends a game; the document is removed from Firestore.
  */
 
 import { expect, test } from '@playwright/test';
@@ -29,9 +27,15 @@ test.describe('Game lifecycle — playing flow', () => {
             status: 'confirmed',
         });
 
+        // Hop through pregame first so the gameStore subscription resolves
+        // before we land on TeamsPage. Wait for a known PreGamePage element
+        // (the InvitationBar pending count) instead of networkidle
+        // — Firebase listeners keep the network non-idle indefinitely.
+        await page.goto(`/pregame/${game.id}`);
+        await page.getByRole('button', { name: /^(guest|convidado)$/i }).first().waitFor({ state: 'visible', timeout: 10_000 });
         await page.goto(`/teams/${game.id}`);
 
-        await page.getByRole('button', { name: /(squad up|formar equipas)/i }).first().click();
+        await page.getByRole('button', { name: /^(squad up|formar equipas|formar times)$/i }).first().click();
 
         await expect.poll(async () => {
             const g = await getGame(game.id);
@@ -56,17 +60,11 @@ test.describe('Game lifecycle — playing flow', () => {
             status: 'confirmed',
         });
 
+        await page.goto(`/pregame/${game.id}`);
+        await page.getByRole('button', { name: /^(guest|convidado)$/i }).first().waitFor({ state: 'visible', timeout: 10_000 });
         await page.goto(`/game/${game.id}`);
 
-        await page.getByRole('button', { name: /(end game|terminar jogo)/i }).first().click();
-
-        // Some builds show a confirmation modal; accept either path.
-        const confirm = page.getByRole('button', {
-            name: /(yes,?\s*end game|sim,?\s*terminar jogo|confirm|confirmar)/i,
-        });
-        if (await confirm.isVisible({ timeout: 1500 }).catch(() => false)) {
-            await confirm.click();
-        }
+        await page.getByRole('button', { name: /^(end game|terminar jogo)$/i }).first().click();
 
         await expect.poll(async () => await getGame(game.id), { timeout: 15_000 }).toBeNull();
     });

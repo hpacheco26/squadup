@@ -7,10 +7,20 @@
  *   2. Player swipes themselves OUT — moves to playersOut and the game
  *      drops back to 'open' if the threshold is no longer met.
  *   3. Admin adds a guest — guest doc appears in playersIn with guest=true.
+ *
+ * SwipePlayer exposes visually-hidden a11y buttons for the swipe gesture
+ * (WCAG 2.5.1). Labels are direction-based:
+ *   - "Swipe {name} left"  → fires onLeft  (i.e. leftSwipe prop)
+ *   - "Swipe {name} right" → fires onRight (i.e. rightSwipe prop)
+ *
+ * What each direction *does* depends on the page. On PreGamePage:
+ *   - Invited list:  rightSwipe={handlePlayerIn},  leftSwipe={handlePlayerOut}
+ *   - In list:       leftSwipe ={handlePlayerOut}, rightSwipe={handleQuickGuest}
+ *   - Out list:      rightSwipe={handlePlayerIn}
  */
 
 import { expect, test } from '@playwright/test';
-import { seedFresh, loginAs } from './_setup/fixtures.js';
+import { seedFresh, loginAs, ADMIN } from './_setup/fixtures.js';
 import { createGame, getGame } from './_setup/seed.js';
 
 test.describe('Game lifecycle — RSVP flow', () => {
@@ -34,10 +44,13 @@ test.describe('Game lifecycle — RSVP flow', () => {
 
         await page.goto(`/pregame/${game.id}`);
 
-        // Click the "I'm In" action on the admin's own row. The PreGamePage
-        // surfaces it via the SwipePlayer component; simplest selector is the
-        // localized button text scoped to the user's name.
-        await page.getByRole('button', { name: /(i'?m in|estou dentro|i'?m in!)/i }).first().click();
+        // Invited list: rightSwipe → handlePlayerIn. The sr-only swipe button
+        // overlaps the visible swipe card; dispatch the DOM click directly
+        // to bypass Playwright's hit-test (the swipe surface intercepts).
+        const adminRow = page.locator(`[data-player-id="${world.adminPlayer.id}"]`);
+        await adminRow.waitFor({ state: 'visible' });
+        await adminRow.getByRole('button', { name: new RegExp(`swipe ${ADMIN.firstName} ${ADMIN.lastName} right`, 'i') })
+            .dispatchEvent('click');
 
         await expect.poll(async () => {
             const g = await getGame(game.id);
@@ -60,7 +73,12 @@ test.describe('Game lifecycle — RSVP flow', () => {
 
         await page.goto(`/pregame/${game.id}`);
 
-        await page.getByRole('button', { name: /(i'?m out|estou fora)/i }).first().click();
+        // In list: leftSwipe → handlePlayerOut. dispatchEvent bypasses the
+        // foreground card's pointer interception.
+        const adminRow = page.locator(`[data-player-id="${world.adminPlayer.id}"]`);
+        await adminRow.waitFor({ state: 'visible' });
+        await adminRow.getByRole('button', { name: new RegExp(`swipe ${ADMIN.firstName} ${ADMIN.lastName} left`, 'i') })
+            .dispatchEvent('click');
 
         await expect.poll(async () => {
             const g = await getGame(game.id);
@@ -80,12 +98,15 @@ test.describe('Game lifecycle — RSVP flow', () => {
 
         await page.goto(`/pregame/${game.id}`);
 
-        await page.getByRole('button', { name: /(add guest|adicionar convidado)/i }).first().click();
+        // PreGamePage header: <button> with "Guest" label opens the modal.
+        await page.getByRole('button', { name: /^(guest|convidado)$/i }).first().click();
 
-        // Modal opens with first/last name inputs.
-        await page.locator('input[type="text"]').nth(0).fill('Greta');
-        await page.locator('input[type="text"]').nth(1).fill('Guest');
-        await page.getByRole('button', { name: /(add|adicionar|done|conclu[ií]r|save|guardar)/i }).first().click();
+        // PlayerModal: First Name + Last Name textboxes (placeholder = name)
+        // and an "Add New Player" submit button.
+        const modal = page.getByRole('heading', { name: /(add new player|adicionar novo jogador)/i }).locator('..').locator('..');
+        await modal.getByRole('textbox', { name: /(first name|nome)/i }).fill('Greta');
+        await modal.getByRole('textbox', { name: /(last name|apelido|sobrenome)/i }).fill('Guest');
+        await modal.getByRole('button', { name: /^(add new player|adicionar novo jogador)$/i }).click();
 
         await expect.poll(async () => {
             const g = await getGame(game.id);
