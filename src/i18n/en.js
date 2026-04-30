@@ -49,7 +49,7 @@ const en = {
 
   // Group Page
   nextGame: 'Next Game',
-  goToPreGame: 'Go to PreGame to confirm your attendance',
+  goToPreGame: 'Go to Squad to confirm your attendance',
   scheduleGame: 'Schedule Game',
   selectDate: 'Select Date',
   selectTime: 'Select Time',
@@ -275,14 +275,14 @@ const en = {
   // Nav
   navHome: 'Home',
   navHub: 'Hub',
-  navPreGame: 'PreGame',
+  navPreGame: 'Squad',
   navTeams: 'Teams',
   navGame: 'Game',
   navPay: 'Pay',
   navProfile: 'Profile',
 
   // Header Bar tabs
-  tabPreGame: 'PreGame',
+  tabPreGame: 'Squad',
   tabTeams: 'Teams',
   tabGame: 'Game',
 

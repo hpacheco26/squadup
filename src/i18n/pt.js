@@ -46,7 +46,7 @@ const pt = {
 
   // Group Page
   nextGame: 'Próximo Jogo',
-  goToPreGame: 'Vai ao PreGame para confirmar a tua presença',
+  goToPreGame: 'Vai ao Squad para confirmar a tua presença',
   scheduleGame: 'Marcar Jogo',
   selectDate: 'Selecionar Data',
   selectTime: 'Selecionar Hora',
@@ -275,14 +275,14 @@ const pt = {
   // Nav
   navHome: 'Início',
   navHub: 'Hub',
-  navPreGame: 'PréJogo',
+  navPreGame: 'Squad',
   navTeams: 'Equipas',
   navGame: 'Jogo',
   navPay: 'Pagar',
   navProfile: 'Perfil',
 
   // Header Bar tabs
-  tabPreGame: 'PreGame',
+  tabPreGame: 'Squad',
   tabTeams: 'Equipas',
   tabGame: 'Jogo',
 
