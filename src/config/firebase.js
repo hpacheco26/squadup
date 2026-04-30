@@ -18,9 +18,13 @@ const db = getFirestore(app);
 
 // E2E lifecycle tests build the app with VITE_USE_FIREBASE_EMULATOR=1 so that
 // auth + firestore traffic is routed at the local emulator suite instead of
-// production. This branch is dead code in any prod / dev build that does not
-// set the flag.
-if (import.meta.env.VITE_USE_FIREBASE_EMULATOR === '1') {
+// production. Belt-and-braces: we ALSO require the page to be served from a
+// local host. That way an accidental `VITE_USE_FIREBASE_EMULATOR=1` left in
+// the shell env when running `npm run build && firebase deploy` cannot wire
+// the production bundle at 127.0.0.1.
+const isLocalHost = typeof window !== 'undefined'
+  && /^(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])$/i.test(window.location.hostname);
+if (import.meta.env.VITE_USE_FIREBASE_EMULATOR === '1' && isLocalHost) {
   const host = import.meta.env.VITE_FIREBASE_EMULATOR_HOST || '127.0.0.1';
   const authPort = Number(import.meta.env.VITE_FIREBASE_AUTH_PORT || 9099);
   const firestorePort = Number(import.meta.env.VITE_FIREBASE_FIRESTORE_PORT || 8080);
