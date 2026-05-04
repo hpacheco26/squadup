@@ -221,6 +221,64 @@ html.dark .logo-themed {
   filter: brightness(0.94);
 }
 
+/* ── Auth input fields ── */
+.auth-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.auth-field-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--c-text-muted);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+.auth-field-toggle {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--c-text-muted);
+  display: flex;
+  align-items: center;
+  padding: 4px;
+}
+.auth-field-toggle:hover {
+  color: var(--c-text-secondary);
+}
+.auth-input {
+  width: 100%;
+  padding: 10px 12px 10px 38px;
+  border-radius: 10px;
+  border: 1.5px solid var(--c-border);
+  background: var(--c-surface-alt);
+  color: var(--c-text);
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.auth-input:focus {
+  border-color: var(--c-primary);
+  box-shadow: 0 0 0 3px var(--c-primary-a15);
+  background: var(--c-surface);
+}
+.auth-input.has-toggle {
+  padding-right: 40px;
+}
+.auth-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--c-text-secondary);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
 html {
   overflow-y: auto;
   overflow-x: hidden;

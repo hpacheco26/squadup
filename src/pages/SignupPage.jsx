@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 import useLanguageStore from '../store/languageStore';
+import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 
 const SignupPage = () => {
     const { signup } = useAuthStore();
@@ -13,6 +14,8 @@ const SignupPage = () => {
     const [lastName, setLastName] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -55,10 +58,10 @@ const SignupPage = () => {
                 justifyContent: 'center',
                 alignItems: 'center',
                 padding: '10px',
-                backgroundColor: '#ffffff',
-                borderBottom: '1px solid #e2e8f0',
+                backgroundColor: 'var(--c-surface)',
+                borderBottom: '1px solid var(--c-border)',
             }}>
-                <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{t('createAccount')}</h1>
+                <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--c-text)' }}>{t('createAccount')}</h1>
             </header>
 
             {/* Form */}
@@ -66,83 +69,61 @@ const SignupPage = () => {
                 {error && <p style={{ color: '#e07070', marginBottom: '12px' }}>{error}</p>}
 
                 <div style={{ marginBottom: '16px' }}>
-                    <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-                        {t('firstName')}
-                    </label>
-                    <input
-                        className="input"
-                        type="text"
-                        placeholder={t('firstName')}
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        required
-                        style={{ borderRadius: '8px' }}
-                    />
+                    <label className="auth-label">{t('firstName')}</label>
+                    <div className="auth-field">
+                        <span className="auth-field-icon"><User size={16} /></span>
+                        <input className="auth-input" type="text" placeholder={t('firstName')}
+                            value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+                    </div>
                 </div>
 
                 <div style={{ marginBottom: '16px' }}>
-                    <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-                        {t('lastName')}
-                    </label>
-                    <input
-                        className="input"
-                        type="text"
-                        placeholder={t('lastName')}
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        required
-                        style={{ borderRadius: '8px' }}
-                    />
+                    <label className="auth-label">{t('lastName')}</label>
+                    <div className="auth-field">
+                        <span className="auth-field-icon"><User size={16} /></span>
+                        <input className="auth-input" type="text" placeholder={t('lastName')}
+                            value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+                    </div>
                 </div>
 
                 <div style={{ marginBottom: '16px' }}>
-                    <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-                        {t('email')}
-                    </label>
-                    <input
-                        className="input"
-                        type="email"
-                        placeholder={t('email')}
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        style={{ borderRadius: '8px' }}
-                    />
+                    <label className="auth-label">{t('email')}</label>
+                    <div className="auth-field">
+                        <span className="auth-field-icon"><Mail size={16} /></span>
+                        <input className="auth-input" type="email" placeholder={t('email')}
+                            value={email} onChange={(e) => setEmail(e.target.value)} required />
+                    </div>
                 </div>
 
                 <div style={{ marginBottom: '16px' }}>
-                    <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-                        {t('password')}
-                    </label>
-                    <input
-                        className="input"
-                        type="password"
-                        placeholder={t('password')}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        style={{ borderRadius: '8px' }}
-                    />
+                    <label className="auth-label">{t('password')}</label>
+                    <div className="auth-field">
+                        <span className="auth-field-icon"><Lock size={16} /></span>
+                        <input className="auth-input has-toggle" type={showPassword ? 'text' : 'password'}
+                            placeholder={t('password')} value={password}
+                            onChange={(e) => setPassword(e.target.value)} required />
+                        <button type="button" className="auth-field-toggle" onClick={() => setShowPassword(v => !v)}>
+                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                    </div>
                 </div>
 
                 <div style={{ marginBottom: '16px' }}>
-                    <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', display: 'block', marginBottom: '6px' }}>
-                        {t('confirmPassword')}
-                    </label>
-                    <input
-                        className="input"
-                        type="password"
-                        placeholder={t('confirmPassword')}
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                        style={{ borderRadius: '8px' }}
-                    />
+                    <label className="auth-label">{t('confirmPassword')}</label>
+                    <div className="auth-field">
+                        <span className="auth-field-icon"><Lock size={16} /></span>
+                        <input className="auth-input has-toggle" type={showConfirm ? 'text' : 'password'}
+                            placeholder={t('confirmPassword')} value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)} required />
+                        <button type="button" className="auth-field-toggle" onClick={() => setShowConfirm(v => !v)}>
+                            {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                    </div>
                 </div>
             </div>
 
             {/* Fixed Bottom */}
-            <div style={{ padding: '20px', borderTop: '1px solid #e2e8f0', backgroundColor: '#fff' }}>
+            <div style={{ padding: '20px', borderTop: '1px solid var(--c-border)', backgroundColor: 'var(--c-surface)' }}>
                 <button
                     className="btn-primary"
                     onClick={handleSubmit}
@@ -151,7 +132,7 @@ const SignupPage = () => {
                 >
                     {loading ? t('signingUp') : t('signUp')}
                 </button>
-                <p style={{ textAlign: 'center', marginTop: '12px', color: '#64748b' }}>
+                <p style={{ textAlign: 'center', marginTop: '12px', color: 'var(--c-text-secondary)' }}>
                     {t('hasAccount')} <a href="/login" style={{ color: 'var(--c-primary)' }}>{t('loginLink')}</a>
                 </p>
             </div>
