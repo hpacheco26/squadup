@@ -21,13 +21,18 @@ import TermsOfServicePage from './pages/TermsOfServicePage.jsx';
 import LicensesPage from './pages/LicensesPage.jsx';
 import ProtectedRoute from './components/ProtectedRoute';
 import useAuthStore from './store/authStore';
+import useGroupStore from './store/groupStore';
 import useNotificationStore from './store/notificationStore';
+import RankChangeGate from './components/modals/RankChangeGate';
 
 
 function App() {
 
   const user = useAuthStore((s) => s.user);
   const { startListening, stopListening, enabled } = useNotificationStore();
+  const pendingRankChanges = useGroupStore((s) => s.pendingRankChanges);
+  const acknowledgeRankChange = useGroupStore((s) => s.acknowledgeRankChange);
+  const firstChange = pendingRankChanges[0] ?? null;
 
   useEffect(() => {
     if (user?.uid && enabled) {
@@ -50,6 +55,12 @@ function App() {
 
   return (
     <div style={appStyles}>
+      {firstChange && (
+        <RankChangeGate
+          change={firstChange}
+          onAcknowledge={() => acknowledgeRankChange(firstChange.groupId)}
+        />
+      )}
       <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column' }}>
       <Routes>
         {/* Public Routes */}

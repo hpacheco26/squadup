@@ -230,7 +230,7 @@ const GamePage = () => {
         // Always delete the ended game — debts are stored on the group
         await deleteGame(game.id);
         resetGameSession();
-        navigate('/rank');
+        navigate(`/groups/${game.groupId}`);
     };
 
     const handleShareResult = () => {

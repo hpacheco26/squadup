@@ -14,6 +14,7 @@ const useGroupStore = create(
             error: null,
             myPlayer: null,
             ranks: [],
+            pendingRankChanges: [], // [{ groupId, groupName, previousRank, newRank }]
 
             // Internal unsubscribe references
             _unsubGroup: null,
@@ -29,6 +30,30 @@ const useGroupStore = create(
                 const unsub = GroupService.subscribeToGroup(id, (group) => {
                     if (group) {
                         const myPlayer = group.players.find(player => player.id === playerId) || null;
+
+                        // Detect rank change for this player in this group
+                        if (myPlayer && playerId) {
+                            const storageKey = `rank:lastSeen:${playerId}:${group.id}`;
+                            const lastSeenRaw = localStorage.getItem(storageKey);
+                            if (lastSeenRaw !== null) {
+                                const lastSeenRank = Number(lastSeenRaw);
+                                if (lastSeenRank !== myPlayer.rank) {
+                                    set(state => ({
+                                        pendingRankChanges: state.pendingRankChanges.some(c => c.groupId === group.id)
+                                            ? state.pendingRankChanges
+                                            : [...state.pendingRankChanges, {
+                                                groupId: group.id,
+                                                groupName: group.name,
+                                                previousRank: lastSeenRank,
+                                                newRank: myPlayer.rank,
+                                            }]
+                                    }));
+                                }
+                            } else {
+                                localStorage.setItem(storageKey, String(myPlayer.rank));
+                            }
+                        }
+
                         set({ group, myPlayer, loading: false });
                     } else {
                         set({ group: null, myPlayer: null, loading: false, error: 'Group not found' });
@@ -59,6 +84,42 @@ const useGroupStore = create(
                             stats: player.stats
                         };
                     }).filter(Boolean);
+
+                    // Detect rank changes across all groups
+                    const currentPending = useGroupStore.getState().pendingRankChanges;
+                    const newChanges = [];
+                    groups.forEach(group => {
+                        const player = group.players.find(p => p.id === playerId);
+                        if (!player) return;
+                        const storageKey = `rank:lastSeen:${playerId}:${group.id}`;
+                        const lastSeenRaw = localStorage.getItem(storageKey);
+                        if (lastSeenRaw !== null) {
+                            const lastSeenRank = Number(lastSeenRaw);
+                            if (
+                                lastSeenRank !== player.rank &&
+                                !currentPending.some(c => c.groupId === group.id) &&
+                                !newChanges.some(c => c.groupId === group.id)
+                            ) {
+                                newChanges.push({
+                                    groupId: group.id,
+                                    groupName: group.name,
+                                    previousRank: lastSeenRank,
+                                    newRank: player.rank,
+                                });
+                            }
+                        } else {
+                            localStorage.setItem(storageKey, String(player.rank));
+                        }
+                    });
+                    if (newChanges.length > 0) {
+                        set(state => ({
+                            pendingRankChanges: [
+                                ...state.pendingRankChanges,
+                                ...newChanges.filter(c => !state.pendingRankChanges.some(e => e.groupId === c.groupId))
+                            ]
+                        }));
+                    }
+
                     set({ groups, ranks, ranksLoading: false });
                 });
                 set({ _unsubGroups: unsub, ranks: [], ranksLoading: true });
@@ -69,6 +130,17 @@ const useGroupStore = create(
                 const unsub = useGroupStore.getState()._unsubGroups;
                 if (unsub) unsub();
                 set({ _unsubGroups: null });
+            },
+
+            acknowledgeRankChange: (groupId) => {
+                const playerId = useAuthStore.getState().playerData?.id;
+                const change = useGroupStore.getState().pendingRankChanges.find(c => c.groupId === groupId);
+                if (change && playerId) {
+                    localStorage.setItem(`rank:lastSeen:${playerId}:${groupId}`, String(change.newRank));
+                }
+                set(state => ({
+                    pendingRankChanges: state.pendingRankChanges.filter(c => c.groupId !== groupId)
+                }));
             },
 
             // �🔹 Fetch all groups and update ranks
