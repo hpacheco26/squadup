@@ -17,6 +17,15 @@
     background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
 }
 
+.pageBody {
+    flex: 1;
+    padding: 20px 16px 40px;
+    max-width: 520px;
+    width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
 /* Top header strip — mirrors AppHeaderBar */
 .appHeader {
     display: flex;
@@ -407,4 +416,128 @@
 .errorIcon {
     font-size: 2.2rem;
     margin-bottom: 6px;
+}
+
+/* "You" badge next to the current user's player name */
+.youBadge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: #dbe4f0; /* theme.primaryLight */
+    color: #5b7bb3;       /* theme.primary */
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    vertical-align: middle;
+    text-transform: uppercase;
+}
+
+/* ── Auth gate ── */
+.authGate {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 6px 0 2px;
+    text-align: center;
+}
+
+.googleBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 320px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    border: 1.5px solid #e2e8f0; /* theme.border */
+    background: #ffffff;
+    color: #1e293b; /* theme.text */
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.googleBtn:hover:not(:disabled) {
+    border-color: #5b7bb3; /* theme.primary */
+    background: #f7f9fc;
+}
+
+.googleBtn:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.authError {
+    font-size: 0.82rem;
+    color: #e57373;
+    margin: -6px 0 0;
+}
+
+.authDividerRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 320px;
+}
+
+.authDividerLine {
+    flex: 1;
+    height: 1px;
+    background: #e2e8f0; /* theme.border */
+}
+
+.authDividerText {
+    font-size: 0.78rem;
+    color: #94a3b8; /* theme.textMuted */
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.authLinksRow {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    max-width: 320px;
+}
+
+.authLinkBtn {
+    flex: 1;
+    padding: 11px 14px;
+    border-radius: 10px;
+    border: 1.5px solid #e2e8f0; /* theme.border */
+    background: #f7f8fa; /* theme.surfaceAlt */
+    color: #1e293b; /* theme.text */
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.authLinkBtn:hover {
+    border-color: #5b7bb3; /* theme.primary */
+    background: #eef3fb;
+}
+
+.privacyNote {
+    font-size: 0.75rem;
+    color: #94a3b8; /* theme.textMuted */
+    margin: 0;
+    max-width: 300px;
+    line-height: 1.5;
+}
+
+.privacyNote a {
+    color: #5b7bb3; /* theme.primary */
+    text-decoration: none;
+}
+
+.privacyNote a:hover {
+    text-decoration: underline;
 }

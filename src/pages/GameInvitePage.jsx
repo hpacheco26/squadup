@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { signInAnonymously } from 'firebase/auth';
-import { Check, X, CheckCircle2, XCircle, UserPlus, ChevronRight } from 'lucide-react';
-import { auth } from '../config/firebase';
+import { useParams, useNavigate } from 'react-router-dom';
+import { CheckCircle2, XCircle } from 'lucide-react';
+import { FaGoogle } from 'react-icons/fa';
 import GameService from '../api/gameService';
 import GroupService from '../api/groupService';
+import useAuthStore from '../store/authStore';
 import useLanguageStore from '../store/languageStore';
 import SwipePlayer from '../components/SwipePlayer';
 import GameCard from '../components/cards/GameCard';
@@ -16,25 +16,20 @@ import styles from './GameInvitePage.module.css';
 function GameInvitePage() {
     const { gameId } = useParams();
     const { t } = useLanguageStore();
+    const { user, loginWithGoogle } = useAuthStore();
     const [game, setGame] = useState(null);
     const [group, setGroup] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [respondedPlayerId, setRespondedPlayerId] = useState(null);
     const [respondedStatus, setRespondedStatus] = useState(null);
-    const [guestName, setGuestName] = useState('');
-    const [showGuestInput, setShowGuestInput] = useState(false);
-    const [guestSubmitting, setGuestSubmitting] = useState(false);
 
     useEffect(() => {
-        let createdAnonymously = false;
+        if (!user) return;
 
         async function load() {
+            setLoading(true);
             try {
-                if (!auth.currentUser) {
-                    await signInAnonymously(auth);
-                    createdAnonymously = true;
-                }
                 const gameData = await GameService.getGameById(gameId);
                 if (!gameData) {
                     setError(t('gameEndedOrGone'));
@@ -61,14 +56,7 @@ function GameInvitePage() {
             setLoading(false);
         }
         load();
-
-        return () => {
-            // Anonymous accounts are only needed for Firestore read access.
-            if (createdAnonymously && auth.currentUser?.isAnonymous) {
-                auth.currentUser.delete().catch(() => { });
-            }
-        };
-    }, [gameId]);
+    }, [gameId, user]);
 
     const handleResponse = async (player, status) => {
         if (!game) return;
@@ -100,43 +88,14 @@ function GameInvitePage() {
         }));
     };
 
-    const handleGuestJoin = async () => {
-        const trimmed = guestName.trim();
-        if (!trimmed || !game) return;
-        setGuestSubmitting(true);
-
-        const parts = trimmed.split(/\s+/);
-        const firstName = parts[0];
-        const lastName = parts.slice(1).join(' ') || '';
-        const guestId = `guest-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-
-        const guestPlayer = {
-            id: guestId,
-            firstName,
-            lastName,
-            userId: null,
-            rank: 0,
-            stats: { gamesPlayed: 0, gamesWon: 0 },
-            isGuest: true,
-        };
-
-        const updatedIn = [...(game.playersIn || []), guestPlayer];
-        const updates = { playersIn: updatedIn };
-
-        try {
-            await GameService.updateGame(gameId, updates);
-            setGame(prev => ({ ...prev, ...updates }));
-            setRespondedPlayerId(guestId);
-            setRespondedStatus('in');
-            localStorage.setItem(`game-response-${gameId}`, JSON.stringify({
-                playerId: guestId,
-                status: 'in',
-            }));
-        } catch (err) {
-            console.error('Failed to join as guest:', err);
-        }
-        setGuestSubmitting(false);
-    };
+    // --- Not authenticated — show auth gate ---
+    if (!user) {
+        return (
+            <Shell>
+                <AuthGate t={t} loginWithGoogle={loginWithGoogle} gameId={gameId} />
+            </Shell>
+        );
+    }
 
     // --- Loading state ---
     if (loading) {
@@ -204,85 +163,80 @@ function GameInvitePage() {
                             <SwipePlayer
                                 key={player.id}
                                 player={player}
+                                playerStatus="?"
                                 onLeft={() => handleResponse(player, 'out')}
                                 onRight={() => handleResponse(player, 'in')}
-                                leftAction={{
-                                    color: theme.success,
-                                    icon: <Check size={20} color="#fff" strokeWidth={3} />,
-                                }}
-                                rightAction={{
-                                    color: theme.danger,
-                                    icon: <X size={20} color="#fff" strokeWidth={3} />,
-                                }}
-                            >
-                                <div className={styles.inviteRow}>
-                                    <div className={styles.avatar}>
-                                        {player.firstName?.[0]?.toUpperCase() || '?'}
-                                    </div>
-                                    <span className={styles.playerName}>
-                                        {player.firstName} {player.lastName}
-                                    </span>
-                                    <span className={styles.swipeArrows}>⟵ ⟶</span>
-                                </div>
-                            </SwipePlayer>
+                            />
                         ))}
                     </div>
                 </div>
             )}
-
-            {/* Guest join section */}
-            <div className={styles.guestSection}>
-                {!showGuestInput ? (
-                    <button
-                        type="button"
-                        onClick={() => setShowGuestInput(true)}
-                        className={styles.guestCard}
-                    >
-                        <span className={styles.guestCardIcon}>
-                            <UserPlus size={22} strokeWidth={2.2} />
-                        </span>
-                        <span className={styles.guestCardBody}>
-                            <span className={styles.guestCardTitle}>{t('guestCardTitle')}</span>
-                            <span className={styles.guestCardSubtitle}>{t('guestCardSubtitle')}</span>
-                        </span>
-                        <ChevronRight size={20} className={styles.guestCardChevron} />
-                    </button>
-                ) : (
-                    <div className={styles.guestForm}>
-                        <p className={styles.guestLabel}>{t('enterYourName')}</p>
-                        <input
-                            type="text"
-                            value={guestName}
-                            onChange={e => setGuestName(e.target.value)}
-                            placeholder={t('namePlaceholder')}
-                            maxLength={40}
-                            className={styles.guestInput}
-                            autoFocus
-                        />
-                        <div className={styles.guestActions}>
-                            <button
-                                onClick={() => { setShowGuestInput(false); setGuestName(''); }}
-                                className={styles.guestCancelBtn}
-                            >
-                                {t('cancelGuest')}
-                            </button>
-                            <button
-                                onClick={handleGuestJoin}
-                                disabled={!guestName.trim() || guestSubmitting}
-                                className={styles.guestJoinBtn}
-                                style={{
-                                    background: guestName.trim() ? theme.primary : theme.borderDark,
-                                    cursor: guestName.trim() ? 'pointer' : 'default',
-                                    opacity: guestSubmitting ? 0.6 : 1,
-                                }}
-                            >
-                                {guestSubmitting ? '...' : t('imIn')}
-                            </button>
-                        </div>
-                    </div>
-                )}
-            </div>
         </Shell>
+    );
+}
+
+/* ── Auth gate — shown when the visitor is not signed in ── */
+
+function AuthGate({ t, loginWithGoogle, gameId }) {
+    const navigate = useNavigate();
+    const [googleLoading, setGoogleLoading] = useState(false);
+    const [googleError, setGoogleError] = useState('');
+
+    const handleGoogleSignIn = async () => {
+        setGoogleLoading(true);
+        setGoogleError('');
+        await loginWithGoogle();
+        // loginWithGoogle catches its own errors; if user is still null it failed
+        const { user: currentUser } = useAuthStore.getState();
+        if (!currentUser) {
+            setGoogleError(t('googleSignInFailed'));
+        }
+        setGoogleLoading(false);
+    };
+
+    const goTo = (path) => {
+        sessionStorage.setItem('returnTo', `/game-invite/${gameId}`);
+        navigate(path);
+    };
+
+    return (
+        <div className={styles.authGate}>
+            <p className={styles.heading}>{t('signInToRespond')}</p>
+            <p className={styles.subtitle}>{t('signInToRespondSubtitle')}</p>
+
+            <button
+                onClick={handleGoogleSignIn}
+                disabled={googleLoading}
+                className={styles.googleBtn}
+            >
+                <FaGoogle size={16} />
+                <span>{googleLoading ? '…' : t('loginWithGoogle')}</span>
+            </button>
+
+            {googleError && <p className={styles.authError}>{googleError}</p>}
+
+            <div className={styles.authDividerRow}>
+                <span className={styles.authDividerLine} />
+                <span className={styles.authDividerText}>{t('orDivider')}</span>
+                <span className={styles.authDividerLine} />
+            </div>
+
+            <div className={styles.authLinksRow}>
+                <button onClick={() => goTo('/signup')} className={styles.authLinkBtn}>
+                    {t('createAccount')}
+                </button>
+                <button onClick={() => goTo('/login')} className={styles.authLinkBtn}>
+                    {t('login')}
+                </button>
+            </div>
+
+            <p className={styles.privacyNote}>
+                {t('byJoiningYouAgree')}{' '}
+                <a href="/privacy">{t('privacyPolicy')}</a>
+                {' & '}
+                <a href="/terms">{t('termsOfService')}</a>.
+            </p>
+        </div>
     );
 }
 
@@ -294,8 +248,8 @@ function Shell({ children }) {
             <header className={styles.appHeader}>
                 <img src={logo} alt="SquadUp" className={styles.appHeaderLogo} />
             </header>
-            <div className={styles.content}>
-                <div className={styles.card}>{children}</div>
+            <div className={styles.pageBody}>
+                {children}
             </div>
         </div>
     );

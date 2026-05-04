@@ -3,10 +3,11 @@ import { expect, test } from '@playwright/test';
 /**
  * Public game-invite landing page (/game-invite/:gameId).
  *
- * The page calls signInAnonymously() and reads from Firestore, which we don't
- * want to depend on in the preview build's e2e suite. We keep the assertions
- * narrow: the page mounts, the AppHeaderBar-style logo strip is rendered, and
- * the page eventually shows either a loading or an error/loaded card.
+ * Unauthenticated visitors see an auth gate (sign-in prompt) immediately,
+ * so the logo and gate content are always rendered without any backend call.
+ * Authenticated users trigger a Firestore read which we don't exercise here.
+ * We keep assertions narrow: the logo renders and the page settles without
+ * uncaught errors.
  */
 
 const FAKE_GAME_ID = 'no-such-game-e2e';

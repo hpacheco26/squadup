@@ -1,25 +1,23 @@
 /**
- * Lifecycle: public game-invite flow.
+ * Lifecycle: game-invite link flow.
  *
- * Scenario: anonymous (unauthenticated) visitor opens the share link
- * /game-invite/:gameId, sees the embedded GameCard, and submits an RSVP.
+ * Scenario A: unauthenticated visitor opens the share link and sees the
+ * sign-in gate (anonymous access is no longer supported).
  *
- * The invite page signs the user in anonymously via Firebase Auth and
- * writes directly to the games doc, so this exercises both the public route
- * and the same updateGame service path that authenticated users use.
+ * Scenario B: authenticated user opens the link and can swipe to respond.
  *
  * Note: each test gets a fresh browser context via `test.use({ storageState: ... })`
- * so anonymous Firebase Auth state from a previous run never leaks across tests.
+ * so auth state from a previous run never leaks across tests.
  */
 
 import { expect, test } from '@playwright/test';
-import { seedFresh } from './_setup/fixtures.js';
+import { seedFresh, loginAs, ADMIN } from './_setup/fixtures.js';
 import { createGame, getGame } from './_setup/seed.js';
 
 // Force a clean storage state for every test in this file.
 test.use({ storageState: { cookies: [], origins: [] } });
 
-test.describe('Game lifecycle — public invite', () => {
+test.describe('Game lifecycle — invite link', () => {
     let world;
     let game;
     test.beforeEach(async ({ page }) => {
@@ -29,38 +27,59 @@ test.describe('Game lifecycle — public invite', () => {
             adminId: world.adminUid,
             playersInvited: world.players,
         });
-        // Belt-and-braces: also clear local/session storage in the page itself.
         await page.addInitScript(() => {
             try { localStorage.clear(); sessionStorage.clear(); } catch { /* noop */ }
         });
     });
 
-    test('anonymous visitor can join as a guest from a share link', async ({ page }) => {
+    test('unauthenticated visitor sees the sign-in gate', async ({ page }) => {
+        await page.goto(`/game-invite/${game.id}`);
+
+        // Logo header is always visible.
+        await expect(page.locator('img[alt="SquadUp"]')).toBeVisible();
+
+        // Auth gate heading must appear.
+        await expect(
+            page.getByText(/(sign in to respond|inicia sess[aã]o para responder)/i),
+        ).toBeVisible({ timeout: 10_000 });
+
+        // Google and account-creation buttons must be present.
+        await expect(
+            page.getByRole('button', { name: /(login with google|iniciar.*google)/i }),
+        ).toBeVisible();
+        await expect(
+            page.getByRole('button', { name: /(create account|criar conta)/i }),
+        ).toBeVisible();
+    });
+
+    test('authenticated user can respond IN from the invite link', async ({ page }) => {
+        await loginAs(page);
         await page.goto(`/game-invite/${game.id}`);
 
         await expect(page.locator('img[alt="SquadUp"]')).toBeVisible();
 
-        // GameInvitePage's "guestCard" is a <button> whose accessible name
-        // comes from the inner spans: "Not on the list?" + subtitle.
-        await page.getByRole('button', { name: /(not on the list|n[aã]o est[aá]s? na lista)/i })
-            .first()
-            .click();
+        // Wait for the player list to render.
+        await expect(
+            page.getByText(/(find your name|encontra o teu nome)/i),
+        ).toBeVisible({ timeout: 15_000 });
 
-        await page.locator('input[type="text"]').first().fill('Walk-On Wendy');
+        // The admin player (Ada Admin) is in the invited list — swipe right (IN).
+        const adminRow = page.locator('[class*="inviteRow"]').filter({ hasText: /ada/i }).first();
+        await adminRow.waitFor({ state: 'visible', timeout: 10_000 });
+        await adminRow.dragTo(adminRow, {
+            sourcePosition: { x: 20, y: 20 },
+            targetPosition: { x: 200, y: 20 },
+        });
 
-        // Confirm via the localized "I'm In" button inside the guest form.
-        await page.getByRole('button', { name: /^(i'?m in|i'?m in!|estou dentro)$/i }).first().click();
-
+        // Response banner should appear confirming IN status.
         await expect.poll(async () => {
             const g = await getGame(game.id);
-            // GameInvitePage stores guests with `isGuest: true`; PreGamePage
-            // uses `guest: true`. Accept either flag.
-            return g?.playersIn.some((p) => (p.isGuest === true || p.guest === true)
-                && /wendy/i.test(`${p.firstName} ${p.lastName}`));
+            return g?.playersIn.some((p) => p.userId === world.adminUid);
         }, { timeout: 15_000 }).toBe(true);
     });
 
-    test('shows a useful error for an unknown game id', async ({ page }) => {
+    test('authenticated user sees error for an unknown game id', async ({ page }) => {
+        await loginAs(page);
         await page.goto('/game-invite/does-not-exist-12345');
         await expect(page.locator('img[alt="SquadUp"]')).toBeVisible();
         await expect(
@@ -68,3 +87,4 @@ test.describe('Game lifecycle — public invite', () => {
         ).toBeVisible({ timeout: 15_000 });
     });
 });
+

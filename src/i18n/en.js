@@ -253,6 +253,12 @@ const en = {
   guestCardTitle: 'Not on the list?',
   guestCardSubtitle: 'Add yourself as a guest — takes 5 seconds.',
   addAsGuest: 'Add me as a guest',
+  // Auth gate (game invite)
+  signInToRespond: 'Sign in to respond',
+  signInToRespondSubtitle: 'You need a SquadUp account to mark yourself in or out.',
+  googleSignInFailed: 'Google sign-in failed. Please try again.',
+  byJoiningYouAgree: 'By continuing you agree to our',
+  youBadge: 'you',
 
   // Containers
   noGamesScheduled: 'No games scheduled',

@@ -253,6 +253,12 @@ const pt = {
   guestCardTitle: 'Não estás na lista?',
   guestCardSubtitle: 'Adiciona-te como convidado — leva 5 segundos.',
   addAsGuest: 'Adicionar-me como convidado',
+  // Auth gate (game invite)
+  signInToRespond: 'Inicia sessão para responder',
+  signInToRespondSubtitle: 'Precisas de uma conta SquadUp para marcar se estás dentro ou fora.',
+  googleSignInFailed: 'Falha no Google. Tenta novamente.',
+  byJoiningYouAgree: 'Ao continuar, aceitas a nossa',
+  youBadge: 'tu',
 
   // Containers
   noGamesScheduled: 'Nenhum jogo marcado',
