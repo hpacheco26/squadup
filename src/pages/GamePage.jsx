@@ -280,7 +280,7 @@ const GamePage = () => {
                     }}>
                         {isRunning ? <FiPause size={20} /> : <FiPlay size={20} />}
                     </button>
-                    <p style={{ fontSize: '3.5rem', fontWeight: 'bold', fontFamily: 'monospace', color: '#0f1d2f', margin: 0, minWidth: '140px', textAlign: 'center' }}>
+                    <p style={{ fontSize: '3.5rem', fontWeight: 'bold', fontFamily: 'monospace', color: 'var(--c-text)', margin: 0, minWidth: '140px', textAlign: 'center' }}>
                         {formatTime(currentTimer)}
                     </p>
                     <button onClick={resetTimer} style={{
@@ -302,16 +302,16 @@ const GamePage = () => {
                     {/* Team 1 */}
                     <div style={{ textAlign: 'center', flex: 1 }}>
                         <p style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#0d9488', marginBottom: '4px' }}>{team1Label}</p>
-                        <GoalCarousel value={team1Goals} onChange={setTeam1Goals} color="#0f1d2f" />
+                        <GoalCarousel value={team1Goals} onChange={setTeam1Goals} color="var(--c-text)" />
                     </div>
 
                     {/* Divider */}
-                    <div style={{ fontSize: '3rem', color: '#cbd5e1', fontWeight: 'bold' }}>:</div>
+                    <div style={{ fontSize: '3rem', color: 'var(--c-border-strong)', fontWeight: 'bold' }}>:</div>
 
                     {/* Team 2 */}
                     <div style={{ textAlign: 'center', flex: 1 }}>
                         <p style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#b91c1c', marginBottom: '4px' }}>{team2Label}</p>
-                        <GoalCarousel value={team2Goals} onChange={setTeam2Goals} color="#0f1d2f" />
+                        <GoalCarousel value={team2Goals} onChange={setTeam2Goals} color="var(--c-text)" />
                     </div>
                 </div>
 
