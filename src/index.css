@@ -1,5 +1,4 @@
-/* Bulma primary color override */
-$primary: #125669;
+/* Bulma primary color override: #125669 — set via --c-primary below */
 
 @keyframes spin {
   to { transform: rotate(360deg); }

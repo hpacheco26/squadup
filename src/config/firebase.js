@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, connectAuthEmulator } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getAnalytics, logEvent as firebaseLogEvent, isSupported as isAnalyticsSupported } from 'firebase/analytics';
 import { getMessaging, isSupported } from 'firebase/messaging';
 
 const firebaseConfig = {
@@ -9,7 +10,9 @@ const firebaseConfig = {
   projectId: "squadup-a3a55",
   storageBucket: "squadup-a3a55.firebasestorage.app",
   messagingSenderId: "497625770241",
-  appId: "1:497625770241:web:26ae61b9730748c18ad300"
+  appId: "1:497625770241:web:26ae61b9730748c18ad300",
+  // Add your measurementId from Firebase Console → Project Settings → Your apps
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "",
 };
 
 const app = initializeApp(firebaseConfig);
@@ -46,6 +49,21 @@ isSupported().then(supported => {
     messaging = getMessaging(app);
   }
 });
+
+// Firebase Analytics — only in production and if measurementId is set
+let analytics = null;
+if (firebaseConfig.measurementId) {
+  isAnalyticsSupported().then(supported => {
+    if (supported) {
+      analytics = getAnalytics(app);
+    }
+  });
+}
+
+/** Log a Firebase Analytics event (no-op if analytics not available) */
+export function logEvent(eventName, params) {
+  if (analytics) firebaseLogEvent(analytics, eventName, params);
+}
 
 export const getMessagingInstance = () => messaging;
 export { auth, db };

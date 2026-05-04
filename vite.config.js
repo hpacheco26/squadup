@@ -13,7 +13,7 @@ export default defineConfig({
         name: 'SquadUp',
         short_name: 'SquadUp',
         description: 'Organize sports games with your squad',
-        theme_color: '#5b7bb3',
+        theme_color: '#125669',
         background_color: '#f0f2f5',
         display: 'standalone',
         orientation: 'portrait',
