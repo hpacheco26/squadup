@@ -26,20 +26,20 @@ const GameCard = ({ game, t, showGroupName = true, backgroundImage }) => {
   const maxPlayers = game.maxPlayers || 0;
   const isFull = maxPlayers > 0 && inCount >= maxPlayers;
   const dayLabel = getDayLabel(game.date, t);
-  const accentColor = isFull ? theme.success : theme.primary;
+
 
   return (
     <div style={{
-      backgroundColor: '#fff',
+      backgroundColor: theme.surface,
       backgroundImage: backgroundImage
-        ? `linear-gradient(rgba(255,255,255,0.35), rgba(255,255,255,0.35)), url(${backgroundImage})`
+        ? `linear-gradient(rgba(0,0,0,0.08), rgba(0,0,0,0.08)), url(${backgroundImage})`
         : undefined,
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',
       borderRadius: '16px',
       overflow: 'hidden',
-      boxShadow: `0 7px 18px ${accentColor}26`,
+      boxShadow: `0 7px 18px ${isFull ? theme.successShadow : theme.primaryShadow}`,
       height: '100%',
       border: `1px solid ${theme.border}`,
     }}>

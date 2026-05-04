@@ -73,7 +73,7 @@ function GroupSwitcher() {
                     background: 'transparent', border: 'none',
                     padding: '6px 8px', borderRadius: 8,
                     cursor: (groups.length > 0 || canCreate) ? 'pointer' : 'default',
-                    color: '#0f172a',
+                    color: 'var(--c-text)',
                 }}
             >
                 <Users size={18} color="#5b7bb3" />
@@ -97,8 +97,8 @@ function GroupSwitcher() {
                     style={{
                         position: 'absolute', top: 'calc(100% + 6px)', left: '50%', transform: 'translateX(-50%)',
                         minWidth: 240, maxWidth: 320,
-                        background: '#fff', borderRadius: 12,
-                        border: '1px solid #e2e8f0',
+                        background: 'var(--c-surface)', borderRadius: 12,
+                        border: '1px solid var(--c-border)',
                         boxShadow: '0 8px 24px rgba(15, 23, 42, 0.12)',
                         zIndex: 50,
                         overflow: 'hidden',
@@ -106,7 +106,7 @@ function GroupSwitcher() {
                 >
                     <div style={{ maxHeight: 320, overflowY: 'auto' }}>
                         {groups.length === 0 ? (
-                            <p style={{ margin: 0, padding: '14px', fontSize: '0.85rem', color: '#94a3b8', textAlign: 'center' }}>
+                            <p style={{ margin: 0, padding: '14px', fontSize: '0.85rem', color: 'var(--c-text-muted)', textAlign: 'center' }}>
                                 {t('noGroupsYet') || 'No groups yet'}
                             </p>
                         ) : groups.map((g, i) => {
@@ -119,11 +119,11 @@ function GroupSwitcher() {
                                     style={{
                                         display: 'flex', alignItems: 'center', gap: 10,
                                         width: '100%', padding: '10px 14px',
-                                        background: isSelected ? '#f1f5f9' : '#fff',
+                                        background: isSelected ? 'var(--c-surface-hover)' : 'var(--c-surface)',
                                         border: 'none',
-                                        borderBottom: i === groups.length - 1 && !canCreate ? 'none' : '1px solid #f1f5f9',
+                                        borderBottom: i === groups.length - 1 && !canCreate ? 'none' : '1px solid var(--c-border)',
                                         cursor: 'pointer', textAlign: 'left',
-                                        color: '#1e293b', fontSize: '0.9rem',
+                                        color: 'var(--c-text)', fontSize: '0.9rem',
                                         fontWeight: isSelected ? 600 : 500,
                                     }}
                                 >
@@ -144,8 +144,8 @@ function GroupSwitcher() {
                             style={{
                                 display: 'flex', alignItems: 'center', gap: 10,
                                 width: '100%', padding: '12px 14px',
-                                background: '#fafbfd', border: 'none',
-                                borderTop: '1px solid #e2e8f0',
+                                background: 'var(--c-surface-alt)', border: 'none',
+                                borderTop: '1px solid var(--c-border)',
                                 cursor: 'pointer', textAlign: 'left',
                                 color: '#5b7bb3', fontSize: '0.85rem', fontWeight: 600,
                             }}

@@ -69,7 +69,7 @@ function GroupPage() {
                 {/* Player Leaderboard */}
                 {sortedPlayers.length > 0 && (
                     <div style={{ marginBottom: '24px' }}>
-                        <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', textAlign: 'center', marginBottom: '16px' }}>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--c-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', textAlign: 'center', marginBottom: '16px' }}>
                             {t('leaderboard')}
                         </p>
 
@@ -80,7 +80,7 @@ function GroupPage() {
                             alignItems: 'center',
                             padding: '0 12px 8px',
                             fontSize: '0.6rem',
-                            color: '#94a3b8',
+                            color: 'var(--c-text-muted)',
                             textTransform: 'uppercase',
                             letterSpacing: '0.5px',
                             fontWeight: '600',
@@ -106,20 +106,20 @@ function GroupPage() {
                                             display: 'grid',
                                             gridTemplateColumns: '28px 1fr 28px repeat(3, 32px) 44px',
                                             alignItems: 'center',
-                                            background: '#fff',
+                                            background: 'var(--c-surface)',
                                             borderRadius: '10px',
                                             padding: '10px 12px',
                                             boxShadow: isTop3
                                                 ? '0 2px 8px rgba(0,0,0,0.06)'
                                                 : '0 1px 3px rgba(0,0,0,0.03)',
-                                            border: isTop3 ? `1px solid ${positionColors[index]}30` : '1px solid #f1f5f9',
+                                            border: isTop3 ? `1px solid ${positionColors[index]}30` : '1px solid var(--c-border)',
                                         }}
                                     >
                                         {/* Position */}
                                         <span style={{
                                             fontSize: '0.75rem',
                                             fontWeight: '700',
-                                            color: isTop3 ? positionColors[index] : '#94a3b8',
+                                            color: isTop3 ? positionColors[index] : 'var(--c-text-muted)',
                                             width: '22px',
                                             height: '22px',
                                             display: 'flex',
@@ -135,7 +135,7 @@ function GroupPage() {
                                         <span style={{
                                             fontSize: '0.85rem',
                                             fontWeight: isTop3 ? '600' : '500',
-                                            color: '#1e293b',
+                                            color: 'var(--c-text)',
                                             overflow: 'hidden',
                                             textOverflow: 'ellipsis',
                                             whiteSpace: 'nowrap',
@@ -147,12 +147,12 @@ function GroupPage() {
                                         <RankIcon rank={player.rank || 0} size={22} />
 
                                         {/* Stats */}
-                                        <span style={{ textAlign: 'center', fontSize: '0.8rem', fontWeight: '600', color: '#16a34a' }}>{player.wins}</span>
-                                        <span style={{ textAlign: 'center', fontSize: '0.8rem', fontWeight: '500', color: '#94a3b8' }}>{player.draws}</span>
-                                        <span style={{ textAlign: 'center', fontSize: '0.8rem', fontWeight: '500', color: '#ef4444' }}>{player.losses}</span>
+                                        <span style={{ textAlign: 'center', fontSize: '0.8rem', fontWeight: '600', color: 'var(--c-success)' }}>{player.wins}</span>
+                                        <span style={{ textAlign: 'center', fontSize: '0.8rem', fontWeight: '500', color: 'var(--c-text-muted)' }}>{player.draws}</span>
+                                        <span style={{ textAlign: 'center', fontSize: '0.8rem', fontWeight: '500', color: 'var(--c-danger)' }}>{player.losses}</span>
                                         <span style={{
                                             textAlign: 'center', fontSize: '0.75rem', fontWeight: '600',
-                                            color: winRate >= 50 ? '#16a34a' : winRate > 0 ? '#64748b' : '#94a3b8',
+                                            color: winRate >= 50 ? 'var(--c-success)' : winRate > 0 ? 'var(--c-text-secondary)' : 'var(--c-text-muted)',
                                         }}>
                                             {player.totalGames > 0 ? `${winRate}%` : '-'}
                                         </span>

@@ -1,45 +1,49 @@
 const theme = {
   // Backgrounds
-  bg: '#f0f2f5',           // App background — soft cool gray
-  surface: '#ffffff',       // Cards, modals, content areas
-  surfaceAlt: '#f7f8fa',   // Header bars, subtle sections
-  
-  // Primary — slate blue accent
-  primary: '#5b7bb3',       // Buttons, links, active states
-  primaryLight: '#dbe4f0',  // Hover backgrounds, highlights
-  primaryDark: '#4a6694',   // Pressed state
-  
+  bg: 'var(--c-bg)',
+  surface: 'var(--c-surface)',
+  surfaceAlt: 'var(--c-surface-alt)',
+
+  // Primary
+  primary: 'var(--c-primary)',
+  primaryLight: 'var(--c-primary-light)',
+  primaryDark: 'var(--c-primary-dark)',
+  primaryShadow: 'var(--c-primary-a15)',
+
   // Success / IN
-  success: '#16a34a',       // Green — player IN, confirmations
-  successLight: '#dcfce7',  // Light green background
-  
+  success: 'var(--c-success)',
+  successLight: 'var(--c-success-light)',
+  successShadow: 'var(--c-success-a15)',
+
   // Danger / OUT / Delete
-  danger: '#ef4444',        // Red — delete, remove, OUT
-  dangerLight: '#fee2e2',   // Light red background
-  
+  danger: 'var(--c-danger)',
+  dangerLight: 'var(--c-danger-light)',
+
   // Warning
-  warning: '#f59e0b',       // Amber — invited, pending
-  warningLight: '#fef3c7',  // Light amber background
-  
-  // Neutrals
-  text: '#1e293b',          // Primary text — slate 800
-  textSecondary: '#64748b', // Secondary text — slate 500
-  textMuted: '#94a3b8',     // Muted/placeholder — slate 400
-  border: '#e2e8f0',        // Borders — slate 200
-  borderDark: '#cbd5e1',    // Heavier borders — slate 300
-  
-  // Navbar
-  navBg: '#1e293b',         // Dark navbar
-  navText: '#94a3b8',       // Navbar icons default
-  navTextActive: '#ffffff', // Navbar icons active
-  
-  // Rank progression — distinct tiers
+  warning: 'var(--c-warning)',
+  warningLight: 'var(--c-warning-light)',
+
+  // Text
+  text: 'var(--c-text)',
+  textSecondary: 'var(--c-text-secondary)',
+  textMuted: 'var(--c-text-muted)',
+
+  // Borders
+  border: 'var(--c-border)',
+  borderDark: 'var(--c-border-strong)',
+
+  // Navbar (always dark in both modes)
+  navBg: 'var(--c-nav-bg)',
+  navText: '#94a3b8',
+  navTextActive: '#ffffff',
+
+  // Rank progression — distinct tiers (vivid colours work on both modes)
   rank: {
-    0: '#c0c0c0',  // Novice — silver
-    1: '#14b8a6',  // Amateur — turquoise green
-    2: '#3b82f6',  // Intermediate — blue
-    3: '#9b59b6',  // Pro — purple
-    4: '#f0c832',  // Legend — gold
+    0: '#c0c0c0',
+    1: '#14b8a6',
+    2: '#3b82f6',
+    3: '#9b59b6',
+    4: '#f0c832',
   },
   rankDefault: '#c0c0c0',
   rankAccent: '#f0c832',

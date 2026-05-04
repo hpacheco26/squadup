@@ -14,6 +14,7 @@ const en = {
   createGroup: '+ Create Group',
   logout: 'Logout',
   language: 'Language',
+  darkMode: 'Dark Mode',
 
   // Login
   email: 'Email',

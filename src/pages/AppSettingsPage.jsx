@@ -1,11 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    Shield, Trash2, FileText, Code, LogOut,
+    Shield, Trash2, FileText, Code, LogOut, Moon,
 } from 'lucide-react';
 import useAuthStore from '../store/authStore';
 import useLanguageStore from '../store/languageStore';
 import useNotificationStore from '../store/notificationStore';
+import useThemeStore from '../store/themeStore';
 import AppHeaderBar from '../components/bars/AppHeaderBar';
 import {
     SectionLabel, SettingsGroup, SettingsRow, settingsInputStyle,
@@ -16,6 +17,7 @@ function AppSettingsPage() {
     const { user, playerData, updateUser, logout, deleteAccount } = useAuthStore();
     const { lang, setLang, t } = useLanguageStore();
     const { enabled: notificationsEnabled, setEnabled: setNotificationsEnabled, requestPermission, permission } = useNotificationStore();
+    const { darkMode, toggleDarkMode } = useThemeStore();
     const navigate = useNavigate();
 
     const [firstName, setFirstName] = useState(playerData?.firstName || '');
@@ -104,6 +106,9 @@ function AppSettingsPage() {
                             options={[{ value: 'en', label: 'EN' }, { value: 'pt', label: 'PT' }]}
                         />
                     </SettingsRow>
+                    <SettingsRow label={t('darkMode')} icon={Moon} chevron={false}>
+                        <SettingsToggle value={darkMode} onChange={toggleDarkMode} />
+                    </SettingsRow>
                     <SettingsRow label={t('pushNotifications')} chevron={false} last>
                         <SettingsToggle value={notificationsEnabled} onChange={handleToggleNotifications} />
                     </SettingsRow>
@@ -132,7 +137,7 @@ function AppSettingsPage() {
                 </SettingsGroup>
 
                 {showDeleteConfirm && (
-                    <div style={{ background: '#fef2f2', borderRadius: 14, padding: 14, border: '1px solid #fca5a5', marginTop: -16, marginBottom: 24 }}>
+                    <div style={{ background: 'var(--c-danger-light)', borderRadius: 14, padding: 14, border: '1px solid var(--c-danger)', marginTop: -16, marginBottom: 24 }}>
                         <p style={{ fontSize: '0.85rem', color: '#991b1b', margin: '0 0 10px', lineHeight: 1.5 }}>
                             {t('deleteAccountConfirm')}
                         </p>
@@ -144,8 +149,9 @@ function AppSettingsPage() {
                                 onChange={(e) => setDeletePassword(e.target.value)}
                                 style={{
                                     width: '100%', padding: '8px 10px', borderRadius: 6,
-                                    border: '1px solid #fca5a5', marginBottom: 10, fontSize: '0.9rem',
-                                    background: '#fff',
+                                    border: '1px solid var(--c-border)', marginBottom: 10, fontSize: '0.9rem',
+                                    background: 'var(--c-surface)',
+                                    color: 'var(--c-text)',
                                 }}
                             />
                         )}
@@ -155,7 +161,7 @@ function AppSettingsPage() {
                         <div style={{ display: 'flex', gap: 8 }}>
                             <button
                                 onClick={() => { setShowDeleteConfirm(false); setDeletePassword(''); setDeleteError(''); }}
-                                style={{ flex: 1, padding: 10, borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: '0.9rem', cursor: 'pointer' }}
+                                style={{ flex: 1, padding: 10, borderRadius: 6, border: '1px solid var(--c-border)', background: 'var(--c-surface)', color: 'var(--c-text-secondary)', fontSize: '0.9rem', cursor: 'pointer' }}
                             >Cancel</button>
                             <button
                                 onClick={handleDeleteAccount}

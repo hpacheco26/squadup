@@ -11,6 +11,7 @@ const pt = {
   createGroup: '+ Criar Grupo',
   logout: 'Sair',
   language: 'Idioma',
+  darkMode: 'Modo Escuro',
 
   // Login
   email: 'Email',

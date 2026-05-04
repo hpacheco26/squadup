@@ -25,7 +25,7 @@ const AppHeaderBar = ({ variant = 'switcher', title, onBack, rightIcon: RightIco
     const Left = onBack ? (
         <button
             onClick={onBack}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, display: 'flex', alignItems: 'center', color: '#6b7280' }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, display: 'flex', alignItems: 'center', color: 'var(--c-text-secondary)' }}
             aria-label="Back"
         >
             <IoIosArrowBack size={24} />
@@ -36,7 +36,7 @@ const AppHeaderBar = ({ variant = 'switcher', title, onBack, rightIcon: RightIco
 
     const Center = title !== undefined ? (
         <span style={{
-            fontSize: '0.95rem', fontWeight: 600, color: '#1e293b',
+            fontSize: '0.95rem', fontWeight: 600, color: 'var(--c-text)',
             letterSpacing: '0.2px',
             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
         }}>{title}</span>
@@ -55,7 +55,7 @@ const AppHeaderBar = ({ variant = 'switcher', title, onBack, rightIcon: RightIco
     const Right = right !== undefined ? right : (RightIcon ? (
         <button
             onClick={onRightClick}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, color: '#94a3b8', display: 'flex', alignItems: 'center' }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, color: 'var(--c-text-muted)', display: 'flex', alignItems: 'center' }}
             aria-label="Header action"
         >
             <RightIcon size={22} />
@@ -72,8 +72,8 @@ const AppHeaderBar = ({ variant = 'switcher', title, onBack, rightIcon: RightIco
             justifyContent: variant === 'logo' ? 'space-between' : 'flex-start',
             gap: 8,
             padding: '8px 12px',
-            background: '#ffffff',
-            borderBottom: '1px solid #e2e8f0',
+            background: 'var(--c-surface)',
+            borderBottom: '1px solid var(--c-border)',
         }}>
             {Left}
             {variant === 'logo' && title === undefined ? Center : (

@@ -32,7 +32,7 @@ const GameList = () => {
 
   return (
     <div>
-      <p style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', marginBottom: '6px', textAlign: 'center' }}>
+      <p style={{ fontSize: '0.8rem', color: 'var(--c-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', marginBottom: '6px', textAlign: 'center' }}>
         {t('upcomingGames')}
       </p>
       <Swiper

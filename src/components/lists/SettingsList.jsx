@@ -12,7 +12,7 @@ export const SectionLabel = ({ children, action }) => (
         padding: '0 16px 6px',
     }}>
         <p style={{
-            fontSize: '0.7rem', fontWeight: 600, color: '#64748b',
+            fontSize: '0.7rem', fontWeight: 600, color: 'var(--c-text-secondary)',
             textTransform: 'uppercase', letterSpacing: '0.6px',
             margin: 0,
         }}>{children}</p>
@@ -23,12 +23,12 @@ export const SectionLabel = ({ children, action }) => (
 export const SettingsGroup = ({ children, footer }) => (
     <div style={{ marginBottom: 24 }}>
         <div style={{
-            background: '#fff',
+            background: 'var(--c-surface)',
             borderRadius: 14,
-            border: '1px solid #e2e8f0',
+            border: '1px solid var(--c-border)',
             overflow: 'hidden',
         }}>{children}</div>
-        {footer && <p style={{ fontSize: '0.7rem', color: '#94a3b8', padding: '6px 16px 0', margin: 0 }}>{footer}</p>}
+        {footer && <p style={{ fontSize: '0.7rem', color: 'var(--c-text-muted)', padding: '6px 16px 0', margin: 0 }}>{footer}</p>}
     </div>
 );
 
@@ -38,24 +38,24 @@ export const SettingsRow = ({ label, sublabel, children, onClick, danger, icon: 
         style={{
             display: 'flex', alignItems: 'center', gap: 12,
             padding: '12px 14px',
-            borderBottom: last ? 'none' : '1px solid #f1f5f9',
+            borderBottom: last ? 'none' : '1px solid var(--c-border)',
             cursor: onClick ? 'pointer' : 'default',
-            color: danger ? '#dc2626' : '#1e293b',
+            color: danger ? 'var(--c-danger)' : 'var(--c-text)',
         }}
     >
-        {Icon && <Icon size={16} color={danger ? '#dc2626' : '#5b7bb3'} />}
+        {Icon && <Icon size={16} color={danger ? 'var(--c-danger)' : 'var(--c-primary)'} />}
         <div style={{ flex: 1, minWidth: 0 }}>
             <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 500 }}>{label}</p>
-            {sublabel && <p style={{ margin: '2px 0 0', fontSize: '0.72rem', color: '#94a3b8' }}>{sublabel}</p>}
+            {sublabel && <p style={{ margin: '2px 0 0', fontSize: '0.72rem', color: 'var(--c-text-muted)' }}>{sublabel}</p>}
         </div>
         {children}
-        {onClick && chevron && <ChevronRight size={16} color="#cbd5e1" />}
+        {onClick && chevron && <ChevronRight size={16} color="var(--c-border-strong)" />}
     </div>
 );
 
 export const settingsInputStyle = {
     border: 'none', outline: 'none', background: 'transparent',
-    fontSize: '0.9rem', color: '#1e293b', textAlign: 'right',
+    fontSize: '0.9rem', color: 'var(--c-text)', textAlign: 'right',
     minWidth: 0, flex: 1, fontFamily: 'inherit',
 };
 
@@ -82,7 +82,7 @@ export const SettingsToggle = ({ value, onChange }) => (
 export const SettingsSegmented = ({ options, value, onChange, fullWidth }) => (
     <div style={{
         display: 'flex', gap: 4,
-        padding: 3, borderRadius: 8, background: '#f1f5f9',
+        padding: 3, borderRadius: 8, background: 'var(--c-surface-hover)',
         width: fullWidth ? '100%' : 'auto',
     }}>
         {options.map(opt => {
@@ -95,8 +95,8 @@ export const SettingsSegmented = ({ options, value, onChange, fullWidth }) => (
                     style={{
                         flex: fullWidth ? 1 : '0 0 auto',
                         padding: '6px 12px', borderRadius: 6, border: 'none',
-                        background: active ? '#fff' : 'transparent',
-                        color: active ? '#1e293b' : '#64748b',
+                        background: active ? 'var(--c-surface)' : 'transparent',
+                        color: active ? 'var(--c-text)' : 'var(--c-text-secondary)',
                         fontSize: '0.8rem', fontWeight: active ? 600 : 500,
                         cursor: 'pointer', boxShadow: active ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
                         transition: 'background 0.15s',

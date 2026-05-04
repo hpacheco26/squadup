@@ -23,6 +23,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import useAuthStore from './store/authStore';
 import useGroupStore from './store/groupStore';
 import useNotificationStore from './store/notificationStore';
+import useThemeStore from './store/themeStore';
 import RankChangeGate from './components/modals/RankChangeGate';
 
 
@@ -33,6 +34,11 @@ function App() {
   const pendingRankChanges = useGroupStore((s) => s.pendingRankChanges);
   const acknowledgeRankChange = useGroupStore((s) => s.acknowledgeRankChange);
   const firstChange = pendingRankChanges[0] ?? null;
+  const darkMode = useThemeStore((s) => s.darkMode);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode);
+  }, [darkMode]);
 
   useEffect(() => {
     if (user?.uid && enabled) {
