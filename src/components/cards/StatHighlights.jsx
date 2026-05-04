@@ -1,5 +1,5 @@
 import React from "react";
-import { Trophy, Percent, Activity } from "lucide-react";
+import { Trophy, Frown, Activity } from "lucide-react";
 import theme from "../../theme";
 
 const StatCard = ({ icon: Icon, color, label, value, subtitle }) => (
@@ -15,18 +15,22 @@ const StatCard = ({ icon: Icon, color, label, value, subtitle }) => (
     alignItems: 'center',
     textAlign: 'center',
     gap: '4px',
+    position: 'relative',
+    overflow: 'hidden',
   }}>
-    <div style={{
-      width: '32px',
-      height: '32px',
-      borderRadius: '50%',
-      background: `${color}1f`,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }}>
-      <Icon size={16} color={color} strokeWidth={2.2} />
-    </div>
+    {/* Background watermark icon */}
+    <Icon
+      size={64}
+      color={color}
+      strokeWidth={1.5}
+      style={{
+        position: 'absolute',
+        bottom: '-10px',
+        right: '-10px',
+        opacity: 0.07,
+        pointerEvents: 'none',
+      }}
+    />
     <span style={{
       fontSize: '0.6rem',
       fontWeight: 600,
@@ -64,8 +68,8 @@ const StatHighlights = ({ players, t }) => {
     return {
       ...p,
       _wins: wins,
+      _losses: losses,
       _total: total,
-      _winRate: total > 0 ? wins / total : 0,
     };
   });
 
@@ -73,9 +77,7 @@ const StatHighlights = ({ players, t }) => {
 
   const mostWins = [...enriched].sort((a, b) => b._wins - a._wins)[0];
   const mostGames = [...enriched].sort((a, b) => b._total - a._total)[0];
-  const eligible = enriched.filter(p => p._total >= 3);
-  const bestWinRate = (eligible.length > 0 ? eligible : enriched)
-    .sort((a, b) => b._winRate - a._winRate)[0];
+  const mostLosses = [...enriched].sort((a, b) => b._losses - a._losses)[0];
 
   return (
     <div style={{
@@ -91,11 +93,11 @@ const StatHighlights = ({ players, t }) => {
         subtitle={`${mostWins._wins} W`}
       />
       <StatCard
-        icon={Percent}
-        color={theme.primary}
-        label={t('bestWinRate')}
-        value={formatName(bestWinRate)}
-        subtitle={`${Math.round(bestWinRate._winRate * 100)}%`}
+        icon={Frown}
+        color="#e57373"
+        label={t('mostLosses')}
+        value={formatName(mostLosses)}
+        subtitle={`${mostLosses._losses} L`}
       />
       <StatCard
         icon={Activity}

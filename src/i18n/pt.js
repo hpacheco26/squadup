@@ -63,7 +63,7 @@ const pt = {
   leaderboard: 'Classificação',
   player: 'Jogador',
   mostWins: 'Mais Vitórias',
-  bestWinRate: 'Melhor Taxa',
+  mostLosses: 'Mais Derrotas',
   mostGames: 'Mais Jogos',
 
   // PreGame

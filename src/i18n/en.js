@@ -4,7 +4,7 @@ const en = {
   tomorrow: 'Tomorrow',
   inDays: 'In {n} days',
   mostWins: 'Most Wins',
-  bestWinRate: 'Best Win Rate',
+  mostLosses: 'Most Losses',
   mostGames: 'Most Games',
 
   // App Settings / Profile
