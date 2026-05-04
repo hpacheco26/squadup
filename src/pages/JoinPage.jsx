@@ -20,32 +20,35 @@ function JoinPage() {
 
     useEffect(() => {
         async function load() {
-            const inv = await fetchInviteByCode(code);
-            if (!inv || !inv.active) {
-                setStatus('error');
-                return;
-            }
-            const grp = await GroupService.getGroupById(inv.groupId);
-            if (!grp) {
-                setStatus('error');
-                return;
-            }
-            setGroup(grp);
+            try {
+                const inv = await fetchInviteByCode(code);
+                if (!inv || !inv.active) {
+                    setStatus('error');
+                    return;
+                }
+                const grp = await GroupService.getGroupById(inv.groupId);
+                if (!grp) {
+                    setStatus('error');
+                    return;
+                }
+                setGroup(grp);
 
-            // Check if user is already a linked player in this group
-            if (playerData) {
-                const alreadyLinked = grp.players.some(p => p.userId === playerData.userId);
+                // Check if user is already a linked player in this group
+                const alreadyLinked = grp.players.some(p => p.userId === user.uid);
                 if (alreadyLinked) {
                     setStatus('already');
                     return;
                 }
+                setStatus('pick');
+            } catch (err) {
+                console.error('JoinPage load error:', err);
+                setStatus('error');
             }
-            setStatus('pick');
         }
-        if (user && playerData) {
+        if (user) {
             load();
         }
-    }, [code, user, playerData]);
+    }, [code, user]);
 
     const handleClaimPlayer = async (player) => {
         if (!group || !playerData) return;
