@@ -111,6 +111,8 @@ const pt = {
   openMBWay: 'Abrir MBWay',
   paid: 'Pago',
   shareViaWhatsApp: 'Partilhar via WhatsApp',
+  inviteToGame: 'Convidar para o Jogo',
+  copyLink: 'Copiar Link',
   gameDebts: 'Dívidas de Jogos',
   players: 'Jogadores',
 
@@ -192,6 +194,7 @@ const pt = {
   roleField: 'Campo',
   roleKeeper: 'Baliza',
   roleBench: 'Banco',
+  unassigned: 'Sem Equipa',
   deleteGroup: 'Apagar Grupo',
   leaveGroup: 'Sair do Grupo',
   deleteGroupConfirmTitle: 'Apagar este grupo?',

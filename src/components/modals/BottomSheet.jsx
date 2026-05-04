@@ -19,16 +19,16 @@ export const BottomSheet = ({ open, onClose, title, children }) => {
                 onClick={(e) => e.stopPropagation()}
                 style={{
                     width: '100%', maxWidth: 640,
-                    background: '#fff',
+                    background: 'var(--c-surface)',
                     borderTopLeftRadius: 20, borderTopRightRadius: 20,
                     padding: '8px 16px calc(20px + env(safe-area-inset-bottom))',
                     boxShadow: '0 -10px 30px rgba(15,23,42,0.18)',
                 }}
             >
-                <div style={{ width: 36, height: 4, borderRadius: 999, background: '#e2e8f0', margin: '4px auto 12px' }} />
+                <div style={{ width: 36, height: 4, borderRadius: 999, background: 'var(--c-border-strong)', margin: '4px auto 12px' }} />
                 {title && (
                     <div style={{
-                        fontSize: '1rem', fontWeight: 700, color: '#1e293b', marginBottom: 14,
+                        fontSize: '1rem', fontWeight: 700, color: 'var(--c-text)', marginBottom: 14,
                     }}>{title}</div>
                 )}
                 {children}
@@ -52,8 +52,8 @@ export const ConfirmSheet = ({
                 onClick={onClose}
                 style={{
                     flex: 1, padding: '13px', borderRadius: 12,
-                    border: '1px solid #e2e8f0', background: '#fff',
-                    color: '#1e293b', fontSize: '0.95rem', fontWeight: 600,
+                    border: '1px solid var(--c-border)', background: 'var(--c-surface)',
+                    color: 'var(--c-text)', fontSize: '0.95rem', fontWeight: 600,
                     cursor: busy ? 'not-allowed' : 'pointer', fontFamily: 'inherit',
                 }}
             >

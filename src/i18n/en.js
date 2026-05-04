@@ -111,6 +111,8 @@ const en = {
   openMBWay: 'Open MBWay',
   paid: 'Paid',
   shareViaWhatsApp: 'Share via WhatsApp',
+  inviteToGame: 'Invite to Game',
+  copyLink: 'Copy Link',
   gameDebts: 'Game Debts',
   players: 'Players',
 
@@ -192,6 +194,7 @@ const en = {
   roleField: 'Field',
   roleKeeper: 'Keeper',
   roleBench: 'Bench',
+  unassigned: 'Unassigned',
   deleteGroup: 'Delete Group',
   leaveGroup: 'Leave Group',
   deleteGroupConfirmTitle: 'Delete this group?',

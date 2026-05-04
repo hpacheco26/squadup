@@ -46,7 +46,7 @@ const AppHeaderBar = ({ variant = 'switcher', title, onBack, rightIcon: RightIco
             style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
             aria-label="Home"
         >
-            <img src={logo} alt="SquadUp" style={{ height: 32 }} />
+            <img src={logo} alt="SquadUp" className="logo-themed" style={{ height: 32 }} />
         </button>
     ) : (
         <GroupSwitcher />

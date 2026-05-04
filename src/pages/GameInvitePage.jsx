@@ -246,7 +246,7 @@ function Shell({ children }) {
     return (
         <div className={styles.page}>
             <header className={styles.appHeader}>
-                <img src={logo} alt="SquadUp" className={styles.appHeaderLogo} />
+                <img src={logo} alt="SquadUp" className={`${styles.appHeaderLogo} logo-themed`} />
             </header>
             <div className={styles.pageBody}>
                 {children}

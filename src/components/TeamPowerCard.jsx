@@ -63,7 +63,7 @@ const TeamPowerCard = ({ leftTeamName, rightTeamName, leftPlayers, rightPlayers 
             style={{
                 borderRadius: '16px',
                 padding: '8px 10px',
-                border: '1px solid #e2e8f0',
+                border: '1px solid var(--c-border)',
                 background: 'linear-gradient(90deg, rgba(13,148,136,0.16) 0%, rgba(13,148,136,0.05) 30%, transparent 46%, transparent 54%, rgba(225,29,72,0.05) 70%, rgba(225,29,72,0.16) 100%)',
                 boxShadow: '0 6px 20px rgba(15, 23, 42, 0.05)',
                 position: 'relative',
@@ -94,7 +94,7 @@ const TeamPowerCard = ({ leftTeamName, rightTeamName, leftPlayers, rightPlayers 
                             {leftPower}
                         </span>
                     </div>
-                    <div style={{ height: '4px', background: '#e2e8f0', borderRadius: '999px', overflow: 'hidden' }}>
+                    <div style={{ height: '4px', background: 'var(--c-border-strong)', borderRadius: '999px', overflow: 'hidden' }}>
                         <div style={{ width: `${leftPower}%`, height: '100%', background: TEAM_THEMES.left.line }} />
                     </div>
                 </div>
@@ -154,7 +154,7 @@ const TeamPowerCard = ({ leftTeamName, rightTeamName, leftPlayers, rightPlayers 
                             {rightPower}
                         </span>
                     </div>
-                    <div style={{ height: '4px', background: '#e2e8f0', borderRadius: '999px', overflow: 'hidden' }}>
+                    <div style={{ height: '4px', background: 'var(--c-border-strong)', borderRadius: '999px', overflow: 'hidden' }}>
                         <div style={{ width: `${rightPower}%`, height: '100%', marginLeft: 'auto', background: TEAM_THEMES.right.line }} />
                     </div>
                 </div>

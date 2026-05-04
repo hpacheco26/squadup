@@ -39,30 +39,11 @@ const RankList = () => {
 
   return (
     <div className="rank-carousel-container" style={ranksLoading ? { height: '100%', display: 'flex', flexDirection: 'column' } : {}}>
-      {!ranksLoading && (
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 10,
-          margin: '4px 0 12px',
-        }}>
-          <span style={{ flex: 1, height: 1, background: 'linear-gradient(to right, transparent, #cbd5e1)' }} />
-          <h2 style={{
-            margin: 0,
-            fontSize: '1.25rem',
-            fontWeight: 600,
-            letterSpacing: '2px',
-            textTransform: 'uppercase',
-            color: '#1e293b',
-          }}>
-            {t('myRanks')}
-          </h2>
-          <span style={{ flex: 1, height: 1, background: 'linear-gradient(to left, transparent, #cbd5e1)' }} />
-        </div>
-      )}
       {Array.isArray(ranks) && ranks.length > 0 ? (
         <Swiper
           modules={[Pagination]} 
           spaceBetween={15} 
-          slidesPerView={1.2} 
+          slidesPerView={1.05} 
           centeredSlides={true}
           initialSlide={Math.max(0, ranks.findIndex(r => r.groupId === selectedGroupId))}
           onSlideChange={(swiper) => {

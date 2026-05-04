@@ -106,6 +106,13 @@ const TeamsPage = () => {
     const team2Name = `${captain2?.firstName || 'Team'}'s Squad`;
     const canSquadUp = playersIn.length > 1 && !shuffling;
 
+    const assignedIds = new Set([
+        ...(game.team1 || []).map(p => p.id),
+        ...(game.team2 || []).map(p => p.id),
+        ...(game.injured || []).map(p => p.id),
+    ]);
+    const unassigned = hasTeams ? playersIn.filter(p => !assignedIds.has(p.id)) : [];
+
     const sortTeamPlayers = (players = [], captainId) => {
         return [...players].sort((a, b) => {
             if (a.id === captainId) return -1;
@@ -183,6 +190,16 @@ const TeamsPage = () => {
             team2: [...team2, recoveredPlayer],
             injured: injured.filter(p => p.id !== player.id),
         });
+    };
+
+    const handleAddToTeam = async (player, teamKey) => {
+        const team1 = [...(game.team1 || [])];
+        const team2 = [...(game.team2 || [])];
+        if (teamKey === 'team1') {
+            await updateGame(gameId, { team1: [...team1, player] });
+        } else {
+            await updateGame(gameId, { team2: [...team2, player] });
+        }
     };
 
     const renderTeamPlayerCard = (player, index, teamKey, captainId, injured = false) => {
@@ -318,6 +335,40 @@ const TeamsPage = () => {
                                 {game.injured.map((player, index) => (
                                     <div key={player.id} style={{ flex: '1 1 calc(50% - 4px)' }}>
                                         {renderTeamPlayerCard(player, index, player.fromTeam || 'team1', undefined, true)}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Unassigned section — players confirmed after teams were created */}
+                    {unassigned.length > 0 && (
+                        <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '8px 0' }}>
+                                <div style={{ flex: 1, height: '2px', background: 'linear-gradient(to right, var(--c-primary), transparent)' }} />
+                                <span style={{ fontSize: '0.7rem', color: 'var(--c-primary)', fontWeight: '600', letterSpacing: '0.5px' }}>{t('unassigned')}</span>
+                                <div style={{ flex: 1, height: '2px', background: 'linear-gradient(to left, var(--c-primary), transparent)' }} />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                {unassigned.map(player => (
+                                    <div key={player.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', borderRadius: '8px', background: 'var(--c-surface)', border: '1px solid var(--c-border)' }}>
+                                        <span style={{ flex: 1, fontSize: '0.9rem', fontWeight: 600, color: 'var(--c-text)' }}>
+                                            {player.firstName} {player.lastName}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleAddToTeam(player, 'team1')}
+                                            style={{ padding: '5px 10px', borderRadius: 6, border: 'none', background: 'rgba(13,148,136,0.15)', color: '#0d9488', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}
+                                        >
+                                            {team1Name.split("'")[0]}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleAddToTeam(player, 'team2')}
+                                            style={{ padding: '5px 10px', borderRadius: 6, border: 'none', background: 'rgba(225,29,72,0.12)', color: '#e11d48', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}
+                                        >
+                                            {team2Name.split("'")[0]}
+                                        </button>
                                     </div>
                                 ))}
                             </div>

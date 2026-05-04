@@ -51,7 +51,7 @@ const LoginPage = () => {
                 <div className="column is-half">
                     <div className="box">
                         <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-                            <img src={logo} alt="SquadUp" style={{ height: '48px' }} />
+                            <img src={logo} alt="SquadUp" className="logo-themed" style={{ height: '48px' }} />
                         </div>
                         {error && <p className="has-text-danger">{error}</p>}
                         <form onSubmit={handleSubmit}>

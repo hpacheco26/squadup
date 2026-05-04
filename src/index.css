@@ -173,33 +173,37 @@ input[type="range"].range-thumb::-moz-range-track {
 
 /* ── Dark mode overrides ── */
 html.dark {
-  --c-bg: #0f172a;
-  --c-surface: #1e293b;
-  --c-surface-alt: #162032;
-  --c-surface-hover: #243548;
+  --c-bg: #06101c;
+  --c-surface: #0d1929;
+  --c-surface-alt: #091422;
+  --c-surface-hover: #122034;
   --c-primary: #7b9fd4;
-  --c-primary-light: #1e3358;
+  --c-primary-light: #0e2040;
   --c-primary-dark: #6b8fc4;
   --c-primary-a15: rgba(123, 159, 212, 0.15);
   --c-success: #4ade80;
-  --c-success-light: #052e16;
+  --c-success-light: #021a0c;
   --c-success-a15: rgba(74, 222, 128, 0.15);
   --c-danger: #f87171;
-  --c-danger-light: #2d0a0a;
+  --c-danger-light: #1f0606;
   --c-warning: #fbbf24;
-  --c-warning-light: #2d1b00;
+  --c-warning-light: #1e1100;
   --c-text: #e2e8f0;
   --c-text-secondary: #94a3b8;
   --c-text-muted: #64748b;
-  --c-border: #334155;
-  --c-border-strong: #475569;
-  --c-nav-bg: #0a1120;
-  --c-nav-border: #1e293b;
+  --c-border: #1a2d45;
+  --c-border-strong: #2d4460;
+  --c-nav-bg: #040c17;
+  --c-nav-border: #0d1929;
 }
 
 html.dark body {
   background-color: var(--c-bg);
   background-image: none;
+}
+
+html.dark .logo-themed {
+  filter: invert(1);
 }
 
 html {

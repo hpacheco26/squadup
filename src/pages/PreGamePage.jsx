@@ -7,10 +7,11 @@ import useGameStore from '../store/gameStore';
 import useGroupStore from '../store/groupStore';
 import useAuthStore from '../store/authStore';
 import PlayerModal from '../components/modals/PlayerModal';
-import { Share2, UserPlus, Link as LinkIcon, ClipboardList, MapPin, CalendarDays, CalendarCog } from 'lucide-react';
+import { Share2, UserPlus, Link as LinkIcon, ClipboardList, MapPin, CalendarDays, CalendarCog, Send } from 'lucide-react';
 import AppHeaderBar from '../components/bars/AppHeaderBar';
 import useLanguageStore from '../store/languageStore';
 import InvitationBar from '../components/bars/InvitationBar';
+import { BottomSheet } from '../components/modals/BottomSheet';
 import theme from '../theme';
 
 const PreGamePage = () => {
@@ -24,6 +25,7 @@ const PreGamePage = () => {
     const [playersOut, setPlayersOut] = useState([]);
     const [playersInvited, setPlayersInvited] = useState([]);
     const [isGuestModalOpen, setIsGuestModalOpen] = useState(false);
+    const [isInviteSheetOpen, setIsInviteSheetOpen] = useState(false);
     const [ready, setReady] = useState(false);
 
     useEffect(() => {
@@ -200,22 +202,10 @@ const PreGamePage = () => {
                 {/* Action buttons */}
                 <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', padding: '4px 0', flexWrap: 'wrap' }}>
                     <button
-                        onClick={() => setIsGuestModalOpen(true)}
-                        style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: '0.8rem', color: '#64748b' }}
+                        onClick={() => setIsInviteSheetOpen(true)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: 'none', background: 'var(--c-primary)', color: '#fff', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}
                     >
-                        <UserPlus size={14} /> {t('guest')}
-                    </button>
-                    <button
-                        onClick={handleShareWhatsApp}
-                        style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: 'none', background: '#4CAF7D', color: '#fff', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold' }}
-                    >
-                        <Share2 size={14} /> WhatsApp
-                    </button>
-                    <button
-                        onClick={handleCopyInviteLink}
-                        style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: '0.8rem', color: '#64748b' }}
-                    >
-                        <LinkIcon size={14} /> {t('link')}
+                        <Send size={14} /> {t('inviteToGame')}
                     </button>
                 </div>
 
@@ -306,6 +296,41 @@ const PreGamePage = () => {
                     buttonLabel={t('addGuest')}
                 />
             </div>
+
+            {/* Game Invite Sheet */}
+            <BottomSheet
+                open={isInviteSheetOpen}
+                onClose={() => setIsInviteSheetOpen(false)}
+                title={t('inviteToGame')}
+            >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <button
+                        type="button"
+                        onClick={() => { handleShareWhatsApp(); setIsInviteSheetOpen(false); }}
+                        style={{
+                            display: 'flex', alignItems: 'center', gap: 12,
+                            padding: '14px 16px', borderRadius: 12, border: 'none',
+                            background: '#25d366', color: '#fff', cursor: 'pointer',
+                            fontSize: '0.95rem', fontWeight: 600, fontFamily: 'inherit',
+                        }}
+                    >
+                        <Share2 size={18} /> {t('shareViaWhatsApp')}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => { handleCopyInviteLink(); setIsInviteSheetOpen(false); }}
+                        style={{
+                            display: 'flex', alignItems: 'center', gap: 12,
+                            padding: '14px 16px', borderRadius: 12,
+                            border: '1px solid var(--c-border)', background: 'var(--c-surface-alt)',
+                            color: 'var(--c-text)', cursor: 'pointer',
+                            fontSize: '0.95rem', fontWeight: 600, fontFamily: 'inherit',
+                        }}
+                    >
+                        <LinkIcon size={18} /> {t('copyLink')}
+                    </button>
+                </div>
+            </BottomSheet>
         </>
     );
 };

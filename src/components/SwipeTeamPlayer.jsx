@@ -130,8 +130,8 @@ function SwipeTeamPlayer({
                     borderRadius: "6px",
                     touchAction: "pan-y",
                     userSelect: "none",
-                    background: "#fff",
-                    border: "1px solid #e2e8f0",
+                    background: "var(--c-surface)",
+                    border: "1px solid var(--c-border)",
                     boxShadow: "0 1px 2px rgba(15,23,42,0.06)",
                 }}
             >
@@ -215,7 +215,7 @@ function SwipeTeamPlayer({
                     style={{
                         position: "relative",
                         zIndex: 10,
-                        background: "#fff",
+                        background: "var(--c-surface)",
                         display: "flex",
                         alignItems: "center",
                         gap: "8px",
@@ -227,7 +227,7 @@ function SwipeTeamPlayer({
                     {/* Player name */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: roleLabel ? "1px" : 0 }}>
-                            <span style={{ fontSize: "0.9rem", fontWeight: "600", color: "#1e293b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                            <span style={{ fontSize: "0.9rem", fontWeight: "600", color: "var(--c-text)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                                 {compactName 
                                     ? `${player?.firstName} ${player?.lastName?.charAt(0) || ''}${player?.lastName?.charAt(0) ? '.' : ''}`
                                     : `${player?.firstName} ${player?.lastName}`
@@ -243,7 +243,7 @@ function SwipeTeamPlayer({
                                         fontWeight: "700",
                                         letterSpacing: "0.04em",
                                         textTransform: "uppercase",
-                                        color: "#64748b",
+                                        color: "var(--c-text-secondary)",
                                         lineHeight: 1.2,
                                     }}>
                                         {roleLabel}
@@ -260,7 +260,7 @@ function SwipeTeamPlayer({
                                             borderRadius: '999px',
                                             padding: '0 5px',
                                             lineHeight: 1.4,
-                                            background: '#fff',
+                                            background: 'var(--c-surface)',
                                             flexShrink: 0,
                                         }}>
                                             C
@@ -288,9 +288,9 @@ function SwipeTeamPlayer({
                             fontWeight: "700",
                             textTransform: "uppercase",
                             letterSpacing: "0.04em",
-                            color: "#94a3b8",
-                            background: "#f8fafc",
-                            border: "1px solid #e2e8f0",
+                            color: "var(--c-text-muted)",
+                            background: "var(--c-surface-alt)",
+                            border: "1px solid var(--c-border)",
                             borderRadius: "999px",
                             padding: "2px 5px",
                             flexShrink: 0,

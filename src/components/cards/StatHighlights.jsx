@@ -6,7 +6,7 @@ const StatCard = ({ icon: Icon, color, label, value, subtitle }) => (
   <div style={{
     flex: 1,
     minWidth: 0,
-    background: '#fff',
+    background: theme.surface,
     borderRadius: '12px',
     padding: '12px 10px',
     border: `1px solid ${theme.border}`,

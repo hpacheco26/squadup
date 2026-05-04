@@ -14,7 +14,7 @@ const rankThemes = {
 
 const RankCard = ({ rank, groupName, isAnimated, onClick }) => {
   const { t } = useLanguageStore();
-  const badgeSize = 'clamp(112px, 19dvh, 176px)';
+  const badgeSize = 'clamp(140px, 26dvh, 220px)';
   const theme = rankThemes[rank] || rankThemes[0];
 
   const badge = isAnimated ? (
@@ -37,13 +37,13 @@ const RankCard = ({ rank, groupName, isAnimated, onClick }) => {
       {/* Top half — badge area */}
       <div style={{
         background: 'transparent',
-        padding: 'clamp(6px, 1dvh, 12px) 14px clamp(10px, 1.4dvh, 14px)',
+        padding: 'clamp(10px, 1.5dvh, 18px) 14px clamp(14px, 2dvh, 20px)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
       }}>
         <div style={{
-          height: 'clamp(106px, 18dvh, 184px)',
+          height: 'clamp(136px, 26dvh, 228px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -152,7 +152,7 @@ const RankCard = ({ rank, groupName, isAnimated, onClick }) => {
         <h2 style={{
           fontSize: 'clamp(0.9rem, 1.5dvh, 1.12rem)',
           fontWeight: '700',
-          color: '#1e293b',
+          color: 'var(--c-text)',
           margin: '3px 0 0',
           textAlign: 'center',
           lineHeight: 1.2,

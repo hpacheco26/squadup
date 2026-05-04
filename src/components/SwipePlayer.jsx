@@ -170,7 +170,7 @@ function SwipePlayer({
                 borderRadius: "6px",
                 touchAction: "pan-y",
                 userSelect: "none",
-                background: "#fff",
+                background: "var(--c-surface)",
             }}
         >
             {/* WCAG 2.5.1 — keyboard / non-swipe alternative for the swipe gesture. */}
@@ -215,7 +215,7 @@ function SwipePlayer({
                 style={{
                     position: "relative",
                     zIndex: 10,
-                    background: "#fff",
+                    background: "var(--c-surface)",
                     borderRadius: "6px",
                     display: "flex",
                     alignItems: "center",
@@ -240,7 +240,7 @@ function SwipePlayer({
                         }} />
 
                         {/* Name */}
-                        <span style={{ fontSize: "0.95rem", fontWeight: "600", color: "#1e293b", flex: 1, paddingLeft: "8px" }}>
+                        <span style={{ fontSize: "0.95rem", fontWeight: "600", color: "var(--c-text)", flex: 1, paddingLeft: "8px" }}>
                             {player.firstName} {player.lastName}
                         </span>
 

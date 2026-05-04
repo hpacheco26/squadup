@@ -2,6 +2,7 @@ import React from "react";
 import { MapPin, CalendarDays } from "lucide-react";
 import theme from "../../theme";
 import InvitationBar from "../bars/InvitationBar";
+import useThemeStore from "../../store/themeStore";
 
 const getDayLabel = (dateStr, t) => {
   if (!dateStr) return null;
@@ -20,6 +21,7 @@ const getDayLabel = (dateStr, t) => {
 };
 
 const GameCard = ({ game, t, showGroupName = true, backgroundImage }) => {
+  const { darkMode } = useThemeStore();
   const inCount = (game.playersIn || []).length;
   const outCount = (game.playersOut || []).length;
   const invitedCount = (game.playersInvited || []).length;
@@ -31,19 +33,32 @@ const GameCard = ({ game, t, showGroupName = true, backgroundImage }) => {
   return (
     <div style={{
       backgroundColor: theme.surface,
-      backgroundImage: backgroundImage
-        ? `linear-gradient(rgba(0,0,0,0.08), rgba(0,0,0,0.08)), url(${backgroundImage})`
-        : undefined,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      backgroundRepeat: 'no-repeat',
       borderRadius: '16px',
       overflow: 'hidden',
       boxShadow: `0 7px 18px ${isFull ? theme.successShadow : theme.primaryShadow}`,
       height: '100%',
       border: `1px solid ${theme.border}`,
+      position: 'relative',
     }}>
-      <div style={{ padding: 'clamp(10px, 1.8dvh, 16px)' }}>
+      {backgroundImage && (
+        <img
+          src={backgroundImage}
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            objectPosition: 'center',
+            pointerEvents: 'none',
+            filter: darkMode
+              ? 'invert(1) opacity(0.22)'
+              : 'opacity(0.32)',
+          }}
+        />
+      )}
+      <div style={{ padding: 'clamp(10px, 1.8dvh, 16px)', position: 'relative' }}>
         {/* Header: group + status */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
           {showGroupName && game.groupName ? (
