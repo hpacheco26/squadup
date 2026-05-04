@@ -80,8 +80,8 @@ export default function CreateGroupModal({ isOpen, setIsOpen }) {
                 </section>
                 <footer className="modal-card-foot" style={{ display: 'flex', justifyContent: 'center', background: '#fff', borderTop: '1px solid #e2e8f0' }}>
                     <button
-                        className="button"
-                        style={{ background: '#5b7bb3', color: '#fff', borderRadius: '8px', fontWeight: 'bold', letterSpacing: '0.5px', border: 'none', cursor: 'pointer' }}
+                        className="button btn-primary"
+                        style={{ background: 'var(--c-primary)', color: '#fff', borderRadius: '8px', fontWeight: 'bold', letterSpacing: '0.5px', border: 'none', cursor: 'pointer' }}
                         onClick={handleSubmit}
                     >
                         {t('createGroup')}

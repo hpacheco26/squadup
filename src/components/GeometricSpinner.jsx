@@ -32,7 +32,7 @@ const styleTag =
  *   size   – base size in px (default 40)
  *   color  – primary color (default '#5b7bb3')
  */
-const GeometricSpinner = ({ size = 40, color = '#5b7bb3' }) => {
+const GeometricSpinner = ({ size = 40, color = 'var(--c-primary)' }) => {
   const s = size;
 
   // Pentagon via clip-path

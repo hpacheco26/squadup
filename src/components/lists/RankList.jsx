@@ -72,7 +72,7 @@ const RankList = () => {
         </Swiper>
       ) : ranksLoading ? (
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <GeometricSpinner size={40} color="#5b7bb3" />
+          <GeometricSpinner size={40} />
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 20px' }}>
@@ -81,7 +81,7 @@ const RankList = () => {
             <>
               <button
                 onClick={() => setIsModalOpen(true)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5b7bb3', fontSize: '1rem', fontWeight: '600', textDecoration: 'underline', padding: 0 }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-primary)', fontSize: '1rem', fontWeight: '600', textDecoration: 'underline', padding: 0 }}
               >
                 {t('createFirstGroup')}
               </button>

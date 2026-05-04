@@ -21,7 +21,7 @@ const Stepper = ({ value, onChange, min = 0, max = 99, step = 1, suffix }) => {
                 <Minus size={14} />
             </button>
             <div style={{
-                minWidth: 48, textAlign: 'center', fontSize: '0.95rem', fontWeight: 600, color: '#1e293b',
+                minWidth: 48, textAlign: 'center', fontSize: '0.95rem', fontWeight: 600, color: 'var(--c-text)',
                 fontVariantNumeric: 'tabular-nums',
             }}>
                 {suffix === '€' ? `€${num.toFixed(2)}` : num}{suffix && suffix !== '€' ? ` ${suffix}` : ''}
@@ -35,9 +35,9 @@ const Stepper = ({ value, onChange, min = 0, max = 99, step = 1, suffix }) => {
 
 const stepperBtn = {
     width: 30, height: 30, borderRadius: 15,
-    border: '1px solid #e2e8f0', background: '#f8fafc',
+    border: '1px solid var(--c-border)', background: 'var(--c-surface-alt)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    color: '#5b7bb3', cursor: 'pointer', flexShrink: 0,
+    color: 'var(--c-primary)', cursor: 'pointer', flexShrink: 0,
 };
 
 const SectionTitle = ({ icon: Icon, children, action }) => (
@@ -45,7 +45,7 @@ const SectionTitle = ({ icon: Icon, children, action }) => (
         action={action}
     >
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            {Icon && <Icon size={12} color="#64748b" />}
+            {Icon && <Icon size={12} color="var(--c-text-secondary)" />}
             {children}
         </span>
     </SectionLabel>
@@ -72,21 +72,21 @@ const PickerTile = ({ icon: Icon, label, value, display, type, onChange, onOpen 
             style={{
                 position: 'relative',
                 display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 6,
-                background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14,
+                background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 14,
                 padding: '12px 14px', cursor: 'pointer', textAlign: 'left',
                 fontFamily: 'inherit',
             }}
         >
             <span style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6,
-                fontSize: '0.7rem', fontWeight: 600, color: '#64748b',
+                fontSize: '0.7rem', fontWeight: 600, color: 'var(--c-text-secondary)',
                 textTransform: 'uppercase', letterSpacing: '0.5px',
             }}>
                 {Icon && <Icon size={12} />} {label}
             </span>
             <span style={{
                 fontSize: '1rem', fontWeight: 600,
-                color: value ? '#1e293b' : '#94a3b8',
+                color: value ? 'var(--c-text)' : 'var(--c-text-muted)',
                 fontVariantNumeric: 'tabular-nums',
             }}>
                 {display || (type === 'date' ? '—' : '--:--')}
@@ -158,20 +158,20 @@ const RosterRangeSlider = ({ minValue, maxValue, onChange, lo = 2, hi = 30 }) =>
     return (
         <div style={{ padding: '4px 6px 0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontVariantNumeric: 'tabular-nums' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#1e293b' }}>{minValue}</span>
-                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#1e293b' }}>{maxValue}</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--c-text)' }}>{minValue}</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--c-text)' }}>{maxValue}</span>
             </div>
             <div style={{ position: 'relative', height: 28 }}>
                 {/* Base track */}
                 <div style={{
                     position: 'absolute', left: 0, right: 0, top: 12, height: 4,
-                    background: '#e2e8f0', borderRadius: 999,
+                    background: 'var(--c-border)', borderRadius: 999,
                 }} />
                 {/* Selected range */}
                 <div style={{
                     position: 'absolute', top: 12, height: 4, borderRadius: 999,
                     left: `${minPct}%`, width: `${Math.max(0, maxPct - minPct)}%`,
-                    background: '#5b7bb3',
+                    background: 'var(--c-primary)',
                 }} />
                 {/* Min thumb input */}
                 <input
@@ -222,16 +222,16 @@ const BottomSheet = ({ open, onClose, title, children }) => {
                 onClick={(e) => e.stopPropagation()}
                 style={{
                     width: '100%', maxWidth: 640,
-                    background: '#fff',
+                    background: 'var(--c-surface)',
                     borderTopLeftRadius: 20, borderTopRightRadius: 20,
                     padding: '8px 16px calc(20px + env(safe-area-inset-bottom))',
                     boxShadow: '0 -10px 30px rgba(15,23,42,0.18)',
                 }}
             >
-                <div style={{ width: 36, height: 4, borderRadius: 999, background: '#e2e8f0', margin: '4px auto 12px' }} />
+                <div style={{ width: 36, height: 4, borderRadius: 999, background: 'var(--c-border-strong)', margin: '4px auto 12px' }} />
                 {title && (
                     <div style={{
-                        fontSize: '1rem', fontWeight: 700, color: '#1e293b',
+                        fontSize: '1rem', fontWeight: 700, color: 'var(--c-text)',
                         marginBottom: 14,
                     }}>{title}</div>
                 )}
@@ -297,22 +297,22 @@ const DateSheet = ({ open, value, onChange, onClose, t }) => {
                                 flex: '0 0 auto',
                                 minWidth: 64, padding: '10px 6px',
                                 borderRadius: 14,
-                                border: selected ? '2px solid #5b7bb3' : '1px solid #e2e8f0',
-                                background: selected ? '#eef2ff' : '#fff',
+                                border: selected ? '2px solid var(--c-primary)' : '1px solid var(--c-border)',
+                                background: selected ? 'var(--c-primary-light)' : 'var(--c-surface)',
                                 cursor: 'pointer', fontFamily: 'inherit',
                                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
                                 touchAction: 'manipulation',
                             }}
                         >
                             <span style={{
-                                fontSize: '0.62rem', fontWeight: 700, color: '#64748b',
+                                fontSize: '0.62rem', fontWeight: 700, color: 'var(--c-text-secondary)',
                                 textTransform: 'uppercase', letterSpacing: '0.4px',
                             }}>
                                 {i === 0 ? (t('today') || 'Today')
                                     : i === 1 ? (t('tomorrow') || 'Tomorrow')
                                         : date.toLocaleDateString(undefined, { weekday: 'short' })}
                             </span>
-                            <span style={{ fontSize: '1.2rem', fontWeight: 700, color: '#1e293b' }}>{date.getDate()}</span>
+                            <span style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--c-text)' }}>{date.getDate()}</span>
                             <span style={{ fontSize: '0.62rem', color: '#94a3b8' }}>
                                 {date.toLocaleDateString(undefined, { month: 'short' })}
                             </span>
@@ -334,7 +334,7 @@ const DateSheet = ({ open, value, onChange, onClose, t }) => {
                 onClick={onClose}
                 style={{
                     width: '100%', padding: '12px', borderRadius: 12,
-                    border: 'none', background: '#5b7bb3',
+                    border: 'none', background: 'var(--c-primary)',
                     color: '#fff', fontWeight: 700, fontSize: '0.95rem',
                     cursor: 'pointer', fontFamily: 'inherit',
                 }}
@@ -348,17 +348,17 @@ const DateSheet = ({ open, value, onChange, onClose, t }) => {
 const DmySelect = ({ label, value, options, format, onChange }) => (
     <label style={{
         display: 'flex', flexDirection: 'column', gap: 4,
-        background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12,
+        background: 'var(--c-surface-alt)', border: '1px solid var(--c-border)', borderRadius: 12,
         padding: '8px 10px',
     }}>
-        <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.4px' }}>{label}</span>
+        <span style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--c-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.4px' }}>{label}</span>
         <select
             value={value}
             onChange={(e) => onChange(e.target.value)}
             style={{
                 appearance: 'none', WebkitAppearance: 'none',
                 border: 'none', outline: 'none', background: 'transparent',
-                fontSize: '1rem', fontWeight: 600, color: '#1e293b',
+                fontSize: '1rem', fontWeight: 600, color: 'var(--c-text)',
                 fontFamily: 'inherit', padding: '2px 0',
                 cursor: 'pointer', touchAction: 'manipulation',
             }}
@@ -407,25 +407,25 @@ const WheelPicker = ({ label, value, options, format, onChange }) => {
     return (
         <div style={{
             display: 'flex', flexDirection: 'column', gap: 4,
-            background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12,
+            background: 'var(--c-surface-alt)', border: '1px solid var(--c-border)', borderRadius: 12,
             padding: '8px 10px',
         }}>
-            <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.4px' }}>{label}</span>
+            <span style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--c-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.4px' }}>{label}</span>
             <div style={{ position: 'relative', height: ITEM_H * VISIBLE }}>
                 {/* Center selection band */}
                 <div style={{
                     position: 'absolute', left: -10, right: -10,
                     top: ITEM_H * Math.floor(VISIBLE / 2),
                     height: ITEM_H,
-                    background: 'rgba(91,123,179,0.10)',
-                    borderTop: '1px solid #e2e8f0',
-                    borderBottom: '1px solid #e2e8f0',
+                    background: 'var(--c-primary-a15)',
+                    borderTop: '1px solid var(--c-border)',
+                    borderBottom: '1px solid var(--c-border)',
                     pointerEvents: 'none', zIndex: 1,
                 }} />
                 {/* Top/bottom fade */}
                 <div style={{
                     position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 2,
-                    background: 'linear-gradient(180deg, #f8fafc 0%, rgba(248,250,252,0) 30%, rgba(248,250,252,0) 70%, #f8fafc 100%)',
+                    background: 'linear-gradient(180deg, var(--c-surface-alt) 0%, transparent 30%, transparent 70%, var(--c-surface-alt) 100%)',
                 }} />
                 <div
                     ref={ref}
@@ -453,7 +453,7 @@ const WheelPicker = ({ label, value, options, format, onChange }) => {
                                     scrollSnapAlign: 'center',
                                     fontSize: selected ? '1.05rem' : '0.9rem',
                                     fontWeight: selected ? 700 : 500,
-                                    color: selected ? '#1e293b' : '#94a3b8',
+                                    color: selected ? 'var(--c-text)' : 'var(--c-text-muted)',
                                     fontVariantNumeric: 'tabular-nums',
                                     cursor: 'pointer',
                                     transition: 'font-size 120ms, color 120ms, font-weight 120ms',
@@ -513,9 +513,9 @@ const TimeSheet = ({ open, value, onChange, onClose, t }) => {
                             onClick={() => { onChange(slot); onClose(); }}
                             style={{
                                 padding: '10px 6px', borderRadius: 12,
-                                border: selected ? '2px solid #5b7bb3' : '1px solid #e2e8f0',
-                                background: selected ? '#eef2ff' : '#fff',
-                                color: '#1e293b', fontWeight: 600, fontSize: '0.95rem',
+                                border: selected ? '2px solid var(--c-primary)' : '1px solid var(--c-border)',
+                                background: selected ? 'var(--c-primary-light)' : 'var(--c-surface)',
+                                color: 'var(--c-text)', fontWeight: 600, fontSize: '0.95rem',
                                 cursor: 'pointer', fontVariantNumeric: 'tabular-nums', fontFamily: 'inherit',
                                 touchAction: 'manipulation',
                             }}
@@ -538,7 +538,7 @@ const TimeSheet = ({ open, value, onChange, onClose, t }) => {
                 onClick={onClose}
                 style={{
                     width: '100%', padding: '12px', borderRadius: 12,
-                    border: 'none', background: '#5b7bb3',
+                    border: 'none', background: 'var(--c-primary)',
                     color: '#fff', fontWeight: 700, fontSize: '0.95rem',
                     cursor: 'pointer', fontFamily: 'inherit',
                 }}
@@ -694,7 +694,7 @@ function GameSettingsPage() {
         <>
             <GameSettingsPageHeader onBack={goBack} title={headerTitle} />
 
-            <div style={{ flex: 1, overflowY: 'auto', background: 'linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%)' }}>
+            <div style={{ flex: 1, overflowY: 'auto', background: 'var(--c-bg)' }}>
                 <div style={{ padding: '8px 12px 16px', maxWidth: 640, margin: '0 auto' }}>
 
                     {/* WHEN */}
@@ -721,16 +721,16 @@ function GameSettingsPage() {
 
                     {/* WHERE */}
                     <div style={{
-                        background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0',
+                        background: 'var(--c-surface)', borderRadius: 14, border: '1px solid var(--c-border)',
                         padding: 12, marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 10,
                     }}>
                         {/* Place input with leading icon */}
                         <div style={{
                             display: 'flex', alignItems: 'center', gap: 10,
-                            background: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0',
+                            background: 'var(--c-surface-alt)', borderRadius: 10, border: '1px solid var(--c-border)',
                             padding: '10px 12px',
                         }}>
-                            <MapPin size={16} color="#5b7bb3" style={{ flexShrink: 0 }} />
+                            <MapPin size={16} color="var(--c-primary)" style={{ flexShrink: 0 }} />
                             <input
                                 type="text"
                                 placeholder={t('locationPlaceholder')}
@@ -739,7 +739,7 @@ function GameSettingsPage() {
                                 style={{
                                     flex: 1, minWidth: 0,
                                     border: 'none', outline: 'none', background: 'transparent',
-                                    fontSize: '0.9rem', color: '#1e293b', fontFamily: 'inherit',
+                                    fontSize: '0.9rem', color: 'var(--c-text)', fontFamily: 'inherit',
                                 }}
                             />
                         </div>
@@ -747,10 +747,10 @@ function GameSettingsPage() {
                         {/* Map link input with leading icon + open button */}
                         <div style={{
                             display: 'flex', alignItems: 'center', gap: 10,
-                            background: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0',
+                            background: 'var(--c-surface-alt)', borderRadius: 10, border: '1px solid var(--c-border)',
                             padding: '10px 12px',
                         }}>
-                            <Link2 size={16} color="#94a3b8" style={{ flexShrink: 0 }} />
+                            <Link2 size={16} color="var(--c-text-muted)" style={{ flexShrink: 0 }} />
                             <input
                                 type="url"
                                 inputMode="url"
@@ -760,7 +760,7 @@ function GameSettingsPage() {
                                 style={{
                                     flex: 1, minWidth: 0,
                                     border: 'none', outline: 'none', background: 'transparent',
-                                    fontSize: '0.85rem', color: '#1e293b', fontFamily: 'inherit',
+                                    fontSize: '0.85rem', color: 'var(--c-text)', fontFamily: 'inherit',
                                 }}
                             />
                             {locationUrl && isValidUrl(locationUrl) && (
@@ -770,7 +770,7 @@ function GameSettingsPage() {
                                     rel="noopener noreferrer"
                                     style={{
                                         display: 'inline-flex', alignItems: 'center', gap: 4,
-                                        color: '#5b7bb3', fontSize: '0.75rem', fontWeight: 600,
+                                        color: 'var(--c-primary)', fontSize: '0.75rem', fontWeight: 600,
                                         textDecoration: 'none', flexShrink: 0,
                                     }}
                                 >
@@ -786,8 +786,8 @@ function GameSettingsPage() {
                     {/* PLAYERS */}
                     <SectionTitle icon={Users}>{t('playersLabel')}</SectionTitle>
                     <SettingsGroup>
-                        <div style={{ padding: '10px 14px 12px', display: 'flex', flexDirection: 'column', gap: 8, borderBottom: '1px solid #f1f5f9' }}>
-                            <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 500 }}>
+                        <div style={{ padding: '10px 14px 12px', display: 'flex', flexDirection: 'column', gap: 8, borderBottom: '1px solid var(--c-border)' }}>
+                            <span style={{ fontSize: '0.78rem', color: 'var(--c-text-secondary)', fontWeight: 500 }}>
                                 {t('format') || 'Format'}
                             </span>
                             <SettingsSegmented
@@ -814,10 +814,10 @@ function GameSettingsPage() {
                         </div>
                         <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
                             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
-                                <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 500, color: '#1e293b' }}>
+                                <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 500, color: 'var(--c-text)' }}>
                                     {t('rosterRange') || 'Roster size'}
                                 </p>
-                                <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600, color: '#5b7bb3', fontVariantNumeric: 'tabular-nums' }}>
+                                <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600, color: 'var(--c-primary)', fontVariantNumeric: 'tabular-nums' }}>
                                     {Number(minPlayers) === Number(maxPlayers) ? `${minPlayers}` : `${minPlayers}–${maxPlayers}`}
                                 </p>
                             </div>
@@ -835,15 +835,15 @@ function GameSettingsPage() {
                                                     onClick={() => { setMinPlayers(p.min); setMaxPlayers(p.max); setRosterCustom(false); }}
                                                     style={{
                                                         flex: 1, padding: '8px 6px', borderRadius: 10,
-                                                        border: active ? '1px solid #5b7bb3' : '1px solid #e2e8f0',
-                                                        background: active ? 'rgba(91,123,179,0.10)' : '#fff',
-                                                        color: active ? '#1e293b' : '#475569',
+                                                        border: active ? '1px solid var(--c-primary)' : '1px solid var(--c-border)',
+                                                        background: active ? 'var(--c-primary-a15)' : 'var(--c-surface)',
+                                                        color: active ? 'var(--c-text)' : 'var(--c-text-secondary)',
                                                         cursor: 'pointer', display: 'flex', flexDirection: 'column',
                                                         alignItems: 'center', gap: 2, fontFamily: 'inherit',
                                                     }}
                                                 >
                                                     <span style={{ fontSize: '0.78rem', fontWeight: active ? 600 : 500 }}>{p.label}</span>
-                                                    <span style={{ fontSize: '0.7rem', color: active ? '#5b7bb3' : '#94a3b8', fontVariantNumeric: 'tabular-nums' }}>{p.sub}</span>
+                                                    <span style={{ fontSize: '0.7rem', color: active ? 'var(--c-primary)' : 'var(--c-text-muted)', fontVariantNumeric: 'tabular-nums' }}>{p.sub}</span>
                                                 </button>
                                             );
                                         })}
@@ -852,9 +852,9 @@ function GameSettingsPage() {
                                             onClick={() => setRosterCustom(c => !c)}
                                             style={{
                                                 flex: 1, padding: '8px 6px', borderRadius: 10,
-                                                border: (rosterCustom || activeKey === 'custom') ? '1px solid #5b7bb3' : '1px solid #e2e8f0',
-                                                background: (rosterCustom || activeKey === 'custom') ? 'rgba(91,123,179,0.10)' : '#fff',
-                                                color: (rosterCustom || activeKey === 'custom') ? '#1e293b' : '#475569',
+                                                border: (rosterCustom || activeKey === 'custom') ? '1px solid var(--c-primary)' : '1px solid var(--c-border)',
+                                                background: (rosterCustom || activeKey === 'custom') ? 'var(--c-primary-a15)' : 'var(--c-surface)',
+                                                color: (rosterCustom || activeKey === 'custom') ? 'var(--c-text)' : 'var(--c-text-secondary)',
                                                 cursor: 'pointer', display: 'flex', flexDirection: 'column',
                                                 alignItems: 'center', gap: 2, fontFamily: 'inherit',
                                             }}
@@ -924,19 +924,20 @@ function GameSettingsPage() {
             <div style={{
                 position: 'sticky', bottom: 0, left: 0, right: 0,
                 padding: '12px 16px calc(12px + env(safe-area-inset-bottom))',
-                background: 'linear-gradient(180deg, rgba(238,242,247,0) 0%, #eef2f7 40%)',
+                background: 'linear-gradient(180deg, transparent 0%, var(--c-bg) 40%)',
                 pointerEvents: 'none',
             }}>
                 <button
+                    className="btn-primary"
                     onClick={handleSubmit}
                     disabled={loading || submitting}
                     style={{
                         width: '100%', padding: '14px', borderRadius: 14,
-                        background: '#5b7bb3', color: '#fff', border: 'none',
+                        background: 'var(--c-primary)', color: '#fff', border: 'none',
                         fontSize: '1rem', fontWeight: 700, letterSpacing: '0.3px',
                         cursor: (loading || submitting) ? 'not-allowed' : 'pointer',
                         opacity: (loading || submitting) ? 0.7 : 1,
-                        boxShadow: '0 8px 22px rgba(91,123,179,0.35)',
+                        boxShadow: '0 8px 22px var(--c-primary-a15)',
                         pointerEvents: 'auto',
                     }}
                 >
@@ -973,8 +974,8 @@ function GameSettingsPage() {
                         onClick={() => setCancelConfirmOpen(false)}
                         style={{
                             flex: 1, padding: '13px', borderRadius: 12,
-                            border: '1px solid #e2e8f0', background: '#fff',
-                            color: '#1e293b', fontSize: '0.95rem', fontWeight: 600,
+                            border: '1px solid var(--c-border)', background: 'var(--c-surface)',
+                            color: 'var(--c-text)', fontSize: '0.95rem', fontWeight: 600,
                             cursor: submitting ? 'not-allowed' : 'pointer',
                             fontFamily: 'inherit',
                         }}

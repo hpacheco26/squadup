@@ -202,6 +202,7 @@ const PreGamePage = () => {
                 {/* Action buttons */}
                 <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', padding: '4px 0', flexWrap: 'wrap' }}>
                     <button
+                        className="btn-primary"
                         onClick={() => setIsInviteSheetOpen(true)}
                         style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: 'none', background: 'var(--c-primary)', color: '#fff', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}
                     >

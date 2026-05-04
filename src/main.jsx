@@ -16,7 +16,7 @@ useAuthStore.getState().initializeAuth();
 if (Capacitor.isNativePlatform()) {
   // Style the status bar
   StatusBar.setStyle({ style: Style.Light }).catch(() => {});
-  StatusBar.setBackgroundColor({ color: '#5b7bb3' }).catch(() => {});
+  StatusBar.setBackgroundColor({ color: '#125669' }).catch(() => {});
 
   // Handle hardware back button on Android
   CapApp.addListener('backButton', ({ canGoBack }) => {

@@ -109,7 +109,7 @@
     font-weight: 700;
     letter-spacing: 0.6px;
     text-transform: uppercase;
-    color: #5b7bb3; /* theme.primary */
+    color: var(--c-primary); /* theme.primary */
     margin: 0 0 8px;
     text-align: center;
 }
@@ -168,8 +168,8 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: #dbe4f0; /* theme.primaryLight */
-    color: #5b7bb3;       /* theme.primary */
+    background: var(--c-primary-light); /* theme.primaryLight */
+    color: var(--c-primary);       /* theme.primary */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -286,8 +286,8 @@
 }
 
 .guestCard:hover {
-    border-color: #5b7bb3;        /* theme.primary */
-    background: #eef3fb;
+    border-color: var(--c-primary);        /* theme.primary */
+    background: var(--c-primary-light);
     transform: translateY(-1px);
 }
 
@@ -295,8 +295,8 @@
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: #dbe4f0; /* theme.primaryLight */
-    color: #5b7bb3;
+    background: var(--c-primary-light); /* theme.primaryLight */
+    color: var(--c-primary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -331,8 +331,8 @@
 
 .guestToggle {
     background: none;
-    border: 1.5px dashed #5b7bb3; /* theme.primary */
-    color: #5b7bb3;
+    border: 1.5px dashed var(--c-primary); /* theme.primary */
+    color: var(--c-primary);
     font-size: 0.86rem;
     cursor: pointer;
     font-weight: 600;
@@ -364,7 +364,7 @@
 }
 
 .guestInput:focus {
-    border-color: #5b7bb3; /* theme.primary */
+    border-color: var(--c-primary); /* theme.primary */
 }
 
 .guestActions {
@@ -403,7 +403,7 @@
     width: 36px;
     height: 36px;
     border: 3px solid #e2e8f0; /* theme.border */
-    border-top-color: #5b7bb3; /* theme.primary */
+    border-top-color: var(--c-primary); /* theme.primary */
     border-radius: 50%;
     margin: 0 auto;
     animation: spinnerSpin 0.9s linear infinite;
@@ -424,8 +424,8 @@
     margin-left: 8px;
     padding: 1px 7px;
     border-radius: 999px;
-    background: #dbe4f0; /* theme.primaryLight */
-    color: #5b7bb3;       /* theme.primary */
+    background: var(--c-primary-light); /* theme.primaryLight */
+    color: var(--c-primary);       /* theme.primary */
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.4px;
@@ -463,7 +463,7 @@
 }
 
 .googleBtn:hover:not(:disabled) {
-    border-color: #5b7bb3; /* theme.primary */
+    border-color: var(--c-primary); /* theme.primary */
     background: #f7f9fc;
 }
 
@@ -521,8 +521,8 @@
 }
 
 .authLinkBtn:hover {
-    border-color: #5b7bb3; /* theme.primary */
-    background: #eef3fb;
+    border-color: var(--c-primary); /* theme.primary */
+    background: var(--c-primary-light);
 }
 
 .privacyNote {
@@ -534,7 +534,7 @@
 }
 
 .privacyNote a {
-    color: #5b7bb3; /* theme.primary */
+    color: var(--c-primary); /* theme.primary */
     text-decoration: none;
 }
 

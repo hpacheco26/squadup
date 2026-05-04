@@ -5,7 +5,7 @@ import RankIcon from "./RankIcon";
 const SWIPE_THRESHOLD = 25;
 // Pixels of movement required to lock into a horizontal swipe vs. let the page scroll vertically.
 const DIRECTION_LOCK_PX = 8;
-const SWIPE_SWITCH_BG = "#5b7bb3";
+const SWIPE_SWITCH_BG = "#0d9488";
 const SWIPE_INJURY_BG = "#d97706";
 
 function SwipeTeamPlayer({

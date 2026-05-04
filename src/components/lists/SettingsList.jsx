@@ -9,14 +9,14 @@ import { ChevronRight } from 'lucide-react';
 export const SectionLabel = ({ children, action }) => (
     <div style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '0 16px 6px',
+        padding: '0 0 6px',
     }}>
         <p style={{
             fontSize: '0.7rem', fontWeight: 600, color: 'var(--c-text-secondary)',
             textTransform: 'uppercase', letterSpacing: '0.6px',
-            margin: 0,
+            margin: 0, flex: 1, minWidth: 0,
         }}>{children}</p>
-        {action}
+        {action && <div style={{ flexShrink: 0, marginLeft: 8 }}>{action}</div>}
     </div>
 );
 
@@ -66,7 +66,7 @@ export const SettingsToggle = ({ value, onChange }) => (
         onClick={(e) => { e.stopPropagation(); onChange(!value); }}
         style={{
             width: 44, height: 24, borderRadius: 12, border: 'none',
-            background: value ? '#5b7bb3' : '#cbd5e1',
+            background: value ? 'var(--c-primary)' : '#cbd5e1',
             position: 'relative', transition: 'background 0.2s', cursor: 'pointer', flexShrink: 0,
         }}
     >

@@ -84,10 +84,10 @@ const LoginPage = () => {
                             <div className="field">
                                 <div className="control">
                                     <button
-                                        className={`button is-fullwidth ${loading ? 'is-loading' : ''}`}
+                                        className={`button is-fullwidth btn-primary ${loading ? 'is-loading' : ''}`}
                                         type="submit"
                                         disabled={loading}
-                                        style={{ background: '#5b7bb3', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}
+                                        style={{ background: 'var(--c-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}
                                     >
                                         {t('login')}
                                     </button>

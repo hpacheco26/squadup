@@ -31,6 +31,7 @@ const RankPage = () => {
         />
 
         <button
+          className="btn-primary"
           onClick={() => group?.id && navigate(`/groups/${group.id}`)}
           style={{
             marginTop: '16px',
@@ -38,7 +39,7 @@ const RankPage = () => {
             padding: '14px',
             borderRadius: '12px',
             border: 'none',
-            background: '#5b7bb3',
+            background: 'var(--c-primary)',
             color: '#fff',
             fontSize: '1rem',
             fontWeight: 'bold',

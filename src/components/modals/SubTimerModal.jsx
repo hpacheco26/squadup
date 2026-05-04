@@ -140,12 +140,13 @@ const SubTimerModal = ({ team1, team2, team1Label, team2Label, subCounts = {}, i
                 </Modal.Card.Body>
                 <Modal.Card.Footer style={{ justifyContent: 'center', padding: '12px' }}>
                     <button
+                        className="btn-primary"
                         onClick={handleAccept}
                         style={{
                             display: 'flex',
                             alignItems: 'center',
                             gap: '8px',
-                            background: 'linear-gradient(135deg, #5b7bb3, #4a6694)',
+                            background: 'linear-gradient(135deg, var(--c-primary), var(--c-primary-dark))',
                             color: '#fff',
                             border: 'none',
                             borderRadius: '10px',

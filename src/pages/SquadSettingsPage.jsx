@@ -15,7 +15,7 @@ function SquadSettingsPage() {
     const s = useSquadSettings();
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [treasuryOpen, setTreasuryOpen] = useState(false);
-    if (!s.group) return <p style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>{t('loading')}</p>;
+    if (!s.group) return <p style={{ textAlign: 'center', padding: 40, color: 'var(--c-text-muted)' }}>{t('loading')}</p>;
 
     const adminCount = s.sortedPlayers.filter(p => p.userId && s.currentAdminIds.includes(p.userId)).length;
     const memberCount = s.sortedPlayers.filter(p => p.userId && !s.currentAdminIds.includes(p.userId)).length;
@@ -56,9 +56,9 @@ function SquadSettingsPage() {
                         ? `${treasurer.firstName}${treasurer.lastName ? ' ' + treasurer.lastName : ''}`
                         : t('noTreasurerSet');
                     const isTreasurerAdmin = treasurer && s.currentAdminIds.includes(treasurer.userId);
-                    const ring = isTreasurerAdmin ? '#d4a817' : '#5b7bb3';
-                    const tint = isTreasurerAdmin ? '#fef9c3' : '#dbe4f0';
-                    const textColor = isTreasurerAdmin ? '#a37610' : '#4a6694';
+                    const ring = isTreasurerAdmin ? '#d4a817' : 'var(--c-primary)';
+                    const tint = isTreasurerAdmin ? '#fef9c3' : 'var(--c-primary-light)';
+                    const textColor = isTreasurerAdmin ? '#a37610' : 'var(--c-primary)';
                     const initials = treasurer
                         ? `${(treasurer.firstName || '?')[0]}${(treasurer.lastName || '')[0] || ''}`.toUpperCase()
                         : '?';
@@ -70,14 +70,14 @@ function SquadSettingsPage() {
                                 <div style={{
                                     display: 'flex', alignItems: 'center', gap: 12,
                                     padding: '12px 14px',
-                                    borderBottom: '1px solid #f1f5f9',
+                                    borderBottom: '1px solid var(--c-border)',
                                 }}>
                                     <div style={{
                                         flexShrink: 0,
                                         width: 40, height: 40, borderRadius: '50%',
-                                        background: treasurer ? tint : '#f1f5f9',
-                                        color: treasurer ? textColor : '#94a3b8',
-                                        border: `2px solid ${treasurer ? ring : '#e2e8f0'}`,
+                                        background: treasurer ? tint : 'var(--c-surface-alt)',
+                                        color: treasurer ? textColor : 'var(--c-text-muted)',
+                                        border: `2px solid ${treasurer ? ring : 'var(--c-border)'}`,
                                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                                         fontSize: '0.85rem', fontWeight: 700,
                                     }}>
@@ -86,7 +86,7 @@ function SquadSettingsPage() {
                                     <div style={{ flex: 1, minWidth: 0 }}>
                                         <p style={{
                                             margin: 0, fontSize: '0.95rem', fontWeight: 600,
-                                            color: treasurer ? '#1e293b' : '#94a3b8',
+                                            color: treasurer ? textColor : 'var(--c-text-muted)',
                                             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                                         }}>
                                             {treasurerName}
@@ -95,8 +95,8 @@ function SquadSettingsPage() {
                                             display: 'inline-block', marginTop: 3,
                                             fontSize: '0.6rem', fontWeight: 700, letterSpacing: 0.5,
                                             textTransform: 'uppercase',
-                                            color: treasurer ? textColor : '#94a3b8',
-                                            background: treasurer ? tint : '#f1f5f9',
+                                            color: treasurer ? textColor : 'var(--c-text-muted)',
+                                            background: treasurer ? tint : 'var(--c-surface-alt)',
                                             padding: '2px 8px', borderRadius: 999,
                                         }}>
                                             {t('treasuryPlayer')}
@@ -107,7 +107,7 @@ function SquadSettingsPage() {
                                         onClick={() => setTreasuryOpen(true)}
                                         style={{
                                             background: 'transparent', border: 'none',
-                                            color: '#5b7bb3', fontSize: '0.85rem', fontWeight: 600,
+                                        color: 'var(--c-primary)', fontSize: '0.85rem', fontWeight: 600,
                                             cursor: 'pointer', fontFamily: 'inherit', padding: '6px 4px',
                                         }}
                                     >
@@ -119,8 +119,8 @@ function SquadSettingsPage() {
                                     display: 'flex', alignItems: 'center', gap: 12,
                                     padding: '12px 14px',
                                 }}>
-                                    <Wallet size={16} color="#5b7bb3" />
-                                    <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 500, color: '#1e293b' }}>
+                                    <Wallet size={16} color="var(--c-primary)" />
+                                    <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 500, color: 'var(--c-text)' }}>
                                         MBWay
                                     </p>
                                     <input
@@ -150,15 +150,15 @@ function SquadSettingsPage() {
                                     chevron={false}
                                     last={i === arr.length - 1}
                                 >
-                                    <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#dc2626' }}>
+                                    <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--c-danger)' }}>
                                         €{(s.playerDebtMap[p.id] || 0).toFixed(2)}
                                     </span>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); s.handleClearDebt(p.id); }}
                                         style={{
-                                            marginLeft: 8, background: '#dcfce7', border: 'none',
+                                            marginLeft: 8, background: 'var(--c-success-light)', border: 'none',
                                             borderRadius: 6, padding: '4px 10px', fontSize: '0.7rem',
-                                            fontWeight: 700, color: '#16a34a', cursor: 'pointer',
+                                            fontWeight: 700, color: 'var(--c-success)', cursor: 'pointer',
                                         }}
                                     >{t('clear')}</button>
                                 </SettingsRow>
@@ -173,9 +173,10 @@ function SquadSettingsPage() {
                         <SectionLabel
                             action={
                                 <button
+                                    className="btn-primary"
                                     onClick={() => s.setIsPlayerModalOpen(true)}
                                     style={{
-                                        background: '#5b7bb3', color: '#fff', border: 'none',
+                                        background: 'var(--c-primary)', color: '#fff', border: 'none',
                                         borderRadius: 8, padding: '4px 8px', fontSize: '0.7rem',
                                         fontWeight: 600, cursor: 'pointer',
                                         display: 'flex', alignItems: 'center', gap: 4,
@@ -185,20 +186,20 @@ function SquadSettingsPage() {
                         >
                             {t('playersLabel')}
                             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginLeft: 8, textTransform: 'none', letterSpacing: 0 }}>
-                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: '#a37610' }}>
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: 'var(--c-warning)' }}>
                                     <Shield size={11} strokeWidth={2.5} /> {adminCount}
                                 </span>
-                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: '#4a6694' }}>
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: 'var(--c-primary)' }}>
                                     <UserCheck size={11} strokeWidth={2.5} /> {memberCount}
                                 </span>
-                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: '#64748b' }}>
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: 'var(--c-text-muted)' }}>
                                     <UserX size={11} strokeWidth={2.5} /> {nonMemberCount}
                                 </span>
                             </span>
                         </SectionLabel>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 24 }}>
                             {s.sortedPlayers.length === 0 ? (
-                                <p style={{ textAlign: 'center', color: '#94a3b8', padding: 20, fontSize: '0.9rem' }}>{t('noPlayersYet')}</p>
+                                <p style={{ textAlign: 'center', color: 'var(--c-text-muted)', padding: 20, fontSize: '0.9rem' }}>{t('noPlayersYet')}</p>
                             ) : s.sortedPlayers.map((player) => {
                                 const isPlayerAdmin = !!(player.userId && s.currentAdminIds.includes(player.userId));
                                 const canToggle = s.isAdmin && player.userId && (!isPlayerAdmin || s.currentAdminIds.length > 1);
@@ -237,9 +238,9 @@ function SquadSettingsPage() {
                         const selected = (s.group.treasuryPlayerId
                             || (s.group.players || []).find(x => s.currentAdminIds.includes(x.userId))?.id) === p.id;
                         const isAdmin = s.currentAdminIds.includes(p.userId);
-                        const ring = isAdmin ? '#d4a817' : '#5b7bb3';
-                        const tint = isAdmin ? '#fef9c3' : '#dbe4f0';
-                        const textColor = isAdmin ? '#a37610' : '#4a6694';
+                        const ring = isAdmin ? '#d4a817' : 'var(--c-primary)';
+                        const tint = isAdmin ? '#fef9c3' : 'var(--c-primary-light)';
+                        const textColor = isAdmin ? '#a37610' : 'var(--c-primary)';
                         const initials = `${(p.firstName || '?')[0]}${(p.lastName || '')[0] || ''}`.toUpperCase();
                         return (
                             <button
@@ -252,8 +253,8 @@ function SquadSettingsPage() {
                                 style={{
                                     display: 'flex', alignItems: 'center', gap: 12,
                                     padding: '10px 12px', borderRadius: 12,
-                                    background: selected ? '#eef4ff' : '#fff',
-                                    border: `1px solid ${selected ? '#5b7bb3' : '#e2e8f0'}`,
+                                    background: selected ? 'var(--c-primary-light)' : 'var(--c-surface)',
+                                    border: `1px solid ${selected ? 'var(--c-primary)' : 'var(--c-border)'}`,
                                     cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
                                 }}
                             >
@@ -267,11 +268,11 @@ function SquadSettingsPage() {
                                 }}>
                                     {initials}
                                 </div>
-                                <span style={{ flex: 1, fontSize: '0.95rem', fontWeight: 600, color: '#1e293b' }}>
+                                <span style={{ flex: 1, fontSize: '0.95rem', fontWeight: 600, color: 'var(--c-text)' }}>
                                     {p.firstName} {p.lastName || ''}
                                 </span>
                                 {selected && (
-                                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#5b7bb3' }}>✓</span>
+                                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--c-primary)' }}>✓</span>
                                 )}
                             </button>
                         );

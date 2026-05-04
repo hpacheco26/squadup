@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Trash2, Shield, ShieldOff, UserCheck, UserX } from 'lucide-react';
 import useLanguageStore from '../../store/languageStore';
+import useThemeStore from '../../store/themeStore';
 
 /**
  * PlayerCard — focused on the *type* of person (Admin / Member / Guest)
@@ -17,14 +18,30 @@ function PlayerCard({ player, isAdmin = false, canManageAdmins = false, onToggle
     const { id, firstName, lastName, userId } = player;
     const [confirmRemove, setConfirmRemove] = useState(false);
     const { t } = useLanguageStore();
+    const { darkMode } = useThemeStore();
 
     const isGuest = !userId;
     const type = isAdmin ? 'admin' : isGuest ? 'guest' : 'member';
 
     const palette = {
-        admin:  { ring: '#d4a817', tint: '#fef9c3', text: '#a37610', label: t('admin'),  Icon: Shield },
-        member: { ring: '#5b7bb3', tint: '#dbe4f0', text: '#4a6694', label: t('member'), Icon: UserCheck },
-        guest:  { ring: '#a0aab9', tint: '#eef0f4', text: '#64748b', label: t('nonMember'),  Icon: UserX },
+        admin:  {
+            ring: '#d4a817',
+            tint: darkMode ? '#2a1f00' : '#fef9c3',
+            text: darkMode ? '#fbbf24' : '#a37610',
+            label: t('admin'),  Icon: Shield,
+        },
+        member: {
+            ring: 'var(--c-primary)',
+            tint: 'var(--c-primary-light)',
+            text: 'var(--c-primary)',
+            label: t('member'), Icon: UserCheck,
+        },
+        guest:  {
+            ring: darkMode ? '#4a5568' : '#a0aab9',
+            tint: darkMode ? '#0d1929' : '#eef0f4',
+            text: darkMode ? '#94a3b8' : '#64748b',
+            label: t('nonMember'), Icon: UserX,
+        },
     }[type];
 
     const initials = `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase() || '?';
@@ -43,10 +60,10 @@ function PlayerCard({ player, isAdmin = false, canManageAdmins = false, onToggle
             display: 'flex',
             alignItems: 'center',
             gap: '12px',
-            background: '#fff',
+            background: 'var(--c-surface)',
             borderRadius: '12px',
             padding: '12px',
-            border: `1px solid ${isAdmin ? `${palette.ring}55` : '#e2e8f0'}`,
+            border: `1px solid ${isAdmin ? `${palette.ring}55` : 'var(--c-border)'}`,
             boxShadow: `inset 4px 0 0 0 ${palette.ring}`,
         }}>
             {/* Avatar with type ring + small icon overlay */}
@@ -73,7 +90,7 @@ function PlayerCard({ player, isAdmin = false, canManageAdmins = false, onToggle
                     width: '18px',
                     height: '18px',
                     borderRadius: '50%',
-                    background: '#fff',
+                    background: 'var(--c-surface)',
                     border: `1.5px solid ${palette.ring}`,
                     display: 'flex',
                     alignItems: 'center',
@@ -88,7 +105,7 @@ function PlayerCard({ player, isAdmin = false, canManageAdmins = false, onToggle
                 <p style={{
                     fontSize: '0.95rem',
                     fontWeight: 600,
-                    color: '#1e293b',
+                    color: 'var(--c-text)',
                     margin: 0,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
@@ -119,14 +136,14 @@ function PlayerCard({ player, isAdmin = false, canManageAdmins = false, onToggle
                     title={isAdmin ? t('removeAdmin') : t('makeAdmin')}
                     style={{
                         flexShrink: 0,
-                        background: isAdmin ? '#fef9c3' : '#f8fafc',
-                        border: `1px solid ${isAdmin ? '#d4a81755' : '#e2e8f0'}`,
+                        background: isAdmin ? palette.tint : 'var(--c-surface-alt)',
+                        border: `1px solid ${isAdmin ? '#d4a81755' : 'var(--c-border)'}`,
                         borderRadius: '8px',
                         padding: '6px 8px',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        color: isAdmin ? '#a37610' : '#64748b',
+                        color: isAdmin ? palette.text : 'var(--c-text-secondary)',
                     }}
                 >
                     {isAdmin ? <ShieldOff size={14} /> : <Shield size={14} />}
@@ -139,8 +156,8 @@ function PlayerCard({ player, isAdmin = false, canManageAdmins = false, onToggle
                     onClick={handleRemove}
                     style={{
                         flexShrink: 0,
-                        background: confirmRemove ? '#cf8b90' : '#f8fafc',
-                        border: confirmRemove ? 'none' : '1px solid #e2e8f0',
+                        background: confirmRemove ? '#cf8b90' : 'var(--c-surface-alt)',
+                        border: confirmRemove ? 'none' : '1px solid var(--c-border)',
                         borderRadius: '8px',
                         padding: '6px',
                         cursor: 'pointer',
@@ -151,7 +168,7 @@ function PlayerCard({ player, isAdmin = false, canManageAdmins = false, onToggle
                     }}
                     title={confirmRemove ? 'Tap again to confirm' : 'Remove player'}
                 >
-                    <Trash2 size={16} color={confirmRemove ? '#fff' : '#94a3b8'} />
+                    <Trash2 size={16} color={confirmRemove ? '#fff' : 'var(--c-text-muted)'} />
                 </button>
             )}
         </div>

@@ -276,7 +276,7 @@ const GamePage = () => {
                 }}>
                     <button onClick={toggleTimer} style={{
                         ...styles.iconBtn,
-                        backgroundColor: isRunning ? '#f59e0b' : '#5b7bb3',
+                        backgroundColor: isRunning ? 'var(--c-warning)' : 'var(--c-primary)',
                     }}>
                         {isRunning ? <FiPause size={20} /> : <FiPlay size={20} />}
                     </button>
@@ -342,7 +342,7 @@ const GamePage = () => {
                             fontSize: '1.1rem',
                             fontWeight: 'bold',
                             color: '#fff',
-                            backgroundColor: '#5b7bb3',
+                            backgroundColor: 'var(--c-primary)',
                             border: 'none',
                             borderRadius: '10px',
                             cursor: 'pointer',

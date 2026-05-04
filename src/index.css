@@ -1,5 +1,5 @@
 /* Bulma primary color override */
-$primary: #5b7bb3;
+$primary: #125669;
 
 @keyframes spin {
   to { transform: rotate(360deg); }
@@ -108,7 +108,7 @@ input[type="range"].range-thumb::-webkit-slider-thumb {
   height: 22px;
   border-radius: 50%;
   background: #ffffff;
-  border: 2px solid #5b7bb3;
+  border: 2px solid var(--c-primary);
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.15);
   cursor: grab;
   margin-top: -9px;
@@ -119,7 +119,7 @@ input[type="range"].range-thumb::-moz-range-thumb {
   height: 22px;
   border-radius: 50%;
   background: #ffffff;
-  border: 2px solid #5b7bb3;
+  border: 2px solid var(--c-primary);
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.15);
   cursor: grab;
   pointer-events: auto;
@@ -151,10 +151,10 @@ input[type="range"].range-thumb::-moz-range-track {
   --c-surface: #ffffff;
   --c-surface-alt: #f7f8fa;
   --c-surface-hover: #f1f5f9;
-  --c-primary: #5b7bb3;
-  --c-primary-light: #dbe4f0;
-  --c-primary-dark: #4a6694;
-  --c-primary-a15: rgba(91, 123, 179, 0.15);
+  --c-primary: #125669;
+  --c-primary-light: #cce6ed;
+  --c-primary-dark: #0d3d4e;
+  --c-primary-a15: rgba(18, 86, 105, 0.15);
   --c-success: #16a34a;
   --c-success-light: #dcfce7;
   --c-success-a15: rgba(22, 163, 74, 0.15);
@@ -177,10 +177,10 @@ html.dark {
   --c-surface: #0d1929;
   --c-surface-alt: #091422;
   --c-surface-hover: #122034;
-  --c-primary: #7b9fd4;
-  --c-primary-light: #0e2040;
-  --c-primary-dark: #6b8fc4;
-  --c-primary-a15: rgba(123, 159, 212, 0.15);
+  --c-primary: #24a0be;
+  --c-primary-light: #061e26;
+  --c-primary-dark: #1e8ba8;
+  --c-primary-a15: rgba(36, 160, 190, 0.15);
   --c-success: #4ade80;
   --c-success-light: #021a0c;
   --c-success-a15: rgba(74, 222, 128, 0.15);
@@ -204,6 +204,22 @@ html.dark body {
 
 html.dark .logo-themed {
   filter: invert(1);
+}
+
+/* ── Primary action button — shadow, hover lift, active press ── */
+.btn-primary {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.15s ease, transform 0.12s ease, filter 0.15s ease;
+}
+.btn-primary:hover:not(:disabled) {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22), 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+.btn-primary:active:not(:disabled) {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14);
+  transform: translateY(0);
+  filter: brightness(0.94);
 }
 
 html {
@@ -230,10 +246,10 @@ body {
 
 /* Override Bulma link color */
 a {
-  color: #5b7bb3;
+  color: var(--c-primary);
 }
 a:hover {
-  color: #4a6694;
+  color: var(--c-primary-dark);
 }
 
 /* Navbar: icon color only, no background change */

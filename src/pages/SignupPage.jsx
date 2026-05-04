@@ -144,14 +144,15 @@ const SignupPage = () => {
             {/* Fixed Bottom */}
             <div style={{ padding: '20px', borderTop: '1px solid #e2e8f0', backgroundColor: '#fff' }}>
                 <button
+                    className="btn-primary"
                     onClick={handleSubmit}
                     disabled={loading}
-                    style={{ width: '100%', background: '#5b7bb3', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', padding: '12px', fontSize: '1rem', cursor: 'pointer' }}
+                    style={{ width: '100%', background: 'var(--c-primary)', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', padding: '12px', fontSize: '1rem', cursor: 'pointer' }}
                 >
                     {loading ? t('signingUp') : t('signUp')}
                 </button>
                 <p style={{ textAlign: 'center', marginTop: '12px', color: '#64748b' }}>
-                    {t('hasAccount')} <a href="/login" style={{ color: '#5b7bb3' }}>{t('loginLink')}</a>
+                    {t('hasAccount')} <a href="/login" style={{ color: 'var(--c-primary)' }}>{t('loginLink')}</a>
                 </p>
             </div>
         </div>

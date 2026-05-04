@@ -76,7 +76,7 @@ function GroupSwitcher() {
                     color: 'var(--c-text)',
                 }}
             >
-                <Users size={18} color="#5b7bb3" />
+                <Users size={18} color="var(--c-primary)" />
                 <span style={{
                     fontSize: '1rem', fontWeight: 700,
                     maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
@@ -127,11 +127,11 @@ function GroupSwitcher() {
                                         fontWeight: isSelected ? 600 : 500,
                                     }}
                                 >
-                                    <Users size={14} color={isSelected ? '#5b7bb3' : '#94a3b8'} />
+                                    <Users size={14} color={isSelected ? 'var(--c-primary)' : '#94a3b8'} />
                                     <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                         {g.name}
                                     </span>
-                                    {isSelected && <Check size={14} color="#5b7bb3" />}
+                                    {isSelected && <Check size={14} color="var(--c-primary)" />}
                                 </button>
                             );
                         })}
@@ -147,7 +147,7 @@ function GroupSwitcher() {
                                 background: 'var(--c-surface-alt)', border: 'none',
                                 borderTop: '1px solid var(--c-border)',
                                 cursor: 'pointer', textAlign: 'left',
-                                color: '#5b7bb3', fontSize: '0.85rem', fontWeight: 600,
+                                color: 'var(--c-primary)', fontSize: '0.85rem', fontWeight: 600,
                             }}
                         >
                             <Plus size={14} /> {t('createGroup')}

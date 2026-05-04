@@ -162,6 +162,7 @@ const RankChangeGate = ({ change, onAcknowledge }) => {
 
         {/* Continue button */}
         <button
+          className="btn-primary"
           onClick={onAcknowledge}
           style={{
             marginTop: '16px',
@@ -169,7 +170,7 @@ const RankChangeGate = ({ change, onAcknowledge }) => {
             padding: '14px',
             borderRadius: '12px',
             border: 'none',
-            background: '#5b7bb3',
+            background: 'var(--c-primary)',
             color: '#fff',
             fontSize: '1rem',
             fontWeight: 'bold',

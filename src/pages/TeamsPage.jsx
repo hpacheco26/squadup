@@ -395,8 +395,8 @@ const TeamsPage = () => {
                             background: !canSquadUp
                                 ? '#e2e8f0'
                                 : pressed
-                                ? 'linear-gradient(135deg, #4a6694, #3d5580)'
-                                : 'linear-gradient(135deg, #5b7bb3, #4a6694)',
+                                ? 'linear-gradient(135deg, var(--c-primary-dark), #0c6459)'
+                                : 'linear-gradient(135deg, var(--c-primary), var(--c-primary-dark))',
                             border: 'none',
                             borderRadius: '12px',
                             cursor: canSquadUp ? 'pointer' : 'not-allowed',

@@ -51,10 +51,11 @@ function JoinPage() {
     }, [code, user]);
 
     const handleClaimPlayer = async (player) => {
-        if (!group || !playerData) return;
+        if (!group) return;
+        const uid = user.uid;
         const updatedPlayers = group.players.map(p =>
             p.id === player.id
-                ? { ...p, userId: playerData.userId }
+                ? { ...p, userId: uid }
                 : p
         );
         await GroupService.updateGroup(group.id, { players: updatedPlayers });
@@ -62,12 +63,17 @@ function JoinPage() {
     };
 
     const handleJoinAsNew = async () => {
-        if (!group || !playerData) return;
+        if (!group) return;
+        const uid = user.uid;
+        // Derive name: prefer playerData, fall back to displayName or email
+        const displayName = user.displayName || user.email?.split('@')[0] || 'Player';
+        const firstName = playerData?.firstName || displayName.split(' ')[0];
+        const lastName = playerData?.lastName || displayName.split(' ').slice(1).join(' ') || '';
         const newPlayer = {
-            id: playerData.id,
-            firstName: playerData.firstName,
-            lastName: playerData.lastName,
-            userId: playerData.userId,
+            id: playerData?.id || `${displayName.replaceAll(' ', '.')}-${uid}`,
+            firstName,
+            lastName,
+            userId: uid,
             rank: 0,
             stats: { wins: 0, draws: 0, losses: 0 },
         };
@@ -136,8 +142,8 @@ function JoinPage() {
                                 key={player.id}
                                 style={{
                                     ...styles.playerItem,
-                                    border: selectedPlayerId === player.id ? '2px solid #5b7bb3' : '1px solid #e2e8f0',
-                                    background: selectedPlayerId === player.id ? '#eef2f9' : '#fff',
+                                    border: selectedPlayerId === player.id ? '2px solid var(--c-primary)' : '1px solid var(--c-border)',
+                                    background: selectedPlayerId === player.id ? 'var(--c-primary-light)' : 'var(--c-surface)',
                                 }}
                                 onClick={() => setSelectedPlayerId(player.id)}
                             >
@@ -149,6 +155,7 @@ function JoinPage() {
 
                 {selectedPlayerId && (
                     <button
+                        className="btn-primary"
                         style={styles.button}
                         onClick={() => handleClaimPlayer(unlinkedPlayers.find(p => p.id === selectedPlayerId))}
                     >
@@ -158,8 +165,11 @@ function JoinPage() {
 
                 <div style={{ margin: '16px 0', color: '#94a3b8', fontSize: '0.85rem' }}>— {t('or')} —</div>
 
-                <button style={{ ...styles.button, background: '#64748b' }} onClick={handleJoinAsNew}>
-                    {t('joinAs', { name: `${playerData?.firstName} ${playerData?.lastName}` })}
+                <button className="btn-primary" style={{ ...styles.button, background: '#64748b' }} onClick={handleJoinAsNew}>
+                    {t('joinAs', { name: [
+                        playerData?.firstName || user.displayName?.split(' ')[0] || '',
+                        playerData?.lastName  || user.displayName?.split(' ').slice(1).join(' ') || '',
+                    ].join(' ').trim() || user.email?.split('@')[0] || 'me' })}
                 </button>
             </div>
         </div>
@@ -216,7 +226,7 @@ const styles = {
         padding: '12px',
         borderRadius: '10px',
         border: 'none',
-        background: '#5b7bb3',
+        background: 'var(--c-primary)',
         color: '#fff',
         fontSize: '1rem',
         fontWeight: 'bold',
