@@ -8,6 +8,7 @@ import useGroupStore from '../store/groupStore';
 import useAuthStore from '../store/authStore';
 import PlayerModal from '../components/modals/PlayerModal';
 import { Share2, UserPlus, Link as LinkIcon, ClipboardList, MapPin, CalendarDays, CalendarCog, Send } from 'lucide-react';
+import { logEvent } from '../config/firebase';
 import AppHeaderBar from '../components/bars/AppHeaderBar';
 import useLanguageStore from '../store/languageStore';
 import InvitationBar from '../components/bars/InvitationBar';
@@ -90,6 +91,7 @@ const PreGamePage = () => {
         const guest = { ...guestPlayer, guest: true, addedBy: myPlayer?.id || null };
         const updatedPlayersIn = [...(game.playersIn || []), guest];
         updateGame(gameId, { playersIn: updatedPlayersIn });
+        logEvent('guest_added', { gameId, addedBy: myPlayer?.id || null });
     };
 
     const handleQuickGuest = (playerId) => {
@@ -136,11 +138,13 @@ const PreGamePage = () => {
 
     const handleShareWhatsApp = () => {
         const message = buildGameSummary();
+        logEvent('invite_shared', { gameId, method: 'whatsapp' });
         window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
     };
 
     const handleCopyInviteLink = () => {
         const link = `${window.location.origin}/game-invite/${gameId}`;
+        logEvent('invite_shared', { gameId, method: 'copy_link' });
         navigator.clipboard.writeText(link);
     };
 
@@ -264,7 +268,7 @@ const PreGamePage = () => {
                     />
                 </div>
 
-                <hr style={{ margin: '4px 0', border: 'none', borderTop: '2px solid #cbd5e1' }} />
+                <hr style={{ margin: '4px 0', border: 'none', borderTop: '1px solid var(--c-border)' }} />
 
                 <div>
                     <PlayersList

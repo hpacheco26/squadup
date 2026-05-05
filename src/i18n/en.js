@@ -31,6 +31,7 @@ const en = {
   passwordsNoMatch: 'Passwords do not match',
   passwordTooShort: 'Password should be at least 6 characters',
   emailInUse: 'Email is already in use',
+  accountExistsDifferentProvider: 'An account already exists with this email. Try signing in with Google instead.',
   invalidEmail: 'Invalid email address',
   errorCreatingAccount: 'Error creating account',
   signUp: 'Sign Up',

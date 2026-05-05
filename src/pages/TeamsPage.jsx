@@ -9,6 +9,7 @@ import TeamPowerCard from '../components/TeamPowerCard';
 import useGameStore from '../store/gameStore';
 import useGroupStore from '../store/groupStore';
 import { ShieldBan, Shuffle, Swords, CalendarCog } from 'lucide-react';
+import { logEvent } from '../config/firebase';
 import useLanguageStore from '../store/languageStore';
 import AppHeaderBar from '../components/bars/AppHeaderBar';
 
@@ -66,6 +67,7 @@ const TeamsPage = () => {
             await new Promise(r => setTimeout(r, 700));
             const { team1, team2 } = balanceTeams(game.playersIn, game.playersPerTeam || 5);
             await updateGame(gameId, { team1, team2 });
+            logEvent('squad_up', { gameId, playerCount: game.playersIn.length });
             setShuffling(false);
             setAnimateIn(true);
             setTimeout(() => setAnimateIn(false), 800);
@@ -287,7 +289,7 @@ const TeamsPage = () => {
                                 left: '50%',
                                 width: '1px',
                                 transform: 'translateX(-0.5px)',
-                                background: 'linear-gradient(to bottom, transparent 0%, rgba(91,123,179,0.28) 12%, rgba(91,123,179,0.45) 50%, rgba(91,123,179,0.28) 88%, transparent 100%)',
+                                background: 'linear-gradient(to bottom, transparent 0%, var(--c-border) 12%, var(--c-border-strong) 50%, var(--c-border) 88%, transparent 100%)',
                                 pointerEvents: 'none',
                                 zIndex: 0,
                             }} />

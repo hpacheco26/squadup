@@ -28,6 +28,7 @@ const pt = {
   passwordsNoMatch: 'As palavras-passe não coincidem',
   passwordTooShort: 'A palavra-passe deve ter pelo menos 6 caracteres',
   emailInUse: 'Este email já está registado',
+  accountExistsDifferentProvider: 'Já existe uma conta com este email. Tenta iniciar sessão com o Google.',
   invalidEmail: 'Endereço de email inválido',
   errorCreatingAccount: 'Erro ao criar conta',
   signUp: 'Criar Conta',

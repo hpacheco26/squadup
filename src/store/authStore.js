@@ -112,21 +112,27 @@ const useAuthStore = create((set) => ({
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            // Create player in Firestore
-            const playerData = {
-                id: `${firstName}.${lastName}-${user.uid}`,
-                firstName,
-                lastName,
-                userId: user.uid,
-                groups: []
-            };
+            // Guard: only create a player doc if one doesn't already exist for this uid
+            const playerExists = await PlayerService.checkPlayerExists(user.uid);
+            if (!playerExists) {
+                const playerData = {
+                    id: `${firstName}.${lastName}-${user.uid}`,
+                    firstName,
+                    lastName,
+                    userId: user.uid,
+                    groups: []
+                };
 
-            await PlayerService.createPlayer(playerData);
+                await PlayerService.createPlayer(playerData);
+                set({ user, playerData });
+                localStorage.setItem('playerData', JSON.stringify(playerData));
+            } else {
+                const playerData = await PlayerService.getPlayerByUserId(user.uid);
+                set({ user, playerData });
+                localStorage.setItem('playerData', JSON.stringify(playerData));
+            }
 
-            // Update Zustand store
-            set({ user, playerData });
             localStorage.setItem('user', JSON.stringify(user));
-            localStorage.setItem('playerData', JSON.stringify(playerData));
         } catch (error) {
             console.error("Signup Error:", error);
             throw error;

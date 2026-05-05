@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import GameService from '../api/gameService';
 import NotificationService from '../api/notificationService';
+import { logEvent } from '../config/firebase';
 
 const useGameStore = create((set) => ({
     games: [],
@@ -230,6 +231,7 @@ const useGameStore = create((set) => ({
             const newGame = await GameService.createGame(gameData);
             console.log('[gameStore] createGame SUCCESS, new game id:', newGame.id);
             set({ game: newGame, loading: false });
+            logEvent('game_created', { gameId: newGame.id, groupId: gameData.groupId, playerCount: (gameData.playersInvited || []).length });
 
             // Notify all invited players
             const recipientIds = (gameData.playersInvited || [])
@@ -343,6 +345,7 @@ const useGameStore = create((set) => ({
                 playersInvited: game.playersInvited,
                 status: game.status
             });
+            logEvent('player_in', { gameId, playerId, inCount: game.playersIn.length, gameStatus: game.status });
 
             // Send player_in notification
             if (notifContext) {
@@ -416,6 +419,7 @@ const useGameStore = create((set) => ({
                 playersOut: game.playersOut,
                 status: game.status
             });
+            logEvent('player_out', { gameId, playerId, inCount: game.playersIn.length });
 
             // Send player_out notification
             if (notifContext) {

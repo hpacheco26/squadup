@@ -16,15 +16,19 @@ const SignupPage = () => {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
+    const submitting = React.useRef(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (submitting.current) return;
+        submitting.current = true;
         setLoading(true);
         setError('');
 
         if (password !== confirmPassword) {
             setError(t('passwordsNoMatch'));
+            submitting.current = false;
             setLoading(false);
             return;
         }
@@ -42,10 +46,13 @@ const SignupPage = () => {
                 setError(t('emailInUse'));
             } else if (code === 'auth/invalid-email') {
                 setError(t('invalidEmail'));
+            } else if (code === 'auth/account-exists-with-different-credential') {
+                setError(t('accountExistsDifferentProvider'));
             } else {
                 setError(t('errorCreatingAccount'));
             }
         } finally {
+            submitting.current = false;
             setLoading(false);
         }
     };

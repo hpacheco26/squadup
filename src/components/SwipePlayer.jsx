@@ -223,6 +223,7 @@ function SwipePlayer({
                     padding: "10px 14px",
                     minHeight: "44px",
                     cursor: "grab",
+                    border: "1px solid var(--c-border)",
                     boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
                 }}
             >
