@@ -60,9 +60,14 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      - name: Build app
+        run: npm run build
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e -- --project=chromium-desktop
+      - name: Run e2e tests
+        run: npm run test:e2e -- --project=chromium-desktop
+        env:
+          SKIP_BUILD: '1'
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:

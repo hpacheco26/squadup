@@ -1,4 +1,5 @@
 import { useRef, useCallback } from "react";
+import PropTypes from 'prop-types';
 import { Check, X, UserPlus } from "lucide-react";
 
 const STATUS_COLORS = {
@@ -257,3 +258,18 @@ function SwipePlayer({
 }
 
 export default SwipePlayer;
+
+SwipePlayer.propTypes = {
+    player: PropTypes.shape({
+        id: PropTypes.string,
+        firstName: PropTypes.string,
+        lastName: PropTypes.string,
+    }),
+    playerStatus: PropTypes.string,
+    onLeft: PropTypes.func,
+    onRight: PropTypes.func,
+    rightActionType: PropTypes.string,
+    children: PropTypes.node,
+    leftAction: PropTypes.object,
+    rightAction: PropTypes.object,
+};
