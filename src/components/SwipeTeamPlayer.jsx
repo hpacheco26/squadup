@@ -1,4 +1,5 @@
-import React, { useRef, useCallback } from "react";
+import PropTypes from 'prop-types';
+import { useRef, useCallback } from "react";
 import { ArrowLeftRight, ShieldBan, HeartPulse } from "lucide-react";
 import RankIcon from "./RankIcon";
 
@@ -309,3 +310,22 @@ function SwipeTeamPlayer({
 }
 
 export default SwipeTeamPlayer;
+
+SwipeTeamPlayer.propTypes = {
+    player: PropTypes.shape({
+        id: PropTypes.string,
+        firstName: PropTypes.string,
+        lastName: PropTypes.string,
+        rank: PropTypes.number,
+    }),
+    roleLabel: PropTypes.string,
+    onSwipe: PropTypes.func,
+    onInjury: PropTypes.func,
+    onRecover: PropTypes.func,
+    team: PropTypes.string,
+    isCaptain: PropTypes.bool,
+    mode: PropTypes.string,
+    compactName: PropTypes.bool,
+    showSwipeCue: PropTypes.bool,
+    accentColor: PropTypes.string,
+};

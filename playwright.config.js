@@ -24,8 +24,8 @@ export default defineConfig({
         // In CI a dedicated step pre-builds the app; we only need to start
         // the preview server. Locally (no SKIP_BUILD env) we still build.
         command: process.env.SKIP_BUILD
-            ? 'npm run preview -- --port ' + PORT + ' --strictPort'
-            : 'npm run build && npm run preview -- --port ' + PORT + ' --strictPort',
+            ? 'npm run preview -- --host 127.0.0.1 --port ' + PORT + ' --strictPort'
+            : 'npm run build && npm run preview -- --host 127.0.0.1 --port ' + PORT + ' --strictPort',
         url: `http://127.0.0.1:${PORT}`,
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,
