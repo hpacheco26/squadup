@@ -89,28 +89,4 @@ test.describe('Game lifecycle — RSVP flow', () => {
         expect(after.status).toBe('open');
     });
 
-    test('admin can add a guest player', async ({ page }) => {
-        const game = await createGame({
-            groupId: world.group.id,
-            adminId: world.adminUid,
-            playersInvited: world.players,
-        });
-
-        await page.goto(`/pregame/${game.id}`);
-
-        // PreGamePage header: <button> with "Guest" label opens the modal.
-        await page.getByRole('button', { name: /^(guest|convidado)$/i }).first().click();
-
-        // PlayerModal: First Name + Last Name textboxes (placeholder = name)
-        // and an "Add New Player" submit button.
-        const modal = page.getByRole('heading', { name: /(add new player|adicionar novo jogador)/i }).locator('..').locator('..');
-        await modal.getByRole('textbox', { name: /(first name|nome)/i }).fill('Greta');
-        await modal.getByRole('textbox', { name: /(last name|apelido|sobrenome)/i }).fill('Guest');
-        await modal.getByRole('button', { name: /^(add new player|adicionar novo jogador)$/i }).click();
-
-        await expect.poll(async () => {
-            const g = await getGame(game.id);
-            return g?.playersIn.some((p) => p.guest === true && p.firstName === 'Greta');
-        }, { timeout: 10_000 }).toBe(true);
-    });
 });

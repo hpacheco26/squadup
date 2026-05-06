@@ -32,7 +32,7 @@ test.describe('Game lifecycle — playing flow', () => {
         // (the InvitationBar pending count) instead of networkidle
         // — Firebase listeners keep the network non-idle indefinitely.
         await page.goto(`/pregame/${game.id}`);
-        await page.getByRole('button', { name: /^(guest|convidado)$/i }).first().waitFor({ state: 'visible', timeout: 10_000 });
+        await page.getByRole('button', { name: /^(invite to game|convidar para jogo)/i }).first().waitFor({ state: 'visible', timeout: 10_000 });
         await page.goto(`/teams/${game.id}`);
 
         await page.getByRole('button', { name: /^(squad up|formar equipas|formar times)$/i }).first().click();
@@ -61,7 +61,7 @@ test.describe('Game lifecycle — playing flow', () => {
         });
 
         await page.goto(`/pregame/${game.id}`);
-        await page.getByRole('button', { name: /^(guest|convidado)$/i }).first().waitFor({ state: 'visible', timeout: 10_000 });
+        await page.getByRole('button', { name: /^(invite to game|convidar para jogo)/i }).first().waitFor({ state: 'visible', timeout: 10_000 });
         await page.goto(`/game/${game.id}`);
 
         await page.getByRole('button', { name: /^(end game|terminar jogo)$/i }).first().click();

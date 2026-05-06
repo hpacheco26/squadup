@@ -212,12 +212,7 @@ const PreGamePage = () => {
                     >
                         <Send size={14} /> {t('inviteToGame')}
                     </button>
-                    <button
-                        onClick={() => setIsGuestModalOpen(true)}
-                        style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--c-border)', background: 'var(--c-surface)', color: 'var(--c-text)', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}
-                    >
-                        {t('guest')}
-                    </button>
+
                 </div>
 
                 {/* Game info strip */}
