@@ -161,14 +161,13 @@ function GameInvitePage() {
                     <p className={styles.swipeHint}>{t('swipeHint')}</p>
                     <div className={styles.playerList}>
                         {invitedPlayers.map(player => (
-                            <div key={player.id} className={styles.inviteRow}>
-                                <SwipePlayer
-                                    player={player}
-                                    playerStatus="?"
-                                    onLeft={() => handleResponse(player, 'out')}
-                                    onRight={() => handleResponse(player, 'in')}
-                                />
-                            </div>
+                            <SwipePlayer
+                                key={player.id}
+                                player={player}
+                                playerStatus="?"
+                                onLeft={() => handleResponse(player, 'out')}
+                                onRight={() => handleResponse(player, 'in')}
+                            />
                         ))}
                     </div>
                 </div>

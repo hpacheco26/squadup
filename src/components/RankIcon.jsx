@@ -1,4 +1,4 @@
-import React from 'react';
+import PropTypes from 'prop-types';
 import rank0 from '../assets/rank-0.png';
 import rank1 from '../assets/rank-1.png';
 import rank2 from '../assets/rank-2.png';
@@ -57,3 +57,8 @@ const RankIcon = ({ rank = 0, size = 30 }) => {
 };
 
 export default RankIcon;
+
+RankIcon.propTypes = {
+    rank: PropTypes.number,
+    size: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+};

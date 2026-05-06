@@ -64,7 +64,8 @@ test.describe('Game lifecycle — invite link', () => {
         ).toBeVisible({ timeout: 15_000 });
 
         // The admin player (Ada Admin) is in the invited list — swipe right (IN).
-        const adminRow = page.locator('[class*="inviteRow"]').filter({ hasText: /ada/i }).first();
+        // Use data-player-id attribute (on SwipePlayer's container) + text filter.
+        const adminRow = page.locator('[data-player-id]').filter({ hasText: /ada/i }).first();
         await adminRow.waitFor({ state: 'visible', timeout: 10_000 });
         await adminRow.dragTo(adminRow, {
             sourcePosition: { x: 20, y: 20 },

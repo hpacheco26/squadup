@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from "react";
+import { useRef, useCallback } from "react";
 import { Check, X, UserPlus } from "lucide-react";
 
 const STATUS_COLORS = {

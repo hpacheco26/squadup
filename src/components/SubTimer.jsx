@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { useState, useEffect } from 'react';
 import { Card } from 'react-bulma-components';
 import SubTimerModal from './modals/SubTimerModal';
 import useHoverEffect from '../hooks/useHoverEffect';
@@ -125,3 +126,9 @@ const SubTimer = ({ team1, team2, onSubstitution }) => {
 };
 
 export default SubTimer;
+
+SubTimer.propTypes = {
+    team1: PropTypes.array,
+    team2: PropTypes.array,
+    onSubstitution: PropTypes.func,
+};
