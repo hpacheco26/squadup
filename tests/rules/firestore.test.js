@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, it } from 'vitest';
 import { assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
-import { deleteDoc, doc, getDoc, setDoc } from 'firebase/firestore';
+import { deleteDoc, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { asAdmin, asAnon, asUser, getTestEnv } from './helpers.js';
 
 let env;
@@ -58,6 +58,27 @@ describe('players/* — auth required, create scoped to own userId', () => {
         const db = asAnon(env);
         await assertFails(setDoc(doc(db, 'players/p1'), { userId: null }));
     });
+
+    it('allows owner to update their player doc', async () => {
+        const admin = asAdmin(env);
+        await setDoc(doc(admin, 'players/p1'), { userId: 'uid-1', firstName: 'Alice', rank: 0 });
+        const db = asUser(env, 'uid-1');
+        await assertSucceeds(updateDoc(doc(db, 'players/p1'), { firstName: 'Alicia' }));
+    });
+
+    it('denies another user from updating someone else\'s player doc', async () => {
+        const admin = asAdmin(env);
+        await setDoc(doc(admin, 'players/p1'), { userId: 'uid-1', firstName: 'Alice', rank: 0 });
+        const intruder = asUser(env, 'uid-2');
+        await assertFails(updateDoc(doc(intruder, 'players/p1'), { firstName: 'Hacked' }));
+    });
+
+    it('denies another user from deleting someone else\'s player doc', async () => {
+        const admin = asAdmin(env);
+        await setDoc(doc(admin, 'players/p1'), { userId: 'uid-1', firstName: 'Alice', rank: 0 });
+        const intruder = asUser(env, 'uid-2');
+        await assertFails(deleteDoc(doc(intruder, 'players/p1')));
+    });
 });
 
 describe('groups/* — create gated by allowedCreators allowlist', () => {
@@ -91,6 +112,39 @@ describe('groups/* — create gated by allowedCreators allowlist', () => {
 
         const owner = asUser(env, 'allowed-uid');
         await assertSucceeds(deleteDoc(doc(owner, 'groups/g1')));
+    });
+});
+
+describe('games/* — any auth user can update; only group admin can delete', () => {
+    beforeEach(async () => {
+        const admin = asAdmin(env);
+        await setDoc(doc(admin, 'config/allowedCreators'), { uids: ['admin-uid'] });
+        await setDoc(doc(admin, 'groups/g1'), {
+            name: 'Squad', adminId: 'admin-uid', adminIds: ['admin-uid'], players: [],
+        });
+        await setDoc(doc(admin, 'games/game1'), {
+            groupId: 'g1', adminId: 'admin-uid', status: 'open', playersIn: [],
+        });
+    });
+
+    it('allows any authenticated user to update a game (RSVP)', async () => {
+        const db = asUser(env, 'player-uid');
+        await assertSucceeds(updateDoc(doc(db, 'games/game1'), { playersIn: [] }));
+    });
+
+    it('denies unauthenticated users from updating', async () => {
+        const db = asAnon(env);
+        await assertFails(updateDoc(doc(db, 'games/game1'), { playersIn: [] }));
+    });
+
+    it('allows group admin to delete the game', async () => {
+        const db = asUser(env, 'admin-uid');
+        await assertSucceeds(deleteDoc(doc(db, 'games/game1')));
+    });
+
+    it('denies non-admin from deleting the game', async () => {
+        const db = asUser(env, 'random-uid');
+        await assertFails(deleteDoc(doc(db, 'games/game1')));
     });
 });
 

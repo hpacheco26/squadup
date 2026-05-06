@@ -34,11 +34,11 @@ service cloud.firestore {
           || (g.adminIds is list && request.auth.uid in g.adminIds);
     }
 
-    // Games collection — group admins only for write
+    // Games collection — any member can update (RSVP, team changes); only group admins can delete
     match /games/{gameId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
-      allow update: if request.auth != null && isGroupAdmin(resource.data.groupId);
+      allow update: if request.auth != null;
       allow delete: if request.auth != null && isGroupAdmin(resource.data.groupId);
     }
 
@@ -51,11 +51,11 @@ service cloud.firestore {
         && request.auth.uid == resource.data.createdBy;
     }
 
-    // Game debts collection — group admins only
+    // Game debts collection — any member can update (mark paid); only group admins can delete
     match /gameDebts/{debtId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
-      allow update: if request.auth != null && isGroupAdmin(resource.data.groupId);
+      allow update: if request.auth != null;
       allow delete: if request.auth != null && isGroupAdmin(resource.data.groupId);
     }
 
