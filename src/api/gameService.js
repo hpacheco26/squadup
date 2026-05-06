@@ -37,22 +37,36 @@ const GameService = {
         await deleteDoc(doc(db, 'games', id));
     },
 
-    subscribeToGame: (id, callback) => {
-        return onSnapshot(doc(db, 'games', id), (docSnap) => {
-            if (docSnap.exists()) {
-                callback({ id: docSnap.id, ...docSnap.data() });
-            } else {
-                callback(null);
+    subscribeToGame: (id, callback, onError) => {
+        return onSnapshot(
+            doc(db, 'games', id),
+            (docSnap) => {
+                if (docSnap.exists()) {
+                    callback({ id: docSnap.id, ...docSnap.data() });
+                } else {
+                    callback(null);
+                }
+            },
+            (err) => {
+                console.error('[GameService] subscribeToGame error:', err);
+                onError?.(err);
             }
-        });
+        );
     },
 
-    subscribeToGamesByGroup: (groupId, callback) => {
+    subscribeToGamesByGroup: (groupId, callback, onError) => {
         const q = query(gamesRef, where('groupId', '==', groupId));
-        return onSnapshot(q, (snapshot) => {
-            const games = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            callback(games);
-        });
+        return onSnapshot(
+            q,
+            (snapshot) => {
+                const games = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                callback(games);
+            },
+            (err) => {
+                console.error('[GameService] subscribeToGamesByGroup error:', err);
+                onError?.(err);
+            }
+        );
     },
 };
 

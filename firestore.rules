@@ -12,7 +12,8 @@ service cloud.firestore {
     match /players/{playerId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
-      allow update, delete: if request.auth != null;
+      allow update: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
     }
 
     // Groups collection
@@ -20,29 +21,39 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow create: if request.auth != null
         && request.auth.uid in get(/databases/$(database)/documents/config/allowedCreators).data.uids;
-      allow update: if request.auth != null;
+      allow update: if request.auth != null
+        && (request.auth.uid == resource.data.adminId
+            || request.auth.uid in resource.data.adminIds);
       allow delete: if request.auth != null && request.auth.uid == resource.data.adminId;
     }
 
-    // Games collection
+    // Games collection — members of the game's group only
     match /games/{gameId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
-      allow update, delete: if request.auth != null;
+      allow update: if request.auth != null
+        && request.auth.uid in get(/databases/$(database)/documents/groups/$(resource.data.groupId)).data.adminIds;
+      allow delete: if request.auth != null
+        && request.auth.uid in get(/databases/$(database)/documents/groups/$(resource.data.groupId)).data.adminIds;
     }
 
     // Invites collection
     match /invites/{inviteId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
-      allow update, delete: if request.auth != null;
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null
+        && request.auth.uid == resource.data.createdBy;
     }
 
-    // Game debts collection
+    // Game debts collection — group admins only
     match /gameDebts/{debtId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
-      allow update, delete: if request.auth != null;
+      allow update: if request.auth != null
+        && request.auth.uid in get(/databases/$(database)/documents/groups/$(resource.data.groupId)).data.adminIds;
+      allow delete: if request.auth != null
+        && request.auth.uid in get(/databases/$(database)/documents/groups/$(resource.data.groupId)).data.adminIds;
     }
 
     // Notifications collection

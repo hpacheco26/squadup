@@ -17,6 +17,9 @@ dist-ssr
 .env.local
 .env.production
 
+# Firebase service account keys (never commit these)
+*-firebase-adminsdk-*.json
+
 # Test artifacts
 coverage
 playwright-report

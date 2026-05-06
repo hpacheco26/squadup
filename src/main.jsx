@@ -28,6 +28,13 @@ if (import.meta.env.VITE_SENTRY_DSN) {
   });
 }
 
+// Register PWA service worker manually so rejections are caught (e.g. iOS private mode)
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch((err) => {
+    console.warn('[SW] PWA registration failed:', err);
+  });
+}
+
 // Initialize Firebase auth state listener
 useAuthStore.getState().initializeAuth();
 

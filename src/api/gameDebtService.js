@@ -11,12 +11,19 @@ const GameDebtService = {
     },
 
     // Subscribe to all game debts for a group
-    subscribeToGameDebtsByGroup: (groupId, callback) => {
+    subscribeToGameDebtsByGroup: (groupId, callback, onError) => {
         const q = query(gameDebtsRef, where('groupId', '==', groupId));
-        return onSnapshot(q, (snapshot) => {
-            const debts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-            callback(debts);
-        });
+        return onSnapshot(
+            q,
+            (snapshot) => {
+                const debts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                callback(debts);
+            },
+            (err) => {
+                console.error('[GameDebtService] subscribeToGameDebtsByGroup error:', err);
+                onError?.(err);
+            }
+        );
     },
 
     // Mark a player as paid in a specific game debt

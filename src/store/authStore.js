@@ -17,6 +17,13 @@ import GroupService from '../api/groupService';
 
 const googleProvider = new GoogleAuthProvider();
 
+const serializeUser = (user) => ({
+    uid: user.uid,
+    email: user.email,
+    displayName: user.displayName || null,
+    photoURL: user.photoURL || null,
+});
+
 const useAuthStore = create((set) => ({
     user: JSON.parse(localStorage.getItem('user')) || null, // Persisted user
     playerData: JSON.parse(localStorage.getItem('playerData')) || null, // Persisted player
@@ -46,8 +53,9 @@ const useAuthStore = create((set) => ({
     initializeAuth: () => {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                set({ user });
-                localStorage.setItem('user', JSON.stringify(user));
+                const serialized = serializeUser(user);
+                set({ user: serialized });
+                localStorage.setItem('user', JSON.stringify(serialized));
                 await useAuthStore.getState().fetchPlayerData(user.uid);
             } else {
                 set({ user: null, playerData: null, selectedGroupId: null });
@@ -60,49 +68,42 @@ const useAuthStore = create((set) => ({
 
     // 🔹 Login with email/password
     login: async (email, password) => {
-        try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-
-            set({ user });
-            localStorage.setItem('user', JSON.stringify(user));
-
-            await useAuthStore.getState().fetchPlayerData(user.uid);
-        } catch (error) {
-            console.error("Login Error:", error);
-        }
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        const serialized = serializeUser(user);
+        set({ user: serialized });
+        localStorage.setItem('user', JSON.stringify(serialized));
+        await useAuthStore.getState().fetchPlayerData(user.uid);
     },
 
     // 🔹 Login with Google
     loginWithGoogle: async () => {
-        try {
-            const result = await signInWithPopup(auth, googleProvider);
-            const user = result.user;
+        const result = await signInWithPopup(auth, googleProvider);
+        const user = result.user;
+        const serialized = serializeUser(user);
+        set({ user: serialized });
+        localStorage.setItem('user', JSON.stringify(serialized));
 
-            set({ user });
-            localStorage.setItem('user', JSON.stringify(user));
+        const playerExists = await PlayerService.checkPlayerExists(user.uid);
 
-            const playerExists = await PlayerService.checkPlayerExists(user.uid);
+        if (!playerExists) {
+            const displayName = user.displayName || '';
+            const parts = displayName.trim().split(' ');
+            const playerData = {
+                id: `${displayName.replaceAll(' ', '.') || user.uid}-${user.uid}`,
+                firstName: parts[0] || '',
+                lastName: parts.slice(1).join(' ') || '',
+                userId: user.uid,
+                groups: []
+            };
 
-            if (!playerExists) {
-                const playerData = {
-                    id: `${user.displayName.replaceAll(' ', '.')}-${user.uid}`,
-                    firstName: user.displayName?.split(" ")[0] || "",
-                    lastName: user.displayName?.split(" ")[1] || "",
-                    userId: user.uid,
-                    groups: []
-                };
-
-                await PlayerService.createPlayer(playerData);
-                set({ playerData });
-                localStorage.setItem('playerData', JSON.stringify(playerData));
-            } else {
-                const player = await PlayerService.getPlayerByUserId(user.uid);
-                set({ playerData: player });
-                localStorage.setItem('playerData', JSON.stringify(player));
-            }
-        } catch (error) {
-            console.error("Google Login Error:", error);
+            await PlayerService.createPlayer(playerData);
+            set({ playerData });
+            localStorage.setItem('playerData', JSON.stringify(playerData));
+        } else {
+            const player = await PlayerService.getPlayerByUserId(user.uid);
+            set({ playerData: player });
+            localStorage.setItem('playerData', JSON.stringify(player));
         }
     },
 
@@ -132,7 +133,9 @@ const useAuthStore = create((set) => ({
                 localStorage.setItem('playerData', JSON.stringify(playerData));
             }
 
-            localStorage.setItem('user', JSON.stringify(user));
+            const serialized = serializeUser(user);
+            localStorage.setItem('user', JSON.stringify(serialized));
+            set((state) => ({ ...state, user: serialized }));
         } catch (error) {
             console.error("Signup Error:", error);
             throw error;
