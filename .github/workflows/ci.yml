@@ -41,6 +41,12 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+      - name: Cache Firebase emulator jars
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/firebase/emulators
+          key: firebase-emulators-${{ hashFiles('package.json') }}
+          restore-keys: firebase-emulators-
       - run: npm ci
       - run: npm run test:rules
 
@@ -77,6 +83,12 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+      - name: Cache Firebase emulator jars
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/firebase/emulators
+          key: firebase-emulators-${{ hashFiles('package.json') }}
+          restore-keys: firebase-emulators-
       - run: npm ci
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium

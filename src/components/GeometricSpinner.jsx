@@ -1,4 +1,4 @@
-import React from 'react';
+import PropTypes from 'prop-types';
 
 const spin = `
 @keyframes geo-spin-cw {
@@ -15,16 +15,12 @@ const spin = `
 }
 `;
 
-const styleTag =
-  typeof document !== 'undefined' && !document.getElementById('geo-spinner-styles')
-    ? (() => {
-        const el = document.createElement('style');
-        el.id = 'geo-spinner-styles';
-        el.textContent = spin;
-        document.head.appendChild(el);
-        return el;
-      })()
-    : null;
+if (typeof document !== 'undefined' && !document.getElementById('geo-spinner-styles')) {
+  const el = document.createElement('style');
+  el.id = 'geo-spinner-styles';
+  el.textContent = spin;
+  document.head.appendChild(el);
+}
 
 /**
  * GeometricSpinner
@@ -83,6 +79,11 @@ const GeometricSpinner = ({ size = 40, color = 'var(--c-primary)' }) => {
       <div style={squareStyle} />
     </div>
   );
+};
+
+GeometricSpinner.propTypes = {
+  size: PropTypes.number,
+  color: PropTypes.string,
 };
 
 export default GeometricSpinner;

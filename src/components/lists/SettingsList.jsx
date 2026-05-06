@@ -1,4 +1,4 @@
-import React from 'react';
+/* eslint-disable react-refresh/only-export-components */
 import { ChevronRight } from 'lucide-react';
 
 /**

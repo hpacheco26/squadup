@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiPlay, FiPause, FiRotateCcw } from 'react-icons/fi';
 import { Share2, Timer, CalendarCog } from 'lucide-react';
@@ -40,6 +40,7 @@ const GamePage = () => {
             setReady(true);
             return () => { unsub(); setReady(false); };
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gameId, subscribeToGame]);
 
     useEffect(() => {
@@ -67,6 +68,7 @@ const GamePage = () => {
         if (game?.subTime && timer === null) {
             setTimer(game.subTime * 60);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [game?.subTime]);
 
     // Timer countdown — use ref-based interval to avoid stale closures

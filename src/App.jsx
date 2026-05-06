@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import NavBar from './components/bars/NavBar.jsx';
 import HomePage from './pages/HomePage.jsx';
@@ -45,6 +45,7 @@ function App() {
       startListening(user.uid);
     }
     return () => stopListening();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.uid, enabled]);
 
 

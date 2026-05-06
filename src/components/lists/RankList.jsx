@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";  
 import "swiper/css/pagination";  
@@ -29,6 +29,7 @@ const RankList = () => {
       const unsub = subscribeToGroupsByPlayer(playerData.id);
       return () => unsub();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, playerData?.id, navigate]);
 
   useEffect(() => {

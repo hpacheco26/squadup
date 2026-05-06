@@ -83,6 +83,7 @@ const PreGamePage = () => {
                 playersInvited: [...(game.playersInvited || []), ...newPlayers],
             });
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [game, group?.players?.length, gameId, updateGame]);
 
     const handleAddGuest = (guestPlayer) => {

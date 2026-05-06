@@ -252,7 +252,7 @@ const DateSheet = ({ open, value, onChange, onClose, t }) => {
             arr.push({ iso, date: d });
         }
         return arr;
-    }, [open]);
+    }, []);
 
     // Parse current value (or default to today) into D/M/Y for the picker.
     const today = new Date();

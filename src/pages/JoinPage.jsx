@@ -48,6 +48,7 @@ function JoinPage() {
         if (user) {
             load();
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [code, user]);
 
     const handleClaimPlayer = async (player) => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CheckCircle2, XCircle } from 'lucide-react';
 import { FaGoogle } from 'react-icons/fa';
@@ -56,6 +56,7 @@ function GameInvitePage() {
             setLoading(false);
         }
         load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [gameId, user]);
 
     const handleResponse = async (player, status) => {
@@ -160,13 +161,14 @@ function GameInvitePage() {
                     <p className={styles.swipeHint}>{t('swipeHint')}</p>
                     <div className={styles.playerList}>
                         {invitedPlayers.map(player => (
-                            <SwipePlayer
-                                key={player.id}
-                                player={player}
-                                playerStatus="?"
-                                onLeft={() => handleResponse(player, 'out')}
-                                onRight={() => handleResponse(player, 'in')}
-                            />
+                            <div key={player.id} className={styles.inviteRow}>
+                                <SwipePlayer
+                                    player={player}
+                                    playerStatus="?"
+                                    onLeft={() => handleResponse(player, 'out')}
+                                    onRight={() => handleResponse(player, 'in')}
+                                />
+                            </div>
                         ))}
                     </div>
                 </div>

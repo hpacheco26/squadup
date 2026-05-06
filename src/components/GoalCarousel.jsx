@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import PropTypes from 'prop-types';
+import { useState, useRef } from 'react';
 
 function GoalCarousel({ value, onChange, color = '#333' }) {
     const [startY, setStartY] = useState(null);
@@ -99,3 +100,9 @@ function GoalCarousel({ value, onChange, color = '#333' }) {
 }
 
 export default GoalCarousel;
+
+GoalCarousel.propTypes = {
+    value: PropTypes.number.isRequired,
+    onChange: PropTypes.func.isRequired,
+    color: PropTypes.string,
+};
