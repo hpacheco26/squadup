@@ -50,6 +50,7 @@ const pt = {
   nextGame: 'Próximo Jogo',
   goToPreGame: 'Vai ao Squad para confirmar a tua presença',
   scheduleGame: 'Marcar Jogo',
+  gameAlreadyExists: 'Este grupo já tem um jogo ativo.',
   selectDate: 'Selecionar Data',
   selectTime: 'Selecionar Hora',
   day: 'Dia',
@@ -352,6 +353,14 @@ const pt = {
   tosLiabilityBody: 'O SquadUp é fornecido "como está" sem garantias de qualquer tipo. Não somos responsáveis por quaisquer danos resultantes do uso da app, incluindo mas não limitado a perda de dados ou interrupções de serviço.',
   tosChangesTitle: 'Alterações aos Termos',
   tosChangesBody: 'Podemos atualizar estes termos periodicamente. O uso continuado da app após alterações constitui aceitação dos novos termos.',
+
+  // Paywall
+  paywallTitle: 'Desbloquear Outro Grupo',
+  paywallBody: 'O teu primeiro grupo é gratuito. Cada grupo adicional é uma compra única.',
+  paywallPrice: '€4,99 por grupo',
+  paywallBuy: 'Desbloquear por €4,99',
+  paywallCancel: 'Agora Não',
+  paywallNote: 'Pagamento único · Sem subscrição',
 };
 
 export default pt;

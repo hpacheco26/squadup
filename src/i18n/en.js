@@ -53,6 +53,7 @@ const en = {
   nextGame: 'Next Game',
   goToPreGame: 'Go to Squad to confirm your attendance',
   scheduleGame: 'Schedule Game',
+  gameAlreadyExists: 'This group already has an active game.',
   selectDate: 'Select Date',
   selectTime: 'Select Time',
   day: 'Day',
@@ -352,6 +353,14 @@ const en = {
   tosLiabilityBody: 'SquadUp is provided "as is" without warranties of any kind. We are not liable for any damages arising from your use of the app, including but not limited to loss of data or service interruptions.',
   tosChangesTitle: 'Changes to Terms',
   tosChangesBody: 'We may update these terms from time to time. Continued use of the app after changes constitutes acceptance of the new terms.',
+
+  // Paywall
+  paywallTitle: 'Unlock Another Group',
+  paywallBody: 'Your first group is free. Each additional group is a one-time purchase.',
+  paywallPrice: '€4.99 per group',
+  paywallBuy: 'Unlock for €4.99',
+  paywallCancel: 'Not Now',
+  paywallNote: 'One-time payment · No subscription',
 };
 
 export default en;

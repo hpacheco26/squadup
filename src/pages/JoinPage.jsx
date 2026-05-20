@@ -5,11 +5,12 @@ import useAuthStore from '../store/authStore';
 import useGroupStore from '../store/groupStore';
 import GroupService from '../api/groupService';
 import useLanguageStore from '../store/languageStore';
+import PaywallModal from '../components/modals/PaywallModal';
 
 function JoinPage() {
     const { code } = useParams();
     const navigate = useNavigate();
-    const { user, playerData } = useAuthStore();
+    const { user, playerData, canJoinMoreGroups } = useAuthStore();
     const { fetchInviteByCode, invite, loading } = useInviteStore();
     const { fetchGroupById } = useGroupStore();
     const { t } = useLanguageStore();
@@ -17,6 +18,8 @@ function JoinPage() {
     const [group, setGroup] = useState(null);
     const [status, setStatus] = useState('loading'); // loading | pick | already | joined | error
     const [selectedPlayerId, setSelectedPlayerId] = useState(null);
+    const [showPaywall, setShowPaywall] = useState(false);
+    const [pendingAction, setPendingAction] = useState(null);
 
     useEffect(() => {
         async function load() {
@@ -53,6 +56,12 @@ function JoinPage() {
 
     const handleClaimPlayer = async (player) => {
         if (!group) return;
+        const allowed = await canJoinMoreGroups();
+        if (!allowed) {
+            setPendingAction(() => () => handleClaimPlayer(player));
+            setShowPaywall(true);
+            return;
+        }
         const uid = user.uid;
         const updatedPlayers = group.players.map(p =>
             p.id === player.id
@@ -65,6 +74,12 @@ function JoinPage() {
 
     const handleJoinAsNew = async () => {
         if (!group) return;
+        const allowed = await canJoinMoreGroups();
+        if (!allowed) {
+            setPendingAction(() => handleJoinAsNew);
+            setShowPaywall(true);
+            return;
+        }
         const uid = user.uid;
         // Derive name: prefer playerData, fall back to displayName or email
         const displayName = user.displayName || user.email?.split('@')[0] || 'Player';
@@ -174,6 +189,14 @@ function JoinPage() {
                 </button>
             </div>
         </div>
+        <PaywallModal
+            isOpen={showPaywall}
+            onClose={() => setShowPaywall(false)}
+            onSuccess={() => {
+                setShowPaywall(false);
+                if (pendingAction) pendingAction();
+            }}
+        />
     );
 }
 

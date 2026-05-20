@@ -214,6 +214,32 @@ const useAuthStore = create((set) => ({
             throw error;
         }
     },
+
+    // 🔹 Check if the current user can join/create one more group
+    canJoinMoreGroups: async () => {
+        const { playerData } = useAuthStore.getState();
+        if (!playerData) return false;
+        const paidSlots = playerData.paidGroupSlots || 0;
+        const groups = await GroupService.getGroupsByPlayer(playerData.id);
+        return groups.length < 1 + paidSlots;
+    },
+
+    // 🔹 Grant one extra group slot (stub — wire to real IAP before release)
+    purchaseGroupSlot: async () => {
+        const { playerData } = useAuthStore.getState();
+        if (!playerData) return false;
+        try {
+            const newSlots = (playerData.paidGroupSlots || 0) + 1;
+            await PlayerService.updatePlayer(playerData.id, { paidGroupSlots: newSlots });
+            const updated = { ...playerData, paidGroupSlots: newSlots };
+            set({ playerData: updated });
+            localStorage.setItem('playerData', JSON.stringify(updated));
+            return true;
+        } catch (err) {
+            console.error('purchaseGroupSlot error:', err);
+            return false;
+        }
+    },
 }));
 
 export default useAuthStore;

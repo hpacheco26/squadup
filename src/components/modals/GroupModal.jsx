@@ -2,12 +2,14 @@ import { useState } from "react";
 import useAuthStore from "../../store/authStore";
 import useGroupStore from "../../store/groupStore";
 import useLanguageStore from '../../store/languageStore';
+import PaywallModal from './PaywallModal';
 
 export default function CreateGroupModal({ isOpen, setIsOpen }) {
     const [groupName, setGroupName] = useState("");
     const [sport, setSport] = useState("Futebol"); // Default to "Futebol"
+    const [showPaywall, setShowPaywall] = useState(false);
 
-    const { playerData } = useAuthStore(); // Get logged-in player
+    const { playerData, canJoinMoreGroups } = useAuthStore(); // Get logged-in player
     const { addGroup } = useGroupStore();
     const { t } = useLanguageStore(); // Function to add group
 
@@ -20,6 +22,12 @@ export default function CreateGroupModal({ isOpen, setIsOpen }) {
 
     const handleSubmit = async () => {
         if (!groupName || !sport) return;
+
+        const allowed = await canJoinMoreGroups();
+        if (!allowed) {
+            setShowPaywall(true);
+            return;
+        }
 
         const newGroup = {
             id: null,
@@ -89,6 +97,14 @@ export default function CreateGroupModal({ isOpen, setIsOpen }) {
                 </footer>
             </div>
         </div>
+        <PaywallModal
+            isOpen={showPaywall}
+            onClose={() => setShowPaywall(false)}
+            onSuccess={() => {
+                setShowPaywall(false);
+                handleSubmit();
+            }}
+        />
     );
 }
 
