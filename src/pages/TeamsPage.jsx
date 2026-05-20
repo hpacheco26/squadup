@@ -119,6 +119,99 @@ const TeamsPage = () => {
         };
     };
 
+    const handleDragPointerDown = useCallback((e, player, index, teamKey) => {
+        const d = dragRef.current;
+        d.startX = e.clientX;
+        d.startY = e.clientY;
+        d.pointerId = e.pointerId;
+        setPressingId(player.id);
+        d.longPressTimer = setTimeout(() => {
+            const el = cardRefs.current[player.id];
+            if (!el) return;
+            try { el.setPointerCapture(d.pointerId); } catch (_) { /* noop */ }
+            const order = teamKey === 'team1' ? displayTeam1Ref.current : displayTeam2Ref.current;
+            const snapshot = [...order];
+            const originalMidpoints = {};
+            snapshot.forEach(p => {
+                const pEl = cardRefs.current[p.id];
+                if (pEl) {
+                    const r = pEl.getBoundingClientRect();
+                    originalMidpoints[p.id] = r.top + r.height / 2;
+                }
+            });
+            d.active = true;
+            d.teamKey = teamKey;
+            d.playerId = player.id;
+            d.fromIndex = index;
+            d.lastTargetIdx = index;
+            d.snapshot = snapshot;
+            d.originalMidpoints = originalMidpoints;
+            d.draggedHeight = el.getBoundingClientRect().height + 2;
+            d.longPressTimer = null;
+            setPressingId(null);
+            setDraggingId(player.id);
+            setDragTeamKey(teamKey);
+            setDragTargetIdx(index);
+        }, 300);
+    }, []);
+
+    const handleDragPointerMove = useCallback((e) => {
+        const d = dragRef.current;
+        if (!d.active) {
+            if (d.longPressTimer !== null) {
+                const dx = Math.abs(e.clientX - d.startX);
+                const dy = Math.abs(e.clientY - d.startY);
+                if (dx > 6 || dy > 6) {
+                    clearTimeout(d.longPressTimer);
+                    d.longPressTimer = null;
+                    setPressingId(null);
+                }
+            }
+            return;
+        }
+        if (e.cancelable) e.preventDefault();
+        const el = cardRefs.current[d.playerId];
+        if (el) el.style.transform = `translateY(${e.clientY - d.startY}px)`;
+        const order = d.snapshot;
+        let newTargetIdx = order.length;
+        for (let i = 0; i < order.length; i++) {
+            if (order[i].id === d.playerId) continue;
+            const midY = d.originalMidpoints[order[i].id];
+            if (midY !== undefined && e.clientY < midY) {
+                newTargetIdx = i;
+                break;
+            }
+        }
+        if (newTargetIdx !== d.lastTargetIdx) {
+            d.lastTargetIdx = newTargetIdx;
+            setDragTargetIdx(newTargetIdx);
+        }
+    }, []);
+
+    const handleDragPointerUp = useCallback(async () => {
+        const d = dragRef.current;
+        if (d.longPressTimer !== null) {
+            clearTimeout(d.longPressTimer);
+            d.longPressTimer = null;
+        }
+        setPressingId(null);
+        if (!d.active) return;
+        const el = cardRefs.current[d.playerId];
+        if (el) el.style.transform = '';
+        const { teamKey, fromIndex, lastTargetIdx, snapshot } = d;
+        d.active = false;
+        d.playerId = null;
+        setDraggingId(null);
+        setDragTargetIdx(null);
+        setDragTeamKey(null);
+        const adjustedIdx = lastTargetIdx > fromIndex ? lastTargetIdx - 1 : lastTargetIdx;
+        if (adjustedIdx === fromIndex) return;
+        const newOrder = [...snapshot];
+        const [moved] = newOrder.splice(fromIndex, 1);
+        newOrder.splice(Math.min(adjustedIdx, newOrder.length), 0, moved);
+        await updateGame(gameId, { [`${teamKey}Positions`]: newOrder.map(p => p.id) });
+    }, [updateGame, gameId]);
+
     if (!game) return <p>{t('loadingTeams')}</p>;
 
     const playersIn = game.playersIn || [];
@@ -237,99 +330,6 @@ const TeamsPage = () => {
             await updateGame(gameId, { team2: [...team2, player] });
         }
     };
-
-    const handleDragPointerDown = useCallback((e, player, index, teamKey) => {
-        const d = dragRef.current;
-        d.startX = e.clientX;
-        d.startY = e.clientY;
-        d.pointerId = e.pointerId;
-        setPressingId(player.id);
-        d.longPressTimer = setTimeout(() => {
-            const el = cardRefs.current[player.id];
-            if (!el) return;
-            try { el.setPointerCapture(d.pointerId); } catch (_) { /* noop */ }
-            const order = teamKey === 'team1' ? displayTeam1Ref.current : displayTeam2Ref.current;
-            const snapshot = [...order];
-            const originalMidpoints = {};
-            snapshot.forEach(p => {
-                const pEl = cardRefs.current[p.id];
-                if (pEl) {
-                    const r = pEl.getBoundingClientRect();
-                    originalMidpoints[p.id] = r.top + r.height / 2;
-                }
-            });
-            d.active = true;
-            d.teamKey = teamKey;
-            d.playerId = player.id;
-            d.fromIndex = index;
-            d.lastTargetIdx = index;
-            d.snapshot = snapshot;
-            d.originalMidpoints = originalMidpoints;
-            d.draggedHeight = el.getBoundingClientRect().height + 2;
-            d.longPressTimer = null;
-            setPressingId(null);
-            setDraggingId(player.id);
-            setDragTeamKey(teamKey);
-            setDragTargetIdx(index);
-        }, 300);
-    }, []);
-
-    const handleDragPointerMove = useCallback((e) => {
-        const d = dragRef.current;
-        if (!d.active) {
-            if (d.longPressTimer !== null) {
-                const dx = Math.abs(e.clientX - d.startX);
-                const dy = Math.abs(e.clientY - d.startY);
-                if (dx > 6 || dy > 6) {
-                    clearTimeout(d.longPressTimer);
-                    d.longPressTimer = null;
-                    setPressingId(null);
-                }
-            }
-            return;
-        }
-        if (e.cancelable) e.preventDefault();
-        const el = cardRefs.current[d.playerId];
-        if (el) el.style.transform = `translateY(${e.clientY - d.startY}px)`;
-        const order = d.snapshot;
-        let newTargetIdx = order.length;
-        for (let i = 0; i < order.length; i++) {
-            if (order[i].id === d.playerId) continue;
-            const midY = d.originalMidpoints[order[i].id];
-            if (midY !== undefined && e.clientY < midY) {
-                newTargetIdx = i;
-                break;
-            }
-        }
-        if (newTargetIdx !== d.lastTargetIdx) {
-            d.lastTargetIdx = newTargetIdx;
-            setDragTargetIdx(newTargetIdx);
-        }
-    }, []);
-
-    const handleDragPointerUp = useCallback(async () => {
-        const d = dragRef.current;
-        if (d.longPressTimer !== null) {
-            clearTimeout(d.longPressTimer);
-            d.longPressTimer = null;
-        }
-        setPressingId(null);
-        if (!d.active) return;
-        const el = cardRefs.current[d.playerId];
-        if (el) el.style.transform = '';
-        const { teamKey, fromIndex, lastTargetIdx, snapshot } = d;
-        d.active = false;
-        d.playerId = null;
-        setDraggingId(null);
-        setDragTargetIdx(null);
-        setDragTeamKey(null);
-        const adjustedIdx = lastTargetIdx > fromIndex ? lastTargetIdx - 1 : lastTargetIdx;
-        if (adjustedIdx === fromIndex) return;
-        const newOrder = [...snapshot];
-        const [moved] = newOrder.splice(fromIndex, 1);
-        newOrder.splice(Math.min(adjustedIdx, newOrder.length), 0, moved);
-        await updateGame(gameId, { [`${teamKey}Positions`]: newOrder.map(p => p.id) });
-    }, [updateGame, gameId]);
 
     const getDragShiftStyle = (index, teamKey) => {
         if (!draggingId || dragTeamKey !== teamKey || dragTargetIdx === null) return {};
