@@ -146,6 +146,7 @@ function JoinPage() {
     const unlinkedPlayers = (group?.players || []).filter(p => !p.userId);
 
     return (
+        <>
         <div style={styles.container}>
             <div style={styles.card}>
                 <p style={styles.title}>{t('joinGroup', { group: group?.name })}</p>
@@ -197,6 +198,7 @@ function JoinPage() {
                 if (pendingAction) pendingAction();
             }}
         />
+        </>
     );
 }
 

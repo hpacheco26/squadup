@@ -53,6 +53,7 @@ export default function CreateGroupModal({ isOpen, setIsOpen }) {
     };
 
     return (
+        <>
         <div className={`modal ${isOpen ? "is-active" : ""}`}>
             <div className="modal-background" onClick={() => setIsOpen(false)}></div>
             <div className="modal-card p-2">
@@ -105,6 +106,7 @@ export default function CreateGroupModal({ isOpen, setIsOpen }) {
                 handleSubmit();
             }}
         />
+        </>
     );
 }
 
