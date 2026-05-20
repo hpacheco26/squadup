@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { balanceTeams, getCaptain } from '../utils/teamBalancer';
 import PlayerCardMini from '../components/cards/PlayerCardMini';
@@ -30,6 +30,27 @@ const TeamsPage = () => {
     const [shuffling, setShuffling] = useState(false);
     const [animateIn, setAnimateIn] = useState(false);
     const [ready, setReady] = useState(false);
+    const [draggingId, setDraggingId] = useState(null);
+    const [pressingId, setPressingId] = useState(null);
+    const [dragTargetIdx, setDragTargetIdx] = useState(null);
+    const [dragTeamKey, setDragTeamKey] = useState(null);
+    const cardRefs = useRef({});
+    const dragRef = useRef({
+        active: false,
+        teamKey: null,
+        playerId: null,
+        fromIndex: null,
+        startX: 0,
+        startY: 0,
+        pointerId: null,
+        longPressTimer: null,
+        draggedHeight: 0,
+        lastTargetIdx: null,
+        snapshot: [],
+        originalMidpoints: {},
+    });
+    const displayTeam1Ref = useRef([]);
+    const displayTeam2Ref = useRef([]);
 
     useEffect(() => {
         setReady(false);
@@ -66,7 +87,7 @@ const TeamsPage = () => {
             setAnimateIn(false);
             await new Promise(r => setTimeout(r, 700));
             const { team1, team2 } = balanceTeams(game.playersIn, game.playersPerTeam || 5);
-            await updateGame(gameId, { team1, team2 });
+            await updateGame(gameId, { team1, team2, team1Positions: [], team2Positions: [] });
             logEvent('squad_up', { gameId, playerCount: game.playersIn.length });
             setShuffling(false);
             setAnimateIn(true);
@@ -133,6 +154,19 @@ const TeamsPage = () => {
 
     const sortedTeam1 = sortTeamPlayers(game.team1 || [], captain1?.id);
     const sortedTeam2 = sortTeamPlayers(game.team2 || [], captain2?.id);
+
+    const getDisplayOrder = (sorted, positionIds) => {
+        if (!positionIds || positionIds.length === 0) return sorted;
+        const playerMap = Object.fromEntries(sorted.map(p => [p.id, p]));
+        const ordered = positionIds.map(id => playerMap[id]).filter(Boolean);
+        const orderedIdSet = new Set(positionIds);
+        const extra = sorted.filter(p => !orderedIdSet.has(p.id));
+        return [...ordered, ...extra];
+    };
+    const displayTeam1 = getDisplayOrder(sortedTeam1, game.team1Positions);
+    const displayTeam2 = getDisplayOrder(sortedTeam2, game.team2Positions);
+    displayTeam1Ref.current = displayTeam1;
+    displayTeam2Ref.current = displayTeam2;
 
     const handleSwitchTeam = async (player, fromTeamKey) => {
         const team1 = [...(game.team1 || [])];
@@ -204,6 +238,114 @@ const TeamsPage = () => {
         }
     };
 
+    const handleDragPointerDown = useCallback((e, player, index, teamKey) => {
+        const d = dragRef.current;
+        d.startX = e.clientX;
+        d.startY = e.clientY;
+        d.pointerId = e.pointerId;
+        setPressingId(player.id);
+        d.longPressTimer = setTimeout(() => {
+            const el = cardRefs.current[player.id];
+            if (!el) return;
+            try { el.setPointerCapture(d.pointerId); } catch (_) { /* noop */ }
+            const order = teamKey === 'team1' ? displayTeam1Ref.current : displayTeam2Ref.current;
+            const snapshot = [...order];
+            const originalMidpoints = {};
+            snapshot.forEach(p => {
+                const pEl = cardRefs.current[p.id];
+                if (pEl) {
+                    const r = pEl.getBoundingClientRect();
+                    originalMidpoints[p.id] = r.top + r.height / 2;
+                }
+            });
+            d.active = true;
+            d.teamKey = teamKey;
+            d.playerId = player.id;
+            d.fromIndex = index;
+            d.lastTargetIdx = index;
+            d.snapshot = snapshot;
+            d.originalMidpoints = originalMidpoints;
+            d.draggedHeight = el.getBoundingClientRect().height + 2;
+            d.longPressTimer = null;
+            setPressingId(null);
+            setDraggingId(player.id);
+            setDragTeamKey(teamKey);
+            setDragTargetIdx(index);
+        }, 300);
+    }, []);
+
+    const handleDragPointerMove = useCallback((e) => {
+        const d = dragRef.current;
+        if (!d.active) {
+            if (d.longPressTimer !== null) {
+                const dx = Math.abs(e.clientX - d.startX);
+                const dy = Math.abs(e.clientY - d.startY);
+                if (dx > 6 || dy > 6) {
+                    clearTimeout(d.longPressTimer);
+                    d.longPressTimer = null;
+                    setPressingId(null);
+                }
+            }
+            return;
+        }
+        if (e.cancelable) e.preventDefault();
+        const el = cardRefs.current[d.playerId];
+        if (el) el.style.transform = `translateY(${e.clientY - d.startY}px)`;
+        const order = d.snapshot;
+        let newTargetIdx = order.length;
+        for (let i = 0; i < order.length; i++) {
+            if (order[i].id === d.playerId) continue;
+            const midY = d.originalMidpoints[order[i].id];
+            if (midY !== undefined && e.clientY < midY) {
+                newTargetIdx = i;
+                break;
+            }
+        }
+        if (newTargetIdx !== d.lastTargetIdx) {
+            d.lastTargetIdx = newTargetIdx;
+            setDragTargetIdx(newTargetIdx);
+        }
+    }, []);
+
+    const handleDragPointerUp = useCallback(async () => {
+        const d = dragRef.current;
+        if (d.longPressTimer !== null) {
+            clearTimeout(d.longPressTimer);
+            d.longPressTimer = null;
+        }
+        setPressingId(null);
+        if (!d.active) return;
+        const el = cardRefs.current[d.playerId];
+        if (el) el.style.transform = '';
+        const { teamKey, fromIndex, lastTargetIdx, snapshot } = d;
+        d.active = false;
+        d.playerId = null;
+        setDraggingId(null);
+        setDragTargetIdx(null);
+        setDragTeamKey(null);
+        const adjustedIdx = lastTargetIdx > fromIndex ? lastTargetIdx - 1 : lastTargetIdx;
+        if (adjustedIdx === fromIndex) return;
+        const newOrder = [...snapshot];
+        const [moved] = newOrder.splice(fromIndex, 1);
+        newOrder.splice(Math.min(adjustedIdx, newOrder.length), 0, moved);
+        await updateGame(gameId, { [`${teamKey}Positions`]: newOrder.map(p => p.id) });
+    }, [updateGame, gameId]);
+
+    const getDragShiftStyle = (index, teamKey) => {
+        if (!draggingId || dragTeamKey !== teamKey || dragTargetIdx === null) return {};
+        const fromIdx = dragRef.current.fromIndex;
+        if (index === fromIdx) return {};
+        const h = dragRef.current.draggedHeight || 46;
+        const toIdx = dragTargetIdx;
+        let shiftY = 0;
+        if (toIdx > fromIdx && index > fromIdx && index < toIdx) shiftY = -h;
+        else if (toIdx < fromIdx && index >= toIdx && index < fromIdx) shiftY = h;
+        return {
+            transition: 'transform 0.15s ease',
+            ...(shiftY !== 0 ? { transform: `translateY(${shiftY}px)` } : {}),
+        };
+    };
+
     const renderTeamPlayerCard = (player, index, teamKey, captainId, injured = false) => {
         const roleKey = injured ? 'injured' : getPlayerRoleLabelKey(index, game?.playersPerTeam || 5);
         const roleLabel = t(roleKey);
@@ -229,6 +371,11 @@ const TeamsPage = () => {
     return (
         <>
             <style>{`
+                @keyframes card-charge {
+                    0%   { box-shadow: 0 0 0 0 rgba(91,123,179,0);    transform: scale(1);    }
+                    50%  { box-shadow: 0 2px 10px rgba(91,123,179,0.28); transform: scale(1.02); }
+                    100% { box-shadow: 0 4px 18px rgba(91,123,179,0.52); transform: scale(1.04); }
+                }
                 @keyframes hurricane-swirl {
                     0% {
                         transform: rotate(var(--hurricane-start, 0deg)) translateX(0px) rotate(calc(-1 * var(--hurricane-start, 0deg))) scale(1);
@@ -295,12 +442,38 @@ const TeamsPage = () => {
                             }} />
                             {/* Team 1 */}
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', overflowY: 'auto', WebkitOverflowScrolling: 'touch', borderRadius: '12px' }}>
-                                {sortedTeam1.map((player, index) => (
+                                {displayTeam1.map((player, index) => (
                                     <div key={player.id} style={settleStyle(index, -1)}>
-                                        {renderTeamPlayerCard(player, index, 'team1', captain1?.id)}
+                                        <div
+                                            ref={el => { if (el) cardRefs.current[player.id] = el; }}
+                                            onPointerDown={(e) => handleDragPointerDown(e, player, index, 'team1')}
+                                            onPointerMove={handleDragPointerMove}
+                                            onPointerUp={handleDragPointerUp}
+                                            onPointerCancel={handleDragPointerUp}
+                                            style={{
+                                                position: 'relative',
+                                                borderRadius: '6px',
+                                                ...(pressingId === player.id ? {
+                                                    animation: 'card-charge 280ms ease-out forwards',
+                                                } : {}),
+                                                ...(draggingId === player.id ? {
+                                                    animation: 'none',
+                                                    zIndex: 100,
+                                                    opacity: 0.88,
+                                                    touchAction: 'none',
+                                                    boxShadow: '0 6px 20px rgba(91,123,179,0.45)',
+                                                    transform: 'scale(1.04)',
+                                                } : getDragShiftStyle(index, 'team1')),
+                                            }}
+                                        >
+                                            {renderTeamPlayerCard(player, index, 'team1', captain1?.id)}
+                                        </div>
                                     </div>
                                 ))}
-                                {sortedTeam1.length === 0 && (
+                                {draggingId && dragTeamKey === 'team1' && dragTargetIdx >= displayTeam1.length && (
+                                    <div style={{ height: '2px', background: 'var(--c-primary)', borderRadius: '1px', margin: '2px 8px 0' }} />
+                                )}
+                                {displayTeam1.length === 0 && (
                                     <p style={{ fontSize: '0.72rem', color: '#94a3b8', textAlign: 'center', margin: '8px 0 6px' }}>
                                         {t('noPlayersYet')}
                                     </p>
@@ -309,12 +482,38 @@ const TeamsPage = () => {
 
                             {/* Team 2 */}
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', overflowY: 'auto', WebkitOverflowScrolling: 'touch', borderRadius: '12px' }}>
-                                {sortedTeam2.map((player, index) => (
+                                {displayTeam2.map((player, index) => (
                                     <div key={player.id} style={settleStyle(index, 1)}>
-                                        {renderTeamPlayerCard(player, index, 'team2', captain2?.id)}
+                                        <div
+                                            ref={el => { if (el) cardRefs.current[player.id] = el; }}
+                                            onPointerDown={(e) => handleDragPointerDown(e, player, index, 'team2')}
+                                            onPointerMove={handleDragPointerMove}
+                                            onPointerUp={handleDragPointerUp}
+                                            onPointerCancel={handleDragPointerUp}
+                                            style={{
+                                                position: 'relative',
+                                                borderRadius: '6px',
+                                                ...(pressingId === player.id ? {
+                                                    animation: 'card-charge 280ms ease-out forwards',
+                                                } : {}),
+                                                ...(draggingId === player.id ? {
+                                                    animation: 'none',
+                                                    zIndex: 100,
+                                                    opacity: 0.88,
+                                                    touchAction: 'none',
+                                                    boxShadow: '0 6px 20px rgba(91,123,179,0.45)',
+                                                    transform: 'scale(1.04)',
+                                                } : getDragShiftStyle(index, 'team2')),
+                                            }}
+                                        >
+                                            {renderTeamPlayerCard(player, index, 'team2', captain2?.id)}
+                                        </div>
                                     </div>
                                 ))}
-                                {sortedTeam2.length === 0 && (
+                                {draggingId && dragTeamKey === 'team2' && dragTargetIdx >= displayTeam2.length && (
+                                    <div style={{ height: '2px', background: 'var(--c-primary)', borderRadius: '1px', margin: '2px 8px 0' }} />
+                                )}
+                                {displayTeam2.length === 0 && (
                                     <p style={{ fontSize: '0.72rem', color: '#94a3b8', textAlign: 'center', margin: '8px 0 6px' }}>
                                         {t('noPlayersYet')}
                                     </p>
