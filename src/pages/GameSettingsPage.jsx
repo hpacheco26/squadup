@@ -571,6 +571,7 @@ function GameSettingsPage() {
     const [playersPerTeam, setPlayersPerTeam] = useState(5);
     const [rosterCustom, setRosterCustom] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    const [createError, setCreateError] = useState(null);
     const [hydrated, setHydrated] = useState(false);
     const [dateSheetOpen, setDateSheetOpen] = useState(false);
     const [timeSheetOpen, setTimeSheetOpen] = useState(false);
@@ -656,10 +657,19 @@ function GameSettingsPage() {
             gameData.adminId = user?.uid || null;
             gameData._senderName = playerData?.firstName || 'Someone';
             gameData._groupName = group?.name || '';
-            const created = await createGame(gameData);
-            setSubmitting(false);
-            if (created?.id) navigate(`/pregame/${created.id}`);
-            else if (baseGroupId) navigate(`/groups/${baseGroupId}`);
+            try {
+                const created = await createGame(gameData);
+                setSubmitting(false);
+                if (created?.id) navigate(`/pregame/${created.id}`);
+                else if (baseGroupId) navigate(`/groups/${baseGroupId}`);
+            } catch (err) {
+                setSubmitting(false);
+                if (err?.code === 'GAME_ALREADY_EXISTS') {
+                    setCreateError(t('gameAlreadyExists'));
+                } else {
+                    throw err;
+                }
+            }
         }
     };
 
@@ -927,6 +937,11 @@ function GameSettingsPage() {
                 background: 'linear-gradient(180deg, transparent 0%, var(--c-bg) 40%)',
                 pointerEvents: 'none',
             }}>
+                {createError && (
+                    <p style={{ textAlign: 'center', color: 'var(--c-danger, #ef4444)', fontSize: '0.8rem', marginBottom: 8, pointerEvents: 'auto' }}>
+                        {createError}
+                    </p>
+                )}
                 <button
                     className="btn-primary"
                     onClick={handleSubmit}

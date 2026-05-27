@@ -22,6 +22,15 @@ const GameService = {
     },
 
     createGame: async (gameData) => {
+        if (gameData.groupId) {
+            const q = query(gamesRef, where('groupId', '==', gameData.groupId));
+            const existing = await getDocs(q);
+            if (!existing.empty) {
+                const err = new Error('GAME_ALREADY_EXISTS');
+                err.code = 'GAME_ALREADY_EXISTS';
+                throw err;
+            }
+        }
         const docRef = await addDoc(gamesRef, gameData);
         return { id: docRef.id, ...gameData };
     },

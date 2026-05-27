@@ -29,6 +29,7 @@ const GamePage = () => {
     const [isSubModalOpen, setIsSubModalOpen] = useState(false);
     const [subCounts, setSubCounts] = useState({});
     const [ready, setReady] = useState(false);
+    const [isEnding, setIsEnding] = useState(false);
     const intervalRef = useRef(null);
 
     useEffect(() => {
@@ -146,6 +147,8 @@ const GamePage = () => {
     };
 
     const handleEndGame = async () => {
+        if (isEnding) return;
+        setIsEnding(true);
         const allPlayers = [...team1, ...team2, ...(game.injured || [])];
         const price = Number(game.price) || 0;
         const adminPlayer = (group?.players || []).find(p => group?.adminIds?.includes(p.userId) || p.userId === group?.adminId);
@@ -198,6 +201,10 @@ const GamePage = () => {
             updateRank(group.id, winner, loser, false);
         }
 
+        // Delete the ended game first so the recurring-game check finds no existing game
+        await deleteGame(game.id);
+        resetGameSession();
+
         if (game.recurrence && game.recurrence !== 'none') {
             // Create next recurring game
             const currentDate = new Date(`${game.date}T${game.time || '00:00'}`);
@@ -229,9 +236,6 @@ const GamePage = () => {
             });
         }
 
-        // Always delete the ended game — debts are stored on the group
-        await deleteGame(game.id);
-        resetGameSession();
         navigate(`/groups/${game.groupId}`);
     };
 
@@ -338,6 +342,7 @@ const GamePage = () => {
                         <Share2 size={20} />
                     </button>
                     <button
+                        disabled={isEnding}
                         onClick={handleEndGame}
                         style={{
                             padding: '14px 24px',
