@@ -12,10 +12,6 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:rules": "firebase emulators:exec --only firestore,storage \"vitest run -c vitest.rules.config.js\"",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
-    "test:e2e:lifecycle": "firebase emulators:exec --only auth,firestore \"playwright test --config=playwright.lifecycle.config.js\"",
-    "test:e2e:lifecycle:ui": "firebase emulators:exec --only auth,firestore \"playwright test --config=playwright.lifecycle.config.js --ui\"",
     "cap:sync": "vite build && npx cap sync",
     "cap:android": "vite build && npx cap sync android && npx cap open android",
     "cap:ios": "vite build && npx cap sync ios && npx cap open ios"
@@ -53,7 +49,6 @@
   "devDependencies": {
     "@eslint/js": "^9.19.0",
     "@firebase/rules-unit-testing": "^5.0.0",
-    "@playwright/test": "^1.50.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
