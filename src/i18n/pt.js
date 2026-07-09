@@ -134,6 +134,11 @@ const pt = {
   min: 'mín',
   max: 'máx',
   subTimer: 'Temporizador de Subs (minutos)',
+  subMode: 'Modo de Substituição',
+  automaticSub: 'Automático',
+  manualSub: 'Manual',
+  automaticSubHint: 'A app pede para escolheres quem substitui a cada intervalo.',
+  manualSubHint: 'O temporizador apenas apita a cada intervalo — a equipa controla quem é o próximo.',
   price: 'Preço (€)',
   priceLabel: 'Preço (€)',
   repeat: 'Repetir',
@@ -232,6 +237,8 @@ const pt = {
   joinAs: 'Entrar como {name}',
   orDivider: '— ou —',
   joinFailed: 'Ocorreu um erro ao entrar no grupo. Tenta novamente.',
+  somethingWentWrong: 'Ocorreu um erro',
+  unexpectedErrorHint: 'Ocorreu um erro inesperado. Podes tentar novamente ou recarregar a app.',
 
   // Game Invite Page
   loadingGame: 'A carregar jogo...',

@@ -6,6 +6,7 @@ import { App as CapApp } from '@capacitor/app';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import * as Sentry from '@sentry/react';
 import App from './App.jsx';
+import ErrorFallback from './components/ErrorFallback.jsx';
 import useAuthStore from './store/authStore';
 import 'bulma/css/bulma.min.css';
 import './index.css';
@@ -19,6 +20,10 @@ if (import.meta.env.VITE_SENTRY_DSN) {
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration({ maskAllText: false, blockAllMedia: false }),
+      // Turns every existing console.error(...) call across the app (stores/services
+      // that only logged locally before) into a reported Sentry event, without having
+      // to touch each call site individually.
+      Sentry.captureConsoleIntegration({ levels: ['error'] }),
     ],
     // Capture 10% of transactions for performance monitoring
     tracesSampleRate: 0.1,
@@ -64,7 +69,9 @@ if (Capacitor.isNativePlatform()) {
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
+  <Sentry.ErrorBoundary fallback={({ resetError }) => <ErrorFallback resetError={resetError} />}>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </Sentry.ErrorBoundary>
 );

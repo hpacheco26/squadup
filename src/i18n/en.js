@@ -134,6 +134,11 @@ const en = {
   min: 'min',
   max: 'max',
   subTimer: 'Sub Timer (minutes)',
+  subMode: 'Substitution Mode',
+  automaticSub: 'Automatic',
+  manualSub: 'Manual',
+  automaticSubHint: 'App prompts you to pick who subs at each interval.',
+  manualSubHint: 'Timer just beeps at each interval — your team keeps track of who\'s next.',
   price: 'Price (€)',
   priceLabel: 'Price (€)',
   repeat: 'Repeat',
@@ -232,6 +237,8 @@ const en = {
   joinAs: 'Join as {name}',
   orDivider: '— or —',
   joinFailed: 'Something went wrong joining the group. Please try again.',
+  somethingWentWrong: 'Something went wrong',
+  unexpectedErrorHint: 'An unexpected error occurred. You can try again or reload the app.',
 
   // Game Invite Page
   loadingGame: 'Loading game...',

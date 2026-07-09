@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import * as Sentry from '@sentry/react';
 import { auth } from '../config/firebase';
 import { 
     signInWithEmailAndPassword, 
@@ -56,12 +57,14 @@ const useAuthStore = create((set) => ({
                 const serialized = serializeUser(user);
                 set({ user: serialized });
                 localStorage.setItem('user', JSON.stringify(serialized));
+                Sentry.setUser({ id: user.uid, email: user.email || undefined });
                 await useAuthStore.getState().fetchPlayerData(user.uid);
             } else {
                 set({ user: null, playerData: null, selectedGroupId: null });
                 localStorage.removeItem('user');
                 localStorage.removeItem('playerData');
                 localStorage.removeItem('selectedGroupId');
+                Sentry.setUser(null);
             }
         });
     },
