@@ -33,6 +33,15 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
   navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch((err) => {
     console.warn('[SW] PWA registration failed:', err);
   });
+
+  // Reload once the new service worker takes control, so open tabs/PWA sessions
+  // actually pick up newly deployed code instead of being stuck on stale precached assets.
+  let refreshingAfterSwUpdate = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshingAfterSwUpdate) return;
+    refreshingAfterSwUpdate = true;
+    window.location.reload();
+  });
 }
 
 // Initialize Firebase auth state listener
