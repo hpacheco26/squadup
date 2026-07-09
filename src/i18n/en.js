@@ -231,6 +231,7 @@ const en = {
   goToGroup: 'Go to Group',
   joinAs: 'Join as {name}',
   orDivider: '— or —',
+  joinFailed: 'Something went wrong joining the group. Please try again.',
 
   // Game Invite Page
   loadingGame: 'Loading game...',

@@ -231,6 +231,7 @@ const pt = {
   goToGroup: 'Ir para o Grupo',
   joinAs: 'Entrar como {name}',
   orDivider: '— ou —',
+  joinFailed: 'Ocorreu um erro ao entrar no grupo. Tenta novamente.',
 
   // Game Invite Page
   loadingGame: 'A carregar jogo...',

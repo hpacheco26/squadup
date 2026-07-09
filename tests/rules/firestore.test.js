@@ -19,7 +19,7 @@ beforeEach(async () => {
 
 describe('config/* — read-only for authenticated users', () => {
     beforeEach(async () => {
-        const db = asAdmin(env);
+        const db = await asAdmin(env);
         await setDoc(doc(db, 'config/allowedCreators'), { uids: ['allowed-uid'] });
     });
 
@@ -60,21 +60,21 @@ describe('players/* — auth required, create scoped to own userId', () => {
     });
 
     it('allows owner to update their player doc', async () => {
-        const admin = asAdmin(env);
+        const admin = await asAdmin(env);
         await setDoc(doc(admin, 'players/p1'), { userId: 'uid-1', firstName: 'Alice', rank: 0 });
         const db = asUser(env, 'uid-1');
         await assertSucceeds(updateDoc(doc(db, 'players/p1'), { firstName: 'Alicia' }));
     });
 
     it('denies another user from updating someone else\'s player doc', async () => {
-        const admin = asAdmin(env);
+        const admin = await asAdmin(env);
         await setDoc(doc(admin, 'players/p1'), { userId: 'uid-1', firstName: 'Alice', rank: 0 });
         const intruder = asUser(env, 'uid-2');
         await assertFails(updateDoc(doc(intruder, 'players/p1'), { firstName: 'Hacked' }));
     });
 
     it('denies another user from deleting someone else\'s player doc', async () => {
-        const admin = asAdmin(env);
+        const admin = await asAdmin(env);
         await setDoc(doc(admin, 'players/p1'), { userId: 'uid-1', firstName: 'Alice', rank: 0 });
         const intruder = asUser(env, 'uid-2');
         await assertFails(deleteDoc(doc(intruder, 'players/p1')));
@@ -83,7 +83,7 @@ describe('players/* — auth required, create scoped to own userId', () => {
 
 describe('groups/* — create gated by allowedCreators allowlist', () => {
     beforeEach(async () => {
-        const db = asAdmin(env);
+        const db = await asAdmin(env);
         await setDoc(doc(db, 'config/allowedCreators'), { uids: ['allowed-uid'] });
     });
 
@@ -102,7 +102,7 @@ describe('groups/* — create gated by allowedCreators allowlist', () => {
     });
 
     it('only the admin can delete the group', async () => {
-        const admin = asAdmin(env);
+        const admin = await asAdmin(env);
         await setDoc(doc(admin, 'groups/g1'), {
             name: 'Squad', adminId: 'allowed-uid', adminIds: ['allowed-uid'], players: [],
         });
@@ -115,9 +115,87 @@ describe('groups/* — create gated by allowedCreators allowlist', () => {
     });
 });
 
+describe('groups/* — self-join via invite link (non-admin)', () => {
+    beforeEach(async () => {
+        const admin = await asAdmin(env);
+        await setDoc(doc(admin, 'groups/g1'), {
+            name: 'Squad', adminId: 'admin-uid', adminIds: ['admin-uid'],
+            players: [{ id: 'p-unclaimed', firstName: 'Alice', lastName: '', rank: 0 }],
+            playerIds: ['p-unclaimed'],
+        });
+    });
+
+    it('allows a new user to claim an existing unlinked player row', async () => {
+        const db = asUser(env, 'uid-1');
+        await assertSucceeds(updateDoc(doc(db, 'groups/g1'), {
+            players: [{ id: 'p-unclaimed', firstName: 'Alice', lastName: '', rank: 0, userId: 'uid-1' }],
+            playerIds: ['p-unclaimed'],
+        }));
+    });
+
+    it('allows a new user to join by appending a brand-new player row', async () => {
+        const db = asUser(env, 'uid-2');
+        await assertSucceeds(updateDoc(doc(db, 'groups/g1'), {
+            players: [
+                { id: 'p-unclaimed', firstName: 'Alice', lastName: '', rank: 0 },
+                { id: 'p-new', firstName: 'Bob', lastName: '', rank: 0, userId: 'uid-2' },
+            ],
+            playerIds: ['p-unclaimed', 'p-new'],
+        }));
+    });
+
+    it('denies a user from tampering with another player\'s row while joining', async () => {
+        const db = asUser(env, 'uid-3');
+        await assertFails(updateDoc(doc(db, 'groups/g1'), {
+            players: [
+                { id: 'p-unclaimed', firstName: 'Mallory', lastName: '', rank: 999 },
+                { id: 'p-new', firstName: 'Eve', lastName: '', rank: 0, userId: 'uid-3' },
+            ],
+            playerIds: ['p-unclaimed', 'p-new'],
+        }));
+    });
+
+    it('denies a user from removing an existing member while joining', async () => {
+        const db = asUser(env, 'uid-4');
+        await assertFails(updateDoc(doc(db, 'groups/g1'), {
+            players: [{ id: 'p-new', firstName: 'Eve', lastName: '', rank: 0, userId: 'uid-4' }],
+            playerIds: ['p-new'],
+        }));
+    });
+
+    it('denies a user from also changing unrelated fields (e.g. group name) while joining', async () => {
+        const db = asUser(env, 'uid-5');
+        await assertFails(updateDoc(doc(db, 'groups/g1'), {
+            name: 'Hacked Squad',
+            players: [
+                { id: 'p-unclaimed', firstName: 'Alice', lastName: '', rank: 0 },
+                { id: 'p-new', firstName: 'Eve', lastName: '', rank: 0, userId: 'uid-5' },
+            ],
+            playerIds: ['p-unclaimed', 'p-new'],
+        }));
+    });
+
+    it('denies a user who is already a member from re-writing the players list', async () => {
+        const admin = await asAdmin(env);
+        await setDoc(doc(admin, 'groups/g1'), {
+            name: 'Squad', adminId: 'admin-uid', adminIds: ['admin-uid'],
+            players: [{ id: 'p-member', firstName: 'Alice', lastName: '', rank: 0, userId: 'uid-6' }],
+            playerIds: ['p-member'],
+        });
+        const db = asUser(env, 'uid-6');
+        await assertFails(updateDoc(doc(db, 'groups/g1'), {
+            players: [
+                { id: 'p-member', firstName: 'Alice', lastName: '', rank: 0, userId: 'uid-6' },
+                { id: 'p-new', firstName: 'Extra', lastName: '', rank: 0, userId: 'uid-6' },
+            ],
+            playerIds: ['p-member', 'p-new'],
+        }));
+    });
+});
+
 describe('games/* — any auth user can update; only group admin can delete', () => {
     beforeEach(async () => {
-        const admin = asAdmin(env);
+        const admin = await asAdmin(env);
         await setDoc(doc(admin, 'config/allowedCreators'), { uids: ['admin-uid'] });
         await setDoc(doc(admin, 'groups/g1'), {
             name: 'Squad', adminId: 'admin-uid', adminIds: ['admin-uid'], players: [],
@@ -150,7 +228,7 @@ describe('games/* — any auth user can update; only group admin can delete', ()
 
 describe('notifications/* — read/update scoped to recipientIds, no delete', () => {
     beforeEach(async () => {
-        const db = asAdmin(env);
+        const db = await asAdmin(env);
         await setDoc(doc(db, 'notifications/n1'), {
             type: 'gameInvite', recipientIds: ['uid-recipient'], senderId: 'uid-sender',
             createdAt: new Date(),
@@ -185,7 +263,7 @@ describe('fcmTokens/{userId} — strictly user-scoped', () => {
     });
 
     it('denies anonymous reads', async () => {
-        const admin = asAdmin(env);
+        const admin = await asAdmin(env);
         await setDoc(doc(admin, 'fcmTokens/uid-1'), { tokens: ['t1'] });
         const db = asAnon(env);
         await assertFails(getDoc(doc(db, 'fcmTokens/uid-1')));

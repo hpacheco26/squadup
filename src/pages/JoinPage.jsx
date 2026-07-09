@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import * as Sentry from '@sentry/react';
 import useInviteStore from '../store/inviteStore';
 import useAuthStore from '../store/authStore';
 import useGroupStore from '../store/groupStore';
@@ -20,6 +21,7 @@ function JoinPage() {
     const [selectedPlayerId, setSelectedPlayerId] = useState(null);
     const [showPaywall, setShowPaywall] = useState(false);
     const [pendingAction, setPendingAction] = useState(null);
+    const [joinError, setJoinError] = useState('');
 
     useEffect(() => {
         async function load() {
@@ -45,6 +47,7 @@ function JoinPage() {
                 setStatus('pick');
             } catch (err) {
                 console.error('JoinPage load error:', err);
+                Sentry.captureException(err, { tags: { flow: 'group-invite-join', action: 'load-invite' } });
                 setStatus('error');
             }
         }
@@ -56,6 +59,7 @@ function JoinPage() {
 
     const handleClaimPlayer = async (player) => {
         if (!group) return;
+        setJoinError('');
         const allowed = await canJoinMoreGroups();
         if (!allowed) {
             setPendingAction(() => () => handleClaimPlayer(player));
@@ -68,12 +72,19 @@ function JoinPage() {
                 ? { ...p, userId: uid }
                 : p
         );
-        await GroupService.updateGroup(group.id, { players: updatedPlayers });
-        setStatus('joined');
+        try {
+            await GroupService.updateGroup(group.id, { players: updatedPlayers });
+            setStatus('joined');
+        } catch (err) {
+            console.error('handleClaimPlayer error:', err);
+            Sentry.captureException(err, { tags: { flow: 'group-invite-join', action: 'claim-player' } });
+            setJoinError(t('joinFailed'));
+        }
     };
 
     const handleJoinAsNew = async () => {
         if (!group) return;
+        setJoinError('');
         const allowed = await canJoinMoreGroups();
         if (!allowed) {
             setPendingAction(() => handleJoinAsNew);
@@ -94,8 +105,14 @@ function JoinPage() {
             stats: { wins: 0, draws: 0, losses: 0 },
         };
         const updatedPlayers = [...group.players, newPlayer];
-        await GroupService.updateGroup(group.id, { players: updatedPlayers });
-        setStatus('joined');
+        try {
+            await GroupService.updateGroup(group.id, { players: updatedPlayers });
+            setStatus('joined');
+        } catch (err) {
+            console.error('handleJoinAsNew error:', err);
+            Sentry.captureException(err, { tags: { flow: 'group-invite-join', action: 'join-as-new' } });
+            setJoinError(t('joinFailed'));
+        }
     };
 
     if (status === 'loading' || loading) {
@@ -151,6 +168,8 @@ function JoinPage() {
             <div style={styles.card}>
                 <p style={styles.title}>{t('joinGroup', { group: group?.name })}</p>
                 <p style={styles.subtitle}>{t('areYouOneOfThese')}</p>
+
+                {joinError && <p style={{ color: '#e53e3e', marginBottom: 12 }}>{joinError}</p>}
 
                 {unlinkedPlayers.length > 0 && (
                     <div style={styles.playerList}>
