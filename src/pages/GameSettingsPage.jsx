@@ -566,6 +566,7 @@ function GameSettingsPage() {
     const [maxPlayers, setMaxPlayers] = useState(12);
     const [minPlayers, setMinPlayers] = useState(10);
     const [subTime, setSubTime] = useState(5);
+    const [subMode, setSubMode] = useState('automatic');
     const [recurrence, setRecurrence] = useState('none');
     const [price, setPrice] = useState(0);
     const [playersPerTeam, setPlayersPerTeam] = useState(5);
@@ -603,6 +604,7 @@ function GameSettingsPage() {
             setMaxPlayers(game.maxPlayers || 10);
             setMinPlayers(game.minPlayers || 5);
             setSubTime(game.subTime || 5);
+            setSubMode(game.subMode || 'automatic');
             setRecurrence(game.recurrence || 'none');
             setPrice(game.price || 0);
             setPlayersPerTeam(game.playersPerTeam || 5);
@@ -642,6 +644,7 @@ function GameSettingsPage() {
             teamA: isEditMode ? game.teamA : [],
             teamB: isEditMode ? game.teamB : [],
             subTime,
+            subMode,
             recurrence,
             price: Number(price) || 0,
             playersPerTeam: Number(playersPerTeam) || 5,
@@ -890,6 +893,23 @@ function GameSettingsPage() {
                     {/* GAME */}
                     <SectionTitle icon={Settings2}>{t('game') || 'Game'}</SectionTitle>
                     <SettingsGroup>
+                        <div style={{ padding: '10px 14px 12px', display: 'flex', flexDirection: 'column', gap: 8, borderBottom: '1px solid var(--c-border)' }}>
+                            <span style={{ fontSize: '0.78rem', color: 'var(--c-text-secondary)', fontWeight: 500 }}>
+                                {t('subMode')}
+                            </span>
+                            <SettingsSegmented
+                                fullWidth
+                                value={subMode}
+                                onChange={setSubMode}
+                                options={[
+                                    { value: 'automatic', label: t('automaticSub') },
+                                    { value: 'manual', label: t('manualSub') },
+                                ]}
+                            />
+                            <p style={{ margin: 0, fontSize: '0.7rem', color: 'var(--c-text-muted)' }}>
+                                {subMode === 'manual' ? t('manualSubHint') : t('automaticSubHint')}
+                            </p>
+                        </div>
                         <SettingsRow label={t('subTimer')} sublabel="min" chevron={false}>
                             <Stepper value={subTime} onChange={setSubTime} min={1} max={60} />
                         </SettingsRow>

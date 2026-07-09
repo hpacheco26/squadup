@@ -8,6 +8,7 @@ import { getCaptain } from '../utils/teamBalancer';
 import SubTimerModal from '../components/modals/SubTimerModal';
 import GoalCarousel from '../components/GoalCarousel';
 import useLanguageStore from '../store/languageStore';
+import { playSubBeep } from '../utils/audioAlert';
 import GameDebtService from '../api/gameDebtService';
 import AppHeaderBar from '../components/bars/AppHeaderBar';
 
@@ -87,9 +88,16 @@ const GamePage = () => {
                 const state = useGameStore.getState();
                 const current = state.timer ?? 300;
                 if (current <= 1) {
-                    state.setTimer(0);
-                    state.setIsRunning(false);
-                    setIsSubModalOpen(true);
+                    playSubBeep();
+                    if (game?.subMode === 'manual') {
+                        // Manual mode: just beep and restart the countdown.
+                        // The team keeps track of who's next themselves.
+                        state.setTimer((game?.subTime || 5) * 60);
+                    } else {
+                        state.setTimer(0);
+                        state.setIsRunning(false);
+                        setIsSubModalOpen(true);
+                    }
                 } else {
                     state.setTimer(current - 1);
                 }
@@ -98,7 +106,7 @@ const GamePage = () => {
             stopInterval();
         }
         return stopInterval;
-    }, [isRunning, stopInterval]);
+    }, [isRunning, stopInterval, game?.subMode, game?.subTime]);
 
     const toggleTimer = () => setIsRunning(!isRunning);
     const resetTimer = () => {
