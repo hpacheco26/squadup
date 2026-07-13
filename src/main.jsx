@@ -30,6 +30,13 @@ if (import.meta.env.VITE_SENTRY_DSN) {
     // Capture replays only on errors
     replaysOnErrorSampleRate: 1.0,
     replaysSessionSampleRate: 0,
+    // Known-benign noise: Firebase's Installations service (used for Analytics/FCM,
+    // not Auth itself) occasionally drops a request on flaky mobile networks or when
+    // a backgrounded iOS tab kills in-flight fetches. It's non-fatal and retried
+    // internally by the SDK, so it isn't actionable — filter it instead of alerting.
+    ignoreErrors: [
+      /firebaseinstallations\.googleapis\.com/,
+    ],
   });
 }
 
