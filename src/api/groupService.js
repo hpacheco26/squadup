@@ -4,10 +4,19 @@ import { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, query, 
 const groupsRef = collection(db, 'groups');
 const allowedCreatorsRef = doc(db, 'config', 'allowedCreators');
 
-/** If `players` is being written, keep `playerIds` in sync automatically. */
+/**
+ * If `players` is being written, keep derived fields in sync automatically:
+ *  - `playerIds`: internal player ids (used for `getGroupsByPlayer`/self-join lookups)
+ *  - `memberUserIds`: Firebase Auth UIDs of players who have linked/claimed an account
+ *    (used by the `isSelfJoin()` security rule to verify the joining user)
+ */
 const withPlayerIds = (data) => {
     if (!Array.isArray(data.players)) return data;
-    return { ...data, playerIds: data.players.map(p => p.id) };
+    return {
+        ...data,
+        playerIds: data.players.map(p => p.id),
+        memberUserIds: data.players.filter(p => p.userId).map(p => p.userId),
+    };
 };
 
 const GroupService = {

@@ -30,8 +30,10 @@ service cloud.firestore {
       // A non-admin, authenticated user may join a group via invite link by either:
       //  - claiming an existing unlinked player row (replacing it with one that has their userId), or
       //  - appending a brand-new player row for themselves.
-      // Only the `players`/`playerIds` fields may change, no existing member may be removed,
-      // and at most one player row may be added/changed — this blocks tampering with other members.
+      // Only the `players`/`playerIds`/`memberUserIds` fields may change, no existing member may be
+      // removed, and at most one player row may be added/changed — this blocks tampering with other members.
+      // NOTE: `playerIds` holds internal player ids (see groupService.js), NOT auth UIDs — membership
+      // must be checked against `memberUserIds`, which mirrors each linked player's `userId`.
       function isSelfJoin() {
         let newData = request.resource.data;
         let oldData = resource.data;
@@ -39,10 +41,11 @@ service cloud.firestore {
         let newPlayers = newData.players;
         let removed = oldPlayers.toSet().difference(newPlayers.toSet());
         let added = newPlayers.toSet().difference(oldPlayers.toSet());
+        let oldMemberUserIds = 'memberUserIds' in oldData ? oldData.memberUserIds : [];
 
-        return newData.diff(oldData).affectedKeys().hasOnly(['players', 'playerIds'])
-          && !(request.auth.uid in oldData.playerIds)
-          && request.auth.uid in newData.playerIds
+        return newData.diff(oldData).affectedKeys().hasOnly(['players', 'playerIds', 'memberUserIds'])
+          && !(request.auth.uid in oldMemberUserIds)
+          && request.auth.uid in newData.memberUserIds
           && newData.playerIds.hasAll(oldData.playerIds)
           && added.size() == 1
           && removed.size() <= 1

@@ -122,6 +122,7 @@ describe('groups/* — self-join via invite link (non-admin)', () => {
             name: 'Squad', adminId: 'admin-uid', adminIds: ['admin-uid'],
             players: [{ id: 'p-unclaimed', firstName: 'Alice', lastName: '', rank: 0 }],
             playerIds: ['p-unclaimed'],
+            memberUserIds: [],
         });
     });
 
@@ -130,6 +131,7 @@ describe('groups/* — self-join via invite link (non-admin)', () => {
         await assertSucceeds(updateDoc(doc(db, 'groups/g1'), {
             players: [{ id: 'p-unclaimed', firstName: 'Alice', lastName: '', rank: 0, userId: 'uid-1' }],
             playerIds: ['p-unclaimed'],
+            memberUserIds: ['uid-1'],
         }));
     });
 
@@ -141,6 +143,7 @@ describe('groups/* — self-join via invite link (non-admin)', () => {
                 { id: 'p-new', firstName: 'Bob', lastName: '', rank: 0, userId: 'uid-2' },
             ],
             playerIds: ['p-unclaimed', 'p-new'],
+            memberUserIds: ['uid-2'],
         }));
     });
 
@@ -152,6 +155,7 @@ describe('groups/* — self-join via invite link (non-admin)', () => {
                 { id: 'p-new', firstName: 'Eve', lastName: '', rank: 0, userId: 'uid-3' },
             ],
             playerIds: ['p-unclaimed', 'p-new'],
+            memberUserIds: ['uid-3'],
         }));
     });
 
@@ -160,6 +164,7 @@ describe('groups/* — self-join via invite link (non-admin)', () => {
         await assertFails(updateDoc(doc(db, 'groups/g1'), {
             players: [{ id: 'p-new', firstName: 'Eve', lastName: '', rank: 0, userId: 'uid-4' }],
             playerIds: ['p-new'],
+            memberUserIds: ['uid-4'],
         }));
     });
 
@@ -172,6 +177,7 @@ describe('groups/* — self-join via invite link (non-admin)', () => {
                 { id: 'p-new', firstName: 'Eve', lastName: '', rank: 0, userId: 'uid-5' },
             ],
             playerIds: ['p-unclaimed', 'p-new'],
+            memberUserIds: ['uid-5'],
         }));
     });
 
@@ -181,6 +187,7 @@ describe('groups/* — self-join via invite link (non-admin)', () => {
             name: 'Squad', adminId: 'admin-uid', adminIds: ['admin-uid'],
             players: [{ id: 'p-member', firstName: 'Alice', lastName: '', rank: 0, userId: 'uid-6' }],
             playerIds: ['p-member'],
+            memberUserIds: ['uid-6'],
         });
         const db = asUser(env, 'uid-6');
         await assertFails(updateDoc(doc(db, 'groups/g1'), {
@@ -189,6 +196,7 @@ describe('groups/* — self-join via invite link (non-admin)', () => {
                 { id: 'p-new', firstName: 'Extra', lastName: '', rank: 0, userId: 'uid-6' },
             ],
             playerIds: ['p-member', 'p-new'],
+            memberUserIds: ['uid-6', 'uid-6'],
         }));
     });
 });
