@@ -363,12 +363,12 @@ const en = {
   tosChangesBody: 'We may update these terms from time to time. Continued use of the app after changes constitutes acceptance of the new terms.',
 
   // Paywall
-  paywallTitle: 'Unlock Another Group',
-  paywallBody: 'Your first group is free. Each additional group is a one-time purchase.',
-  paywallPrice: '€4.99 per group',
-  paywallBuy: 'Unlock for €4.99',
+  paywallTitle: 'Upgrade to Pro',
+  paywallBody: 'Your first group is free. Upgrade once to create or join unlimited groups.',
+  paywallPrice: '€9.99 one-time',
+  paywallBuy: 'Upgrade for €9.99',
   paywallCancel: 'Not Now',
-  paywallNote: 'One-time payment · No subscription',
+  paywallNote: 'One-time payment · Unlocks unlimited groups',
 };
 
 export default en;

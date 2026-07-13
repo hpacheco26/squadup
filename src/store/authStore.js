@@ -218,28 +218,35 @@ const useAuthStore = create((set) => ({
         }
     },
 
-    // 🔹 Check if the current user can join/create one more group
-    canJoinMoreGroups: async () => {
+    // 🔹 Free tier = 1 group max. Paid tier (isPro) = unlimited groups.
+    // Grandfathers anyone who previously bought a slot under the old per-group paywall.
+    isPaidTier: () => {
         const { playerData } = useAuthStore.getState();
         if (!playerData) return false;
-        const paidSlots = playerData.paidGroupSlots || 0;
-        const groups = await GroupService.getGroupsByPlayer(playerData.id);
-        return groups.length < 1 + paidSlots;
+        return playerData.isPro === true || (playerData.paidGroupSlots || 0) > 0;
     },
 
-    // 🔹 Grant one extra group slot (stub — wire to real IAP before release)
-    purchaseGroupSlot: async () => {
+    // 🔹 Check if the current user can join/create one more group
+    canJoinMoreGroups: async () => {
+        const { playerData, isPaidTier } = useAuthStore.getState();
+        if (!playerData) return false;
+        if (isPaidTier()) return true;
+        const groups = await GroupService.getGroupsByPlayer(playerData.id);
+        return groups.length < 1;
+    },
+
+    // 🔹 One-time upgrade to Pro tier: unlimited groups (stub — wire to real IAP before release)
+    upgradeToPro: async () => {
         const { playerData } = useAuthStore.getState();
         if (!playerData) return false;
         try {
-            const newSlots = (playerData.paidGroupSlots || 0) + 1;
-            await PlayerService.updatePlayer(playerData.id, { paidGroupSlots: newSlots });
-            const updated = { ...playerData, paidGroupSlots: newSlots };
+            await PlayerService.updatePlayer(playerData.id, { isPro: true });
+            const updated = { ...playerData, isPro: true };
             set({ playerData: updated });
             localStorage.setItem('playerData', JSON.stringify(updated));
             return true;
         } catch (err) {
-            console.error('purchaseGroupSlot error:', err);
+            console.error('upgradeToPro error:', err);
             return false;
         }
     },

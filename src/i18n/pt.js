@@ -363,12 +363,12 @@ const pt = {
   tosChangesBody: 'Podemos atualizar estes termos periodicamente. O uso continuado da app após alterações constitui aceitação dos novos termos.',
 
   // Paywall
-  paywallTitle: 'Desbloquear Outro Grupo',
-  paywallBody: 'O teu primeiro grupo é gratuito. Cada grupo adicional é uma compra única.',
-  paywallPrice: '€4,99 por grupo',
-  paywallBuy: 'Desbloquear por €4,99',
+  paywallTitle: 'Atualizar para Pro',
+  paywallBody: 'O teu primeiro grupo é gratuito. Atualiza uma vez para criares ou entrares em grupos ilimitados.',
+  paywallPrice: '€9,99 pagamento único',
+  paywallBuy: 'Atualizar por €9,99',
   paywallCancel: 'Agora Não',
-  paywallNote: 'Pagamento único · Sem subscrição',
+  paywallNote: 'Pagamento único · Desbloqueia grupos ilimitados',
 };
 
 export default pt;

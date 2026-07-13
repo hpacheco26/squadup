@@ -4,13 +4,13 @@ import useAuthStore from '../../store/authStore';
 import useLanguageStore from '../../store/languageStore';
 
 export default function PaywallModal({ isOpen, onClose, onSuccess }) {
-    const { purchaseGroupSlot } = useAuthStore();
+    const { upgradeToPro } = useAuthStore();
     const { t } = useLanguageStore();
     const [loading, setLoading] = useState(false);
 
     const handleBuy = async () => {
         setLoading(true);
-        const ok = await purchaseGroupSlot();
+        const ok = await upgradeToPro();
         setLoading(false);
         if (ok) {
             onSuccess();
