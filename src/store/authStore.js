@@ -195,9 +195,9 @@ const useAuthStore = create((set) => ({
 
             // Remove player from all groups
             if (playerData) {
-                const groups = await GroupService.getGroupsByPlayer(playerData.id);
+                const groups = await GroupService.getGroupsByUser(user.uid);
                 for (const group of groups) {
-                    const updatedPlayers = group.players.filter(p => p.id !== playerData.id);
+                    const updatedPlayers = group.players.filter(p => p.userId !== user.uid && p.id !== playerData.id);
                     await GroupService.updateGroup(group.id, { players: updatedPlayers });
                 }
                 // Delete the player document
@@ -228,10 +228,11 @@ const useAuthStore = create((set) => ({
 
     // 🔹 Check if the current user can join/create one more group
     canJoinMoreGroups: async () => {
-        const { playerData, isPaidTier } = useAuthStore.getState();
+        const { user, playerData, isPaidTier } = useAuthStore.getState();
         if (!playerData) return false;
         if (isPaidTier()) return true;
-        const groups = await GroupService.getGroupsByPlayer(playerData.id);
+        const uid = user?.uid;
+        const groups = uid ? await GroupService.getGroupsByUser(uid) : [];
         return groups.length < 1;
     },
 

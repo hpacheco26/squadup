@@ -30,8 +30,8 @@ const useFooStore = create((set) => ({
 
 ### [groupStore.js](../src/store/groupStore.js)
 - `groups`, `group`, `myPlayer`, `ranks`, `loading`, `ranksLoading`
-- Subscriptions: `subscribeToGroup(id)`, `subscribeToGroupsByPlayer(playerId)`
-- `ranks` is computed per snapshot from `groups[*].players[playerId]`.
+- Subscriptions: `subscribeToGroup(id)`, `subscribeToGroupsByUser(uid)`
+- `ranks` is computed per snapshot from the user's player row (matched by auth uid).
 
 ### [gameStore.js](../src/store/gameStore.js)
 - `game`, `games`, live counters (`team1Goals`, `team2Goals`, `timer`, `running`)

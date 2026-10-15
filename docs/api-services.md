@@ -7,7 +7,7 @@ Each service in [src/api](../src/api) is a thin wrapper around the Firebase SDK.
 - `createGame(data)`, `updateGame(id, patch)`, `deleteGame(id)`
 
 ## [groupService.js](../src/api/groupService.js)
-- `subscribeToGroup(id, cb)` / `subscribeToGroupsByPlayer(playerId, cb)`
+- `subscribeToGroup(id, cb)` / `subscribeToGroupsByUser(uid, cb)` — membership is keyed on auth uid via `memberUserIds`
 - `canCreateGroup(uid)` — checks `config/allowedCreators.uids`
 - `createGroup`, `updateGroup`, `deleteGroup`
 

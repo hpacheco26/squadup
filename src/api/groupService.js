@@ -6,7 +6,7 @@ const allowedCreatorsRef = doc(db, 'config', 'allowedCreators');
 
 /**
  * If `players` is being written, keep derived fields in sync automatically:
- *  - `playerIds`: internal player ids (used for `getGroupsByPlayer`/self-join lookups)
+ *  - `playerIds`: internal player ids (used for self-join rule lookups)
  *  - `memberUserIds`: Firebase Auth UIDs of players who have linked/claimed an account
  *    (used by the `isSelfJoin()` security rule to verify the joining user)
  *  - `treasuryUserId`: Auth UID of the treasury player (used by the `isGroupTreasury()`
@@ -39,8 +39,8 @@ const GroupService = {
         return { id: docSnap.id, ...docSnap.data() };
     },
 
-    getGroupsByPlayer: async (playerId) => {
-        const q = query(groupsRef, where('playerIds', 'array-contains', playerId));
+    getGroupsByUser: async (uid) => {
+        const q = query(groupsRef, where('memberUserIds', 'array-contains', uid));
         const snapshot = await getDocs(q);
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     },
@@ -92,8 +92,8 @@ const GroupService = {
         );
     },
 
-    subscribeToGroupsByPlayer: (playerId, callback, onError) => {
-        const q = query(groupsRef, where('playerIds', 'array-contains', playerId));
+    subscribeToGroupsByUser: (uid, callback, onError) => {
+        const q = query(groupsRef, where('memberUserIds', 'array-contains', uid));
         return onSnapshot(
             q,
             (snapshot) => {
@@ -101,7 +101,7 @@ const GroupService = {
                 callback(groups);
             },
             (err) => {
-                console.error('[GroupService] subscribeToGroupsByPlayer error:', err);
+                console.error('[GroupService] subscribeToGroupsByUser error:', err);
                 onError?.(err);
             }
         );

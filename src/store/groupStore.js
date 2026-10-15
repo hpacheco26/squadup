@@ -4,6 +4,14 @@ import GroupService from '../api/groupService';
 import GameService from '../api/gameService';
 import useAuthStore from './authStore';
 
+/**
+ * Find the current user's player row in a group, preferring the stable auth uid over the
+ * legacy playerData.id. Rows claimed from a pre-created roster slot keep a random id that
+ * does NOT equal the claimer's playerData.id, so uid matching is required.
+ */
+const findMyPlayerRow = (players, uid, playerId) =>
+    (players || []).find(p => (uid && p.userId === uid) || (playerId && p.id === playerId)) || null;
+
 const useGroupStore = create(
     persist(
         (set) => ({
@@ -26,10 +34,12 @@ const useGroupStore = create(
                 const prev = useGroupStore.getState()._unsubGroup;
                 if (prev) prev();
 
-                const playerId = useAuthStore.getState().playerData?.id;
+                const { user, playerData } = useAuthStore.getState();
+                const uid = user?.uid;
+                const playerId = playerData?.id;
                 const unsub = GroupService.subscribeToGroup(id, (group) => {
                     if (group) {
-                        const myPlayer = group.players.find(player => player.id === playerId) || null;
+                        const myPlayer = findMyPlayerRow(group.players, uid, playerId);
 
                         // Detect rank change for this player in this group
                         if (myPlayer && playerId) {
@@ -69,13 +79,14 @@ const useGroupStore = create(
                 set({ _unsubGroup: null });
             },
 
-            subscribeToGroupsByPlayer: (playerId) => {
+            subscribeToGroupsByUser: (uid) => {
                 const prev = useGroupStore.getState()._unsubGroups;
                 if (prev) prev();
 
-                const unsub = GroupService.subscribeToGroupsByPlayer(playerId, (groups) => {
+                const playerId = useAuthStore.getState().playerData?.id;
+                const unsub = GroupService.subscribeToGroupsByUser(uid, (groups) => {
                     const ranks = groups.map(group => {
-                        const player = group.players.find(p => p.id === playerId);
+                        const player = findMyPlayerRow(group.players, uid, playerId);
                         if (!player) return null;
                         return {
                             groupId: group.id,
@@ -89,7 +100,7 @@ const useGroupStore = create(
                     const currentPending = useGroupStore.getState().pendingRankChanges;
                     const newChanges = [];
                     groups.forEach(group => {
-                        const player = group.players.find(p => p.id === playerId);
+                        const player = findMyPlayerRow(group.players, uid, playerId);
                         if (!player) return;
                         const storageKey = `rank:lastSeen:${playerId}:${group.id}`;
                         const lastSeenRaw = localStorage.getItem(storageKey);
@@ -156,7 +167,9 @@ const useGroupStore = create(
 
             // 🔹 Fetch a single group by ID
             fetchGroupById: async (id) => {
-                const playerId = useAuthStore.getState().playerData?.id;
+                const { user, playerData } = useAuthStore.getState();
+                const uid = user?.uid;
+                const playerId = playerData?.id;
                 set({ group: null, myPlayer: null, loading: true });
                 try {
                     const group = await GroupService.getGroupById(id);
@@ -164,7 +177,7 @@ const useGroupStore = create(
                         set({ group: null, myPlayer: null, loading: false, error: 'Group not found' });
                         return;
                     }
-                    const myPlayer = group.players.find(player => player.id === playerId) || null;
+                    const myPlayer = findMyPlayerRow(group.players, uid, playerId);
                     set({ group, myPlayer, loading: false });
                 } catch (error) {
                     set({ error: 'Failed to fetch group by ID', loading: false });
@@ -173,12 +186,13 @@ const useGroupStore = create(
             },
 
             // 🔹 Fetch groups where a specific player is a member
-            fetchGroupsByPlayer: async (playerId) => {
+            fetchGroupsByUser: async (uid) => {
                 try {
-                    const groups = await GroupService.getGroupsByPlayer(playerId);
+                    const groups = await GroupService.getGroupsByUser(uid);
+                    const playerId = useAuthStore.getState().playerData?.id;
 
                     const ranks = groups.map(group => {
-                        const player = group.players.find(p => p.id === playerId);
+                        const player = findMyPlayerRow(group.players, uid, playerId);
                         if (!player) return null;
                         return {
                             groupId: group.id,
@@ -295,9 +309,11 @@ const useGroupStore = create(
                     const updatedGroup = useGroupStore.getState().group;
 
                     // Update myPlayer to reflect new stats/rank
-                    const playerId = useAuthStore.getState().playerData?.id;
-                    if (updatedGroup && playerId) {
-                        const updatedMyPlayer = updatedGroup.players.find(p => p.id === playerId) || null;
+                    const { user, playerData } = useAuthStore.getState();
+                    const uid = user?.uid;
+                    const playerId = playerData?.id;
+                    if (updatedGroup && (uid || playerId)) {
+                        const updatedMyPlayer = findMyPlayerRow(updatedGroup.players, uid, playerId);
                         set({ myPlayer: updatedMyPlayer });
                     }
             
