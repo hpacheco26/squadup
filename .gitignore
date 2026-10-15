@@ -40,3 +40,6 @@ ui-debug.log
 *.njsproj
 *.sln
 *.sw?
+
+# Firebase deploy cache
+.firebase/
