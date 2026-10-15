@@ -70,12 +70,20 @@ const PaymentsPage = () => {
     const handleClearAllForPlayer = async (playerId) => {
         for (const gd of gameDebts) {
             if (gd.debts?.[playerId] && !gd.debts[playerId].paid) {
-                await GameDebtService.markPlayerPaid(gd.id, playerId);
-                const allPaid = Object.entries(gd.debts || {}).every(([id, info]) =>
-                    id === playerId || info.paid
-                );
-                if (allPaid) {
-                    await GameDebtService.deleteGameDebt(gd.id);
+                try {
+                    await GameDebtService.markPlayerPaid(gd.id, playerId);
+                    // Only group admins/treasury may delete a debt doc (firestore.rules);
+                    // regular members just mark paid and leave cleanup to a manager.
+                    if (canManage) {
+                        const allPaid = Object.entries(gd.debts || {}).every(([id, info]) =>
+                            id === playerId || info.paid
+                        );
+                        if (allPaid) {
+                            await GameDebtService.deleteGameDebt(gd.id);
+                        }
+                    }
+                } catch (err) {
+                    console.error('[PaymentsPage] failed to clear debt', gd.id, 'for player', playerId, err);
                 }
             }
         }

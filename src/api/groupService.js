@@ -9,14 +9,22 @@ const allowedCreatorsRef = doc(db, 'config', 'allowedCreators');
  *  - `playerIds`: internal player ids (used for `getGroupsByPlayer`/self-join lookups)
  *  - `memberUserIds`: Firebase Auth UIDs of players who have linked/claimed an account
  *    (used by the `isSelfJoin()` security rule to verify the joining user)
+ *  - `treasuryUserId`: Auth UID of the treasury player (used by the `isGroupTreasury()`
+ *    security rule so the treasury can manage/delete debts). Only derived when the write
+ *    includes `treasuryPlayerId`, so self-join writes (players only) don't touch it.
  */
 const withPlayerIds = (data) => {
     if (!Array.isArray(data.players)) return data;
-    return {
+    const derived = {
         ...data,
         playerIds: data.players.map(p => p.id),
         memberUserIds: data.players.filter(p => p.userId).map(p => p.userId),
     };
+    if ('treasuryPlayerId' in data) {
+        const treasuryPlayer = data.players.find(p => p.id === data.treasuryPlayerId);
+        derived.treasuryUserId = treasuryPlayer?.userId || null;
+    }
+    return derived;
 };
 
 const GroupService = {

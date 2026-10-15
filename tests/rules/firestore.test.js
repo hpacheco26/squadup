@@ -277,3 +277,36 @@ describe('fcmTokens/{userId} — strictly user-scoped', () => {
         await assertFails(getDoc(doc(db, 'fcmTokens/uid-1')));
     });
 });
+
+describe('gameDebts/* — any member updates; admin or treasury can delete', () => {
+    beforeEach(async () => {
+        const admin = await asAdmin(env);
+        await setDoc(doc(admin, 'groups/g1'), {
+            name: 'Squad', adminId: 'admin-uid', adminIds: ['admin-uid'],
+            treasuryUserId: 'treasury-uid', players: [],
+        });
+        await setDoc(doc(admin, 'gameDebts/d1'), {
+            groupId: 'g1', debts: { p1: { amount: 5, paid: false } },
+        });
+    });
+
+    it('allows any authenticated user to update (mark paid)', async () => {
+        const db = asUser(env, 'member-uid');
+        await assertSucceeds(updateDoc(doc(db, 'gameDebts/d1'), { 'debts.p1.paid': true }));
+    });
+
+    it('allows the group admin to delete', async () => {
+        const db = asUser(env, 'admin-uid');
+        await assertSucceeds(deleteDoc(doc(db, 'gameDebts/d1')));
+    });
+
+    it('allows the group treasury to delete', async () => {
+        const db = asUser(env, 'treasury-uid');
+        await assertSucceeds(deleteDoc(doc(db, 'gameDebts/d1')));
+    });
+
+    it('denies a non-admin, non-treasury member from deleting', async () => {
+        const db = asUser(env, 'member-uid');
+        await assertFails(deleteDoc(doc(db, 'gameDebts/d1')));
+    });
+});
