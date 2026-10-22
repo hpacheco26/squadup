@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { balanceTeams, getCaptain } from '../utils/teamBalancer';
 import PlayerCardMini from '../components/cards/PlayerCardMini';
@@ -12,6 +12,7 @@ import { ShieldBan, Shuffle, Swords, CalendarCog } from 'lucide-react';
 import { logEvent } from '../config/firebase';
 import useLanguageStore from '../store/languageStore';
 import AppHeaderBar from '../components/bars/AppHeaderBar';
+import { withCurrentPlayerRanks } from '../utils/seasons';
 
 const getPlayerRoleLabelKey = (index, playersPerTeam = 5) => {
     const fieldCount = Math.max(1, playersPerTeam - 1);
@@ -23,8 +24,18 @@ const getPlayerRoleLabelKey = (index, playersPerTeam = 5) => {
 const TeamsPage = () => {
     const { gameId } = useParams();
     const navigate = useNavigate();
-    const { game, subscribeToGame, updateGame, loading } = useGameStore();
+    const { game: storedGame, subscribeToGame, updateGame, loading } = useGameStore();
     const { group, subscribeToGroup } = useGroupStore();
+    const game = useMemo(() => {
+        if (!storedGame || group?.id !== storedGame.groupId) return storedGame;
+        return {
+            ...storedGame,
+            playersIn: withCurrentPlayerRanks(storedGame.playersIn, group.players),
+            team1: withCurrentPlayerRanks(storedGame.team1, group.players),
+            team2: withCurrentPlayerRanks(storedGame.team2, group.players),
+            injured: withCurrentPlayerRanks(storedGame.injured, group.players),
+        };
+    }, [storedGame, group?.id, group?.players]);
     const { t } = useLanguageStore();
     const [pressed, setPressed] = useState(false);
     const [shuffling, setShuffling] = useState(false);

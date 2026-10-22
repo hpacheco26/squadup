@@ -63,21 +63,21 @@
   100% { opacity: 0;    transform: translate(-50%, -50%) scale(4); }
 }
 
-/* Card power-up flash + jolt (rank up) */
+/* Card power-up jolt (rank up), keeping the badge's original colours */
 @keyframes rank-up-jolt {
-  0%   { transform: scale(1);    filter: brightness(1); }
-  20%  { transform: scale(0.94); filter: brightness(1); }
-  35%  { transform: scale(1.18); filter: brightness(1.8) saturate(1.4); }
-  60%  { transform: scale(1);    filter: brightness(1); }
-  100% { transform: scale(1);    filter: brightness(1); }
+  0%   { transform: scale(1); }
+  20%  { transform: scale(0.94); }
+  35%  { transform: scale(1.18); }
+  60%  { transform: scale(1); }
+  100% { transform: scale(1); }
 }
 
-/* Card sink + desaturate (rank down) */
+/* Card sink (rank down), keeping the badge's original colours */
 @keyframes rank-down-sink {
-  0%   { transform: scale(1)    translateY(0);  filter: grayscale(0)   brightness(1); }
-  35%  { transform: scale(0.92) translateY(4px); filter: grayscale(0.7) brightness(0.85); }
-  70%  { transform: scale(0.94) translateY(2px); filter: grayscale(0.5) brightness(0.9); }
-  100% { transform: scale(1)    translateY(0);  filter: grayscale(0)   brightness(1); }
+  0%   { transform: scale(1)    translateY(0); }
+  35%  { transform: scale(0.92) translateY(4px); }
+  70%  { transform: scale(0.94) translateY(2px); }
+  100% { transform: scale(1)    translateY(0); }
 }
 
 /* Implode particle: starts far, falls toward center while fading & shrinking */

@@ -1,5 +1,7 @@
 import { db } from '../config/firebase';
-import { collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocFromServer, getDocs, updateDoc, query, where, onSnapshot, runTransaction } from 'firebase/firestore';
+import { buildGameCompletion } from '../utils/gameCompletion';
+import { seasonDocId } from '../utils/seasons';
 
 const gamesRef = collection(db, 'games');
 
@@ -31,8 +33,23 @@ const GameService = {
                 throw err;
             }
         }
-        const docRef = await addDoc(gamesRef, gameData);
-        return { id: docRef.id, ...gameData };
+        const docRef = doc(gamesRef);
+        const groupRef = doc(db, 'groups', gameData.groupId);
+        return runTransaction(db, async transaction => {
+            const group = await transaction.get(groupRef);
+            if (!group.exists()) throw new Error('GROUP_NOT_FOUND');
+            if (group.data().activeGameId) {
+                const active = await transaction.get(doc(db, 'games', group.data().activeGameId));
+                if (active.exists()) {
+                    const error = new Error('GAME_ALREADY_EXISTS');
+                    error.code = 'GAME_ALREADY_EXISTS';
+                    throw error;
+                }
+            }
+            transaction.set(docRef, gameData);
+            transaction.update(groupRef, { activeGameId: docRef.id });
+            return { id: docRef.id, ...gameData };
+        });
     },
 
     updateGame: async (id, updatedData) => {
@@ -43,7 +60,83 @@ const GameService = {
     },
 
     deleteGame: async (id) => {
-        await deleteDoc(doc(db, 'games', id));
+        const gameRef = doc(db, 'games', id);
+        await runTransaction(db, async transaction => {
+            const game = await transaction.get(gameRef);
+            if (!game.exists()) return;
+            const groupRef = doc(db, 'groups', game.data().groupId);
+            const group = await transaction.get(groupRef);
+            if (group.exists()) {
+                const fields = {};
+                if (group.data().activeGameId === id) fields.activeGameId = null;
+                if (group.data().liveGameId === id) fields.liveGameId = null;
+                if (Object.keys(fields).length) transaction.update(groupRef, fields);
+            }
+            transaction.delete(gameRef);
+        });
+    },
+
+    startGame: async (id, uid) => runTransaction(db, async transaction => {
+        const gameRef = doc(db, 'games', id);
+        const game = await transaction.get(gameRef);
+        if (!game.exists()) throw new Error('GAME_NOT_FOUND');
+        const groupRef = doc(db, 'groups', game.data().groupId);
+        const snap = await transaction.get(groupRef);
+        if (!snap.exists()) throw new Error('GROUP_NOT_FOUND');
+        const group = snap.data();
+        if (!uid || !(group.adminId === uid || group.adminIds?.includes(uid))) throw new Error('ADMIN_REQUIRED');
+        if (group.liveGameId && group.liveGameId !== id) throw new Error('GAME_IN_PROGRESS');
+        transaction.update(groupRef, { liveGameId: id, activeGameId: id });
+    }),
+
+    completeGame: async (groupId, gameId, score, uid) => {
+        const groupRef = doc(db, 'groups', groupId);
+        const gameRef = doc(db, 'games', gameId);
+        const receiptRef = doc(db, 'groups', groupId, 'completedGames', gameId);
+        const nextGameRef = doc(gamesRef);
+        return runTransaction(db, async transaction => {
+            const [receipt, groupSnap, gameSnap] = await Promise.all([
+                transaction.get(receiptRef), transaction.get(groupRef), transaction.get(gameRef),
+            ]);
+            if (!groupSnap.exists()) throw new Error('GROUP_NOT_FOUND');
+            const group = { ...groupSnap.data(), id: groupId };
+            if (!uid || !(group.adminId === uid || group.adminIds?.includes(uid))) throw new Error('ADMIN_REQUIRED');
+            if (receipt.exists()) return { ...receipt.data(), alreadyCompleted: true };
+            if (!gameSnap.exists() || gameSnap.data().groupId !== groupId) throw new Error('GAME_NOT_FOUND');
+            if (group.liveGameId && group.liveGameId !== gameId) throw new Error('GAME_IN_PROGRESS');
+            const completion = buildGameCompletion(group, { ...gameSnap.data(), id: gameId }, score);
+            const archiveRef = completion.archive
+                ? doc(db, 'groups', groupId, 'seasons', seasonDocId(completion.archive.number)) : null;
+            if (archiveRef && (await transaction.get(archiveRef)).exists()) throw new Error('SEASON_ALREADY_ENDED');
+            const result = {
+                groupId, gameId, ...score, completedAt: Date.now(), completedBy: uid,
+                seasonEnded: !!completion.archive,
+                seasonNumber: completion.groupFields.seasonNumber,
+                nextGameId: completion.nextGame ? nextGameRef.id : null,
+            };
+            if (archiveRef) transaction.set(archiveRef, completion.archive);
+            if (completion.debt) transaction.set(doc(db, 'gameDebts', gameId), completion.debt);
+            if (completion.nextGame) transaction.set(nextGameRef, completion.nextGame);
+            transaction.update(groupRef, {
+                ...completion.groupFields, liveGameId: null,
+                activeGameId: completion.nextGame ? nextGameRef.id : null,
+            });
+            transaction.set(receiptRef, result);
+            transaction.delete(gameRef);
+            return result;
+        }).catch(async error => {
+            if (!['permission-denied', 'aborted'].includes(error.code)) throw error;
+            // A competing commit can make get()-based rules reject a stale attempt
+            // before the SDK retries it. Only a server-confirmed receipt is success.
+            const [receipt, group] = await Promise.all([
+                getDocFromServer(receiptRef), getDocFromServer(groupRef),
+            ]);
+            if (receipt.exists() && group.exists()
+                && (group.data().adminId === uid || group.data().adminIds?.includes(uid))) {
+                return { ...receipt.data(), alreadyCompleted: true };
+            }
+            throw error;
+        });
     },
 
     subscribeToGame: (id, callback, onError) => {

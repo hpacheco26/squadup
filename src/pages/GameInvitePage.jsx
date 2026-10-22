@@ -4,6 +4,7 @@ import { CheckCircle2, XCircle } from 'lucide-react';
 import { FaGoogle } from 'react-icons/fa';
 import GameService from '../api/gameService';
 import GroupService from '../api/groupService';
+import { withCurrentPlayerRanks } from '../utils/seasons';
 import useAuthStore from '../store/authStore';
 import useLanguageStore from '../store/languageStore';
 import SwipePlayer from '../components/SwipePlayer';
@@ -148,7 +149,7 @@ function GameInvitePage() {
     }
 
     // --- Main invite view ---
-    const invitedPlayers = game.playersInvited || [];
+    const invitedPlayers = withCurrentPlayerRanks(game.playersInvited, group?.players);
 
     return (
         <Shell>

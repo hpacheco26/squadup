@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import useGroupStore from '../store/groupStore';
 import useAuthStore from '../store/authStore';
 import GameDebtService from '../api/gameDebtService';
+import PlayerService from '../api/playerService';
 
 /**
  * Shared logic for SquadSettings layout variants.
@@ -11,15 +12,17 @@ import GameDebtService from '../api/gameDebtService';
 export default function useSquadSettings() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { group, subscribeToGroup, updateGroup, deleteGroup } = useGroupStore();
+    const { group, subscribeToGroup, updateGroup, deleteGroup, removePlayer } = useGroupStore();
     const { user } = useAuthStore();
 
     const [groupName, setGroupName] = useState('');
     const [treasuryPhone, setTreasuryPhone] = useState('');
     const [gameDebts, setGameDebts] = useState([]);
+    const [memberEmails, setMemberEmails] = useState({});
     const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
     const saveTimerRef = useRef(null);
     const phoneSaveTimerRef = useRef(null);
+    const fetchedEmailsRef = useRef(new Set());
 
     const isAdmin = group?.adminIds?.includes(user?.uid) || group?.adminId === user?.uid;
     const currentAdminIds = group?.adminIds || (group?.adminId ? [group.adminId] : []);
@@ -33,6 +36,29 @@ export default function useSquadSettings() {
     useEffect(() => {
         if (group?.name) setGroupName(group.name);
         setTreasuryPhone(group?.treasuryPhone || '');
+    }, [group]);
+
+    // Backfill member emails from the global players collection for roster rows
+    // created before emails were stamped on the row itself. Each uid is fetched
+    // at most once per page visit.
+    useEffect(() => {
+        const missing = (group?.players ?? []).filter(
+            p => p.userId && !p.email && !fetchedEmailsRef.current.has(p.userId)
+        );
+        if (!missing.length) return;
+        missing.forEach(p => fetchedEmailsRef.current.add(p.userId));
+        let cancelled = false;
+        Promise.all(missing.map(async p => {
+            const doc = await PlayerService.getPlayerByUserId(p.userId).catch(() => null);
+            return doc?.email ? [p.userId, doc.email] : null;
+        })).then(entries => {
+            if (cancelled) return;
+            const found = Object.fromEntries(entries.filter(Boolean));
+            if (Object.keys(found).length) {
+                setMemberEmails(prev => ({ ...prev, ...found }));
+            }
+        });
+        return () => { cancelled = true; };
     }, [group]);
 
     const handleGroupNameChange = (e) => {
@@ -78,9 +104,15 @@ export default function useSquadSettings() {
         updateGroup(group.id, { ...group, players: [...(group.players ?? []), newPlayer] });
     };
 
-    const handleRemovePlayer = (playerId) => {
+    const handleRemovePlayer = async (playerId) => {
         if (!group) return;
-        updateGroup(group.id, { ...group, players: (group.players ?? []).filter(p => p.id !== playerId) });
+        const player = (group.players ?? []).find(p => p.id === playerId);
+        if (!player) return;
+        try {
+            await removePlayer(group.id, player);
+        } catch (error) {
+            console.error('[useSquadSettings] Failed to remove player:', error);
+        }
     };
 
     const handleToggleAdmin = (player) => {
@@ -93,17 +125,22 @@ export default function useSquadSettings() {
         updateGroup(group.id, { ...group, adminIds: newAdminIds });
     };
 
-    // Sorted players: admins → members → non-members
+    // Sorted players: admins → members → non-members (email merged in for members)
     const rank = (p) => {
         if (p.userId && currentAdminIds.includes(p.userId)) return 0;
         if (p.userId) return 1;
         return 2;
     };
-    const sortedPlayers = [...(group?.players ?? [])].sort((a, b) => {
-        const r = rank(a) - rank(b);
-        if (r !== 0) return r;
-        return (a.firstName || '').localeCompare(b.firstName || '');
-    });
+    const sortedPlayers = [...(group?.players ?? [])]
+        .map(p => {
+            const email = p.email || memberEmails[p.userId];
+            return email ? { ...p, email } : p;
+        })
+        .sort((a, b) => {
+            const r = rank(a) - rank(b);
+            if (r !== 0) return r;
+            return (a.firstName || '').localeCompare(b.firstName || '');
+        });
 
     // Debts
     const playerDebtMap = {};

@@ -37,11 +37,16 @@ const useAuthStore = create((set) => ({
         else localStorage.removeItem('selectedGroupId');
     },
 
-    // 🔹 Fetch player data from Firestore
-    fetchPlayerData: async (userId) => {
+    // 🔹 Fetch player data from Firestore (self-heals a missing email)
+    fetchPlayerData: async (userId, email) => {
         try {
-            const player = await PlayerService.getPlayerByUserId(userId);
+            let player = await PlayerService.getPlayerByUserId(userId);
             if (player) {
+                if (!player.email && email) {
+                    player = { ...player, email };
+                    PlayerService.updatePlayer(player.id, { email }).catch(err =>
+                        console.error('Error backfilling player email:', err));
+                }
                 set({ playerData: player });
                 localStorage.setItem('playerData', JSON.stringify(player)); // Persist player data
             }
@@ -58,7 +63,7 @@ const useAuthStore = create((set) => ({
                 set({ user: serialized });
                 localStorage.setItem('user', JSON.stringify(serialized));
                 Sentry.setUser({ id: user.uid, email: user.email || undefined });
-                await useAuthStore.getState().fetchPlayerData(user.uid);
+                await useAuthStore.getState().fetchPlayerData(user.uid, user.email);
             } else {
                 set({ user: null, playerData: null, selectedGroupId: null });
                 localStorage.removeItem('user');
@@ -76,7 +81,7 @@ const useAuthStore = create((set) => ({
         const serialized = serializeUser(user);
         set({ user: serialized });
         localStorage.setItem('user', JSON.stringify(serialized));
-        await useAuthStore.getState().fetchPlayerData(user.uid);
+        await useAuthStore.getState().fetchPlayerData(user.uid, user.email);
     },
 
     // 🔹 Login with Google
@@ -97,6 +102,7 @@ const useAuthStore = create((set) => ({
                 firstName: parts[0] || '',
                 lastName: parts.slice(1).join(' ') || '',
                 userId: user.uid,
+                email: user.email || null,
                 groups: []
             };
 
@@ -124,6 +130,7 @@ const useAuthStore = create((set) => ({
                     firstName,
                     lastName,
                     userId: user.uid,
+                    email: user.email || null,
                     groups: []
                 };
 

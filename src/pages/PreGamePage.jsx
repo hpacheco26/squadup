@@ -14,6 +14,7 @@ import useLanguageStore from '../store/languageStore';
 import InvitationBar from '../components/bars/InvitationBar';
 import { BottomSheet } from '../components/modals/BottomSheet';
 import theme from '../theme';
+import { withCurrentPlayerRanks } from '../utils/seasons';
 
 const PreGamePage = () => {
     const { gameId } = useParams();
@@ -22,9 +23,10 @@ const PreGamePage = () => {
     const { group, subscribeToGroup } = useGroupStore();
     const { user } = useAuthStore();
     const { t } = useLanguageStore();
-    const [playersIn, setPlayersIn] = useState([]);
-    const [playersOut, setPlayersOut] = useState([]);
-    const [playersInvited, setPlayersInvited] = useState([]);
+    const roster = group?.id === game?.groupId ? group?.players || [] : [];
+    const playersIn = withCurrentPlayerRanks(game?.playersIn, roster);
+    const playersOut = withCurrentPlayerRanks(game?.playersOut, roster);
+    const playersInvited = withCurrentPlayerRanks(game?.playersInvited, roster);
     const [isGuestModalOpen, setIsGuestModalOpen] = useState(false);
     const [isInviteSheetOpen, setIsInviteSheetOpen] = useState(false);
     const [ready, setReady] = useState(false);
@@ -58,14 +60,6 @@ const PreGamePage = () => {
             return unsub;
         }
     }, [game?.groupId, subscribeToGroup]);
-
-    useEffect(() => {
-        if (game) {
-            setPlayersIn(game.playersIn || []);
-            setPlayersOut(game.playersOut || []);
-            setPlayersInvited(game.playersInvited || []);
-        }
-    }, [game]);
 
     // Sync new group members into the game's invited list
     useEffect(() => {

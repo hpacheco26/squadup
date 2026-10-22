@@ -2,6 +2,11 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import GroupService from '../api/groupService';
 import GameService from '../api/gameService';
+import GameDebtService from '../api/gameDebtService';
+import SeasonService from '../api/seasonService';
+import { withSeasonDefaults, buildSeasonRecap } from '../utils/seasons';
+import { seasonMarkerKey, unseenSeason } from '../utils/seasonNotifications';
+import { stripPlayerFromGame, stripPlayerFromDebt } from '../utils/playerRemoval';
 import useAuthStore from './authStore';
 
 /**
@@ -11,6 +16,73 @@ import useAuthStore from './authStore';
  */
 const findMyPlayerRow = (players, uid, playerId) =>
     (players || []).find(p => (uid && p.userId === uid) || (playerId && p.id === playerId)) || null;
+
+const recapRequests = new Map();
+
+const detectPlayerChanges = (group, uid, playerId, set) => {
+    const player = findMyPlayerRow(group.players, uid, playerId);
+    if (!uid || !player || useAuthStore.getState().user?.uid !== uid) return;
+    const seasonKey = seasonMarkerKey(uid, group.id);
+    const rankKey = `rank:lastSeen:${playerId || uid}:${group.id}`;
+    const endedNumber = unseenSeason(group, localStorage.getItem(seasonKey));
+    if (endedNumber !== null) {
+        localStorage.setItem(rankKey, String(player.rank));
+        set(state => ({
+            pendingRankChanges: state.pendingRankChanges.filter(c => c.groupId !== group.id),
+        }));
+        const requestKey = `${uid}:${group.id}:${endedNumber}`;
+        const queued = useGroupStore.getState().pendingSeasonRecaps.some(r => r.groupId === group.id && r.currentSeason === group.seasonNumber);
+        if (queued || recapRequests.has(requestKey)) return;
+        set(state => ({ recapPendingKeys: [...state.recapPendingKeys, requestKey] }));
+        const request = SeasonService.getSeason(group.id, endedNumber).then(season => {
+            if (useAuthStore.getState().user?.uid !== uid) return;
+            if (!season) {
+                // New groups start at Season 1 and have no Season 0 archive.
+                if (endedNumber !== 0) throw new Error('SEASON_ARCHIVE_NOT_FOUND');
+                localStorage.setItem(seasonKey, String(group.seasonNumber));
+                return;
+            }
+            const archivedPlayer = season.standings?.find(p => p.userId === uid || p.id === player.id);
+            const recap = buildSeasonRecap(season, archivedPlayer?.id);
+            if (!recap) {
+                localStorage.setItem(seasonKey, String(group.seasonNumber));
+                return;
+            }
+            set(state => {
+                if (state.pendingSeasonRecaps.some(r => r.groupId === group.id && r.currentSeason > group.seasonNumber)) return {};
+                return {
+                    seasonRecapError: state.seasonRecapError?.groupId === group.id ? null : state.seasonRecapError,
+                    pendingSeasonRecaps: [
+                        ...state.pendingSeasonRecaps.filter(r => r.groupId !== group.id),
+                        { ...recap, groupId: group.id, groupName: group.name, currentSeason: group.seasonNumber, uid },
+                    ],
+                };
+            });
+        }).catch(error => {
+            console.error('[groupStore] Failed to load season recap:', error);
+            if (useAuthStore.getState().user?.uid === uid) set({ seasonRecapError: { groupId: group.id, error } });
+        }).finally(() => {
+            recapRequests.delete(requestKey);
+            set(state => ({ recapPendingKeys: state.recapPendingKeys.filter(key => key !== requestKey) }));
+        });
+        recapRequests.set(requestKey, request);
+        return;
+    }
+    if (localStorage.getItem(seasonKey) === null) {
+        localStorage.setItem(seasonKey, String(group.seasonNumber ?? 0));
+    }
+    const previous = localStorage.getItem(rankKey);
+    if (previous === null) localStorage.setItem(rankKey, String(player.rank));
+    else if (Number(previous) !== player.rank) {
+        set(state => ({
+            pendingRankChanges: state.pendingRankChanges.some(c => c.groupId === group.id)
+                ? state.pendingRankChanges
+                : [...state.pendingRankChanges, {
+                    groupId: group.id, groupName: group.name, previousRank: Number(previous), newRank: player.rank,
+                }],
+        }));
+    }
+};
 
 const useGroupStore = create(
     persist(
@@ -23,6 +95,9 @@ const useGroupStore = create(
             myPlayer: null,
             ranks: [],
             pendingRankChanges: [], // [{ groupId, groupName, previousRank, newRank }]
+            pendingSeasonRecaps: [],
+            seasonRecapError: null,
+            recapPendingKeys: [],
 
             // Internal unsubscribe references
             _unsubGroup: null,
@@ -41,28 +116,7 @@ const useGroupStore = create(
                     if (group) {
                         const myPlayer = findMyPlayerRow(group.players, uid, playerId);
 
-                        // Detect rank change for this player in this group
-                        if (myPlayer && playerId) {
-                            const storageKey = `rank:lastSeen:${playerId}:${group.id}`;
-                            const lastSeenRaw = localStorage.getItem(storageKey);
-                            if (lastSeenRaw !== null) {
-                                const lastSeenRank = Number(lastSeenRaw);
-                                if (lastSeenRank !== myPlayer.rank) {
-                                    set(state => ({
-                                        pendingRankChanges: state.pendingRankChanges.some(c => c.groupId === group.id)
-                                            ? state.pendingRankChanges
-                                            : [...state.pendingRankChanges, {
-                                                groupId: group.id,
-                                                groupName: group.name,
-                                                previousRank: lastSeenRank,
-                                                newRank: myPlayer.rank,
-                                            }]
-                                    }));
-                                }
-                            } else {
-                                localStorage.setItem(storageKey, String(myPlayer.rank));
-                            }
-                        }
+                        detectPlayerChanges(group, uid, playerId, set);
 
                         set({ group, myPlayer, loading: false });
                     } else {
@@ -96,40 +150,7 @@ const useGroupStore = create(
                         };
                     }).filter(Boolean);
 
-                    // Detect rank changes across all groups
-                    const currentPending = useGroupStore.getState().pendingRankChanges;
-                    const newChanges = [];
-                    groups.forEach(group => {
-                        const player = findMyPlayerRow(group.players, uid, playerId);
-                        if (!player) return;
-                        const storageKey = `rank:lastSeen:${playerId}:${group.id}`;
-                        const lastSeenRaw = localStorage.getItem(storageKey);
-                        if (lastSeenRaw !== null) {
-                            const lastSeenRank = Number(lastSeenRaw);
-                            if (
-                                lastSeenRank !== player.rank &&
-                                !currentPending.some(c => c.groupId === group.id) &&
-                                !newChanges.some(c => c.groupId === group.id)
-                            ) {
-                                newChanges.push({
-                                    groupId: group.id,
-                                    groupName: group.name,
-                                    previousRank: lastSeenRank,
-                                    newRank: player.rank,
-                                });
-                            }
-                        } else {
-                            localStorage.setItem(storageKey, String(player.rank));
-                        }
-                    });
-                    if (newChanges.length > 0) {
-                        set(state => ({
-                            pendingRankChanges: [
-                                ...state.pendingRankChanges,
-                                ...newChanges.filter(c => !state.pendingRankChanges.some(e => e.groupId === c.groupId))
-                            ]
-                        }));
-                    }
+                    groups.forEach(group => detectPlayerChanges(group, uid, playerId, set));
 
                     set({ groups, ranks, ranksLoading: false });
                 });
@@ -144,7 +165,8 @@ const useGroupStore = create(
             },
 
             acknowledgeRankChange: (groupId) => {
-                const playerId = useAuthStore.getState().playerData?.id;
+                const auth = useAuthStore.getState();
+                const playerId = auth.playerData?.id || auth.user?.uid;
                 const change = useGroupStore.getState().pendingRankChanges.find(c => c.groupId === groupId);
                 if (change && playerId) {
                     localStorage.setItem(`rank:lastSeen:${playerId}:${groupId}`, String(change.newRank));
@@ -152,6 +174,31 @@ const useGroupStore = create(
                 set(state => ({
                     pendingRankChanges: state.pendingRankChanges.filter(c => c.groupId !== groupId)
                 }));
+            },
+
+            acknowledgeSeasonRecap: () => {
+                const recap = useGroupStore.getState().pendingSeasonRecaps[0];
+                if (recap) {
+                    localStorage.setItem(seasonMarkerKey(recap.uid, recap.groupId), String(recap.currentSeason));
+                }
+                set(state => ({ pendingSeasonRecaps: state.pendingSeasonRecaps.slice(1) }));
+            },
+
+            retrySeasonRecaps: () => {
+                set({ seasonRecapError: null });
+                const { user, playerData } = useAuthStore.getState();
+                useGroupStore.getState().groups.forEach(group => detectPlayerChanges(group, user?.uid, playerData?.id, set));
+            },
+
+            clearPlayerNotifications: () => set({ pendingRankChanges: [], pendingSeasonRecaps: [], seasonRecapError: null, recapPendingKeys: [] }),
+
+            fetchSeasonHistory: async (groupId) => {
+                try {
+                    return await SeasonService.getSeasons(groupId);
+                } catch (error) {
+                    console.error('[groupStore] Failed to load season history:', error);
+                    throw error;
+                }
             },
 
             // �🔹 Fetch all groups and update ranks
@@ -232,6 +279,7 @@ const useGroupStore = create(
                     }));
                 } catch (error) {
                     console.error('Failed to update group:', error);
+                    throw error;
                 }
             },
 
@@ -251,80 +299,91 @@ const useGroupStore = create(
                 }
             },
 
-            updateRank: async (groupId, winningTeam, losingTeam, isDraw = false) => {
-                if (winningTeam.length === 0 && losingTeam.length === 0) return;
-            
-                try {
-                    set((state) => {
-                        if (!state.group || state.group.id !== groupId) return state;
-            
-                        const updatedPlayers = state.group.players.map((player) => {
-                            if (isDraw) {
-                                // Both teams draw
-                                if (winningTeam.some(p => p.id === player.id) || losingTeam.some(p => p.id === player.id)) {
-                                    return {
-                                        ...player,
-                                        stats: {
-                                            ...player.stats,
-                                            draws: (player.stats.draws || 0) + 1,
-                                        }
-                                    };
-                                }
-                                return player;
-                            }
-                            // Handle the winning team stats and rank update
-                            if (winningTeam.some(p => p.id === player.id)) {
-                                return {
-                                    ...player,
-                                    rank: Math.min(player.rank + 1, 4), // Max rank = 4
-                                    stats: {
-                                        ...player.stats,
-                                        wins: player.stats.wins + 1, // Increase wins
-                                    }
-                                };
-                            }
-                            // Handle the losing team stats and rank update
-                            if (losingTeam.some(p => p.id === player.id)) {
-                                return {
-                                    ...player,
-                                    rank: Math.max(player.rank - 1, 0), // Min rank = 0
-                                    stats: {
-                                        ...player.stats,
-                                        losses: player.stats.losses + 1, // Increase losses
-                                    }
-                                };
-                            }
-                            // Return unchanged player for non-winning and non-losing players
-                            return player;
-                        });
-            
-                        // Return updated state immediately
-                        return {
-                            ...state,
-                            group: { ...state.group, players: updatedPlayers }
-                        };
-                    });
-            
-                    // Fetch the latest state with updated ranks and stats
-                    const updatedGroup = useGroupStore.getState().group;
+            // 🔹 Remove a player from the group and every group-scoped collection:
+            // roster (plus adminIds/treasury references), all of the group's games
+            // (attendance, teams, payments — including guests they added), and all
+            // of the group's debt records. The global `players/{id}` doc is kept on
+            // purpose: it is the account identity across groups and security rules
+            // only let the owner delete it. Season archives and completion receipts
+            // are immutable history and are never touched.
+            removePlayer: async (groupId, player) => {
+                if (!groupId || !player?.id) return;
+                const state = useGroupStore.getState();
+                const group = (state.group?.id === groupId && state.group)
+                    || state.groups.find(g => g.id === groupId)
+                    || await GroupService.getGroupById(groupId);
+                if (!group) throw new Error('GROUP_NOT_FOUND');
 
-                    // Update myPlayer to reflect new stats/rank
-                    const { user, playerData } = useAuthStore.getState();
-                    const uid = user?.uid;
-                    const playerId = playerData?.id;
-                    if (updatedGroup && (uid || playerId)) {
-                        const updatedMyPlayer = findMyPlayerRow(updatedGroup.players, uid, playerId);
-                        set({ myPlayer: updatedMyPlayer });
-                    }
-            
-                    // Save updated group to backend
-                    if (updatedGroup) {
-                        await GroupService.updateGroup(groupId, updatedGroup);
-                    }
-            
-                    console.log('Ranks and stats updated successfully.');
+                const updates = { players: (group.players || []).filter(p => p.id !== player.id) };
+                if (player.userId && Array.isArray(group.adminIds) && group.adminIds.includes(player.userId)) {
+                    updates.adminIds = group.adminIds.filter(uid => uid !== player.userId);
+                }
+                if (group.treasuryPlayerId === player.id) updates.treasuryPlayerId = null;
+                await GroupService.updateGroup(groupId, updates);
+
+                const [games, debts] = await Promise.all([
+                    GameService.getGamesByGroup(groupId),
+                    GameDebtService.getGameDebtsByGroup(groupId),
+                ]);
+                await Promise.all([
+                    ...games.map(game => {
+                        const strip = stripPlayerFromGame(game, player.id);
+                        return strip ? GameService.updateGame(game.id, strip) : null;
+                    }),
+                    ...debts.map(debtDoc => {
+                        const strip = stripPlayerFromDebt(debtDoc, player.id);
+                        if (!strip) return null;
+                        return strip.empty
+                            ? GameDebtService.deleteGameDebt(debtDoc.id)
+                            : GameDebtService.updateDebts(debtDoc.id, strip.debts);
+                    }),
+                ]);
+
+                set(state => ({
+                    groups: state.groups.map(g => (g.id === groupId ? { ...g, ...updates } : g)),
+                    group: state.group?.id === groupId ? { ...state.group, ...updates } : state.group,
+                }));
+            },
+
+            // The game, result receipt, standings, debt and next fixture commit together.
+            completeGame: async (groupId, gameId, score) => {
+                try {
+                    return await GameService.completeGame(groupId, gameId, score, useAuthStore.getState().user?.uid);
                 } catch (error) {
-                    console.error('Failed to update ranks and stats:', error);
+                    console.error('[groupStore] Failed to complete game:', error);
+                    set({ error: error.message });
+                    throw error;
+                }
+            },
+
+            endSeasonManually: async (groupId, expectedSeason) => {
+                try {
+                    const group = useGroupStore.getState().group;
+                    if (!group || group.id !== groupId) throw new Error('GROUP_NOT_FOUND');
+                    const { user, playerData } = useAuthStore.getState();
+                    const rolledGroup = await SeasonService.endSeason(groupId, user?.uid, expectedSeason ?? withSeasonDefaults(group).seasonNumber);
+                    set(state => state.group?.id === groupId
+                        ? { group: rolledGroup, myPlayer: findMyPlayerRow(rolledGroup.players, user?.uid, playerData?.id) }
+                        : {});
+                    return { ok: true, seasonNumber: rolledGroup.seasonNumber };
+                } catch (error) {
+                    console.error('Failed to end season:', error);
+                    return { ok: false, reason: error.message === 'GAME_IN_PROGRESS' ? 'game-in-progress' : 'error' };
+                }
+            },
+
+            endSeasonNow: (groupId, expectedSeason) => useGroupStore.getState().endSeasonManually(groupId, expectedSeason),
+
+            updateSeasonTarget: async (groupId, target) => {
+                try {
+                    await GroupService.updateGroup(groupId, { gamesPerSeason: target });
+                    set(state => ({
+                        group: state.group?.id === groupId ? { ...state.group, gamesPerSeason: target } : state.group,
+                        groups: state.groups.map(group => group.id === groupId ? { ...group, gamesPerSeason: target } : group),
+                    }));
+                } catch (error) {
+                    console.error('[groupStore] Failed to update season target:', error);
+                    throw error;
                 }
             },
 

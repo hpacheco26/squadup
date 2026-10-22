@@ -1,14 +1,7 @@
 import { useRef, useState } from 'react';
 import RankCard from '../cards/RankCard';
 import useLanguageStore from '../../store/languageStore';
-
-const rankColors = {
-  0: '#c0c0c0',
-  1: '#14b8a6',
-  2: '#3b82f6',
-  3: '#9b59b6',
-  4: '#f0c832',
-};
+import theme from '../../theme';
 
 /**
  * Full-screen interstitial shown when a player's rank changes.
@@ -23,7 +16,7 @@ const RankChangeGate = ({ change, onAcknowledge }) => {
 
   const { groupName, previousRank, newRank } = change;
   const fxMode = newRank > previousRank ? 'up' : 'down';
-  const color = rankColors[newRank] ?? '#c0c0c0';
+  const color = theme.rank[newRank] ?? theme.rankDefault;
 
   const implodeParticles = Array.from({ length: 22 }, (_, i) => {
     const angle = (i / 22) * Math.PI * 2 + Math.random() * 0.4;
@@ -73,9 +66,9 @@ const RankChangeGate = ({ change, onAcknowledge }) => {
             marginBottom: '12px',
             padding: '10px 14px',
             borderRadius: '12px',
-            background: fxMode === 'up' ? `${color}1f` : '#e573731f',
-            border: `1px solid ${fxMode === 'up' ? `${color}66` : '#e5737366'}`,
-            color: fxMode === 'up' ? color : '#c0392b',
+            background: `${color}1f`,
+            border: `1px solid ${color}66`,
+            color,
             fontWeight: 800,
             fontSize: '0.95rem',
             letterSpacing: '1.2px',
@@ -100,7 +93,6 @@ const RankChangeGate = ({ change, onAcknowledge }) => {
                 height: 140,
                 borderRadius: '50%',
                 border: `3px solid ${color}`,
-                boxShadow: `0 0 24px ${color}cc, inset 0 0 24px ${color}80`,
                 pointerEvents: 'none',
                 zIndex: 2,
                 animation: 'rank-shockwave 1s ease-out forwards',
@@ -136,7 +128,6 @@ const RankChangeGate = ({ change, onAcknowledge }) => {
                     marginTop: -p.size / 2,
                     borderRadius: '50%',
                     background: color,
-                    boxShadow: `0 0 6px ${color}`,
                     '--ix': `${p.ix}px`,
                     '--iy': `${p.iy}px`,
                     animation: `rank-implode ${p.dur}s cubic-bezier(0.6, 0, 0.4, 1) ${p.delay}s forwards`,

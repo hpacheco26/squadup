@@ -25,6 +25,9 @@ import useGroupStore from './store/groupStore';
 import useNotificationStore from './store/notificationStore';
 import useThemeStore from './store/themeStore';
 import RankChangeGate from './components/modals/RankChangeGate';
+import SeasonRecap from './components/modals/SeasonRecap';
+import useLanguageStore from './store/languageStore';
+import GeometricSpinner from './components/GeometricSpinner';
 
 
 function App() {
@@ -33,12 +36,27 @@ function App() {
   const { startListening, stopListening, enabled } = useNotificationStore();
   const pendingRankChanges = useGroupStore((s) => s.pendingRankChanges);
   const acknowledgeRankChange = useGroupStore((s) => s.acknowledgeRankChange);
+  const pendingSeasonRecap = useGroupStore((s) => s.pendingSeasonRecaps[0] ?? null);
+  const seasonRecapError = useGroupStore((s) => s.seasonRecapError);
+  const recapLoading = useGroupStore((s) => s.recapPendingKeys.length > 0);
+  const retrySeasonRecaps = useGroupStore((s) => s.retrySeasonRecaps);
+  const subscribeToGroupsByUser = useGroupStore((s) => s.subscribeToGroupsByUser);
+  const clearPlayerNotifications = useGroupStore((s) => s.clearPlayerNotifications);
+  const playerId = useAuthStore((s) => s.playerData?.id);
+  const { t } = useLanguageStore();
+  const acknowledgeSeasonRecap = useGroupStore((s) => s.acknowledgeSeasonRecap);
   const firstChange = pendingRankChanges[0] ?? null;
   const darkMode = useThemeStore((s) => s.darkMode);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
   }, [darkMode]);
+
+  useEffect(() => {
+    clearPlayerNotifications();
+    if (!user?.uid) return;
+    return subscribeToGroupsByUser(user.uid);
+  }, [user?.uid, playerId, subscribeToGroupsByUser, clearPlayerNotifications]);
 
   useEffect(() => {
     if (user?.uid && enabled) {
@@ -62,7 +80,22 @@ function App() {
 
   return (
     <div style={appStyles}>
-      {firstChange && (
+      {user && pendingSeasonRecap && (
+        <SeasonRecap
+          recap={pendingSeasonRecap}
+          onAcknowledge={acknowledgeSeasonRecap}
+        />
+      )}
+      {user && seasonRecapError && !pendingSeasonRecap && (
+        <div role="alert" style={recapErrorStyle}>
+          <p>{t('seasonRecapLoadFailed')}</p>
+          <button className="btn-primary" onClick={retrySeasonRecaps}>{t('retry')}</button>
+        </div>
+      )}
+      {user && recapLoading && !pendingSeasonRecap && !seasonRecapError && (
+        <div style={recapErrorStyle}><GeometricSpinner size={40} /></div>
+      )}
+      {user && !pendingSeasonRecap && !seasonRecapError && !recapLoading && firstChange && (
         <RankChangeGate
           change={firstChange}
           onAcknowledge={() => acknowledgeRankChange(firstChange.groupId)}
@@ -103,5 +136,11 @@ function App() {
     </div>
   );
 }
+
+const recapErrorStyle = {
+  position: 'fixed', inset: 0, zIndex: 10000,
+  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+  padding: '24px', background: 'var(--c-bg)', color: 'var(--c-text)', textAlign: 'center', gap: '16px',
+};
 
 export default App;

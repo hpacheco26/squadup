@@ -15,7 +15,7 @@ import GeometricSpinner from '../GeometricSpinner';
 const RankList = () => {
   const navigate = useNavigate();
   const { user, selectedGroupId, setSelectedGroupId } = useAuthStore();
-  const { ranks, ranksLoading, subscribeToGroupsByUser } = useGroupStore();
+  const { ranks, ranksLoading } = useGroupStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [canCreate, setCanCreate] = useState(false);
   const { t } = useLanguageStore();
@@ -24,10 +24,6 @@ const RankList = () => {
     if (!user) {
       navigate("/login");
       return;
-    }
-    if (user?.uid) {
-      const unsub = subscribeToGroupsByUser(user.uid);
-      return () => unsub();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, user?.uid, navigate]);

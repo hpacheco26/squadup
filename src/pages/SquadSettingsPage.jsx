@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Wallet, Trash2, LogOut, UserPlus, AlertCircle, Shield, UserCheck, UserX } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Wallet, Trash2, LogOut, UserPlus, AlertCircle, Shield, UserCheck, UserX, CalendarClock } from 'lucide-react';
 import PlayerCard from '../components/cards/PlayerCard';
 import PlayerModal from '../components/modals/PlayerModal';
 import AppHeaderBar from '../components/bars/AppHeaderBar';
@@ -8,13 +8,84 @@ import {
     SectionLabel, SettingsGroup, SettingsRow, settingsInputStyle,
 } from '../components/lists/SettingsList';
 import useLanguageStore from '../store/languageStore';
+import useGroupStore from '../store/groupStore';
+import { withSeasonDefaults, MIN_GAMES_PER_SEASON, MAX_GAMES_PER_SEASON } from '../utils/seasons';
 import useSquadSettings from './_useSquadSettings';
 
 function SquadSettingsPage() {
     const { t } = useLanguageStore();
     const s = useSquadSettings();
+    const updateSeasonTarget = useGroupStore(state => state.updateSeasonTarget);
+    const endSeasonNow = useGroupStore(state => state.endSeasonNow);
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [treasuryOpen, setTreasuryOpen] = useState(false);
+
+    const season = withSeasonDefaults(s.group || {});
+    const [gamesPerSeason, setGamesPerSeason] = useState(season.gamesPerSeason);
+    const [endConfirmOpen, setEndConfirmOpen] = useState(false);
+    const [expectedSeason, setExpectedSeason] = useState(null);
+    const [endBusy, setEndBusy] = useState(false);
+    const [endError, setEndError] = useState('');
+    const [targetBusy, setTargetBusy] = useState(false);
+    const [targetError, setTargetError] = useState('');
+    const hasLiveGame = Boolean(s.group?.liveGameId);
+    const savedTarget = season.gamesPerSeason;
+    const seasonChanged = expectedSeason !== season.seasonNumber;
+
+    useEffect(() => {
+        setGamesPerSeason(savedTarget);
+        setTargetError('');
+    }, [s.group?.id, savedTarget]);
+
+    useEffect(() => {
+        setEndConfirmOpen(false);
+        setExpectedSeason(null);
+        setEndError('');
+    }, [s.group?.id, season.seasonNumber]);
+
+    const commitGamesPerSeason = async () => {
+        if (targetBusy) return;
+        const target = Number(gamesPerSeason);
+        if (!Number.isInteger(target) || target < MIN_GAMES_PER_SEASON || target > MAX_GAMES_PER_SEASON) {
+            setTargetError('seasonTargetInvalid');
+            return;
+        }
+        if (target <= season.seasonGamesPlayed) {
+            setTargetError('seasonTargetTooShort');
+            return;
+        }
+        setTargetError('');
+        if (target === season.gamesPerSeason) return;
+        setTargetBusy(true);
+        try {
+            await updateSeasonTarget(s.group.id, target);
+        } catch (error) {
+            setTargetError(error.message === 'SEASON_TARGET_BELOW_PLAYED'
+                ? 'seasonTargetTooShort' : 'seasonTargetSaveFailed');
+        } finally {
+            setTargetBusy(false);
+        }
+    };
+
+    const handleEndSeason = async () => {
+        if (endBusy || hasLiveGame || seasonChanged || targetBusy) return;
+        setEndBusy(true);
+        setEndError('');
+        try {
+            const res = await endSeasonNow(s.group.id, expectedSeason);
+            if (res?.ok) {
+                setEndConfirmOpen(false);
+            } else {
+                setEndError(res?.reason === 'game-in-progress' ? 'endSeasonBlocked' : 'seasonEndFailed');
+            }
+        } catch (error) {
+            console.error('[SquadSettingsPage] Failed to end season:', error);
+            setEndError('seasonEndFailed');
+        } finally {
+            setEndBusy(false);
+        }
+    };
+
     if (!s.group) return <p style={{ textAlign: 'center', padding: 40, color: 'var(--c-text-muted)' }}>{t('loading')}</p>;
 
     const adminCount = s.sortedPlayers.filter(p => p.userId && s.currentAdminIds.includes(p.userId)).length;
@@ -218,6 +289,58 @@ function SquadSettingsPage() {
                     </>
                 )}
 
+                {/* SEASON */}
+                {s.isAdmin && (
+                    <>
+                        <SectionLabel>{t('seasonSettings')}</SectionLabel>
+                        <SettingsGroup footer={t('gamesPerSeasonHint')}>
+                            <SettingsRow label={t('gamesPerSeason')} icon={CalendarClock} chevron={false}>
+                                <input
+                                    type="number"
+                                    inputMode="numeric"
+                                    min={Math.max(MIN_GAMES_PER_SEASON, season.seasonGamesPlayed + 1)}
+                                    max={MAX_GAMES_PER_SEASON}
+                                    step={1}
+                                    aria-label={t('gamesPerSeason')}
+                                    aria-invalid={Boolean(targetError)}
+                                    aria-describedby={targetError ? 'season-target-error' : undefined}
+                                    disabled={targetBusy}
+                                    value={gamesPerSeason}
+                                    onChange={(e) => setGamesPerSeason(e.target.value)}
+                                    onBlur={commitGamesPerSeason}
+                                    style={seasonStyles.targetInput}
+                                />
+                            </SettingsRow>
+                            {targetError && (
+                                <p id="season-target-error" role="alert" style={seasonStyles.error}>
+                                    {t(targetError, { played: season.seasonGamesPlayed })}
+                                </p>
+                            )}
+                            <SettingsRow
+                                label={t('endSeasonNow')}
+                                icon={CalendarClock}
+                                danger
+                                chevron={false}
+                                last
+                            >
+                                <button
+                                    type="button"
+                                    disabled={hasLiveGame || endBusy || targetBusy}
+                                    onClick={() => {
+                                        setEndError('');
+                                        setExpectedSeason(season.seasonNumber);
+                                        setEndConfirmOpen(true);
+                                    }}
+                                    style={seasonStyles.endButton}
+                                >
+                                    {t('endSeasonNow')}
+                                </button>
+                            </SettingsRow>
+                            {hasLiveGame && <p role="status" style={seasonStyles.hint}>{t('endSeasonBlocked')}</p>}
+                        </SettingsGroup>
+                    </>
+                )}
+
                 {/* DANGER */}
                 <SettingsGroup>
                     <SettingsRow
@@ -293,8 +416,61 @@ function SquadSettingsPage() {
                 confirmLabel={s.isAdmin ? t('deleteGroup') : t('leaveGroup')}
                 cancelLabel={t('cancel') || 'Cancel'}
             />
+
+            <BottomSheet open={endConfirmOpen} onClose={() => !endBusy && setEndConfirmOpen(false)} title={t('endSeasonTitle')}>
+                <p style={{ fontSize: '0.9rem', color: 'var(--c-text)', margin: '0 0 8px', lineHeight: 1.5 }}>
+                    {t('endSeasonBody', {
+                        season: t('seasonN', { n: season.seasonNumber }),
+                        next: t('seasonN', { n: season.seasonNumber + 1 }),
+                    })}
+                </p>
+                <p style={{ fontSize: '0.8rem', color: 'var(--c-text-muted)', margin: '0 0 12px' }}>
+                    {t('endSeasonUnaffected')}
+                </p>
+                {(endError || hasLiveGame) && (
+                    <p role="alert" style={seasonStyles.error}>{t(hasLiveGame ? 'endSeasonBlocked' : endError)}</p>
+                )}
+                <div style={{ display: 'flex', gap: 10 }}>
+                    <button
+                        type="button"
+                        disabled={endBusy}
+                        onClick={() => setEndConfirmOpen(false)}
+                        style={{
+                            flex: 1, padding: 13, borderRadius: 12,
+                            border: '1px solid var(--c-border)', background: 'var(--c-surface)',
+                            color: 'var(--c-text)', fontSize: '0.95rem', fontWeight: 600,
+                            cursor: endBusy ? 'not-allowed' : 'pointer', fontFamily: 'inherit',
+                        }}
+                    >
+                        {t('keepPlaying')}
+                    </button>
+                    <button
+                        type="button"
+                        disabled={endBusy || hasLiveGame || targetBusy || seasonChanged}
+                        onClick={handleEndSeason}
+                        style={{
+                            flex: 1, padding: 13, borderRadius: 12, border: 'none',
+                            background: '#e57373', color: '#fff', fontSize: '0.95rem', fontWeight: 700,
+                            cursor: endBusy ? 'not-allowed' : 'pointer', opacity: endBusy ? 0.7 : 1,
+                            fontFamily: 'inherit',
+                        }}
+                    >
+                        {t('endSeasonNow')}
+                    </button>
+                </div>
+            </BottomSheet>
         </>
     );
 }
 
 export default SquadSettingsPage;
+
+const seasonStyles = {
+    targetInput: { ...settingsInputStyle, maxWidth: 80 },
+    error: { color: 'var(--c-danger)', fontSize: '0.8rem', margin: '0 0 10px', padding: '0 14px' },
+    hint: { color: 'var(--c-text-muted)', fontSize: '0.75rem', padding: '0 14px 10px', margin: 0 },
+    endButton: {
+        border: '1px solid var(--c-danger)', borderRadius: 8, padding: '6px 10px',
+        background: 'transparent', color: 'var(--c-danger)', font: 'inherit', fontSize: '0.8rem',
+    },
+};

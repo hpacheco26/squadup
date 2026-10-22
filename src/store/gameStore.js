@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import GameService from '../api/gameService';
 import NotificationService from '../api/notificationService';
 import { logEvent } from '../config/firebase';
+import { removeFromLineup } from '../utils/gameAttendance';
+import useAuthStore from './authStore';
 
 const useGameStore = create((set) => ({
     games: [],
@@ -61,6 +63,16 @@ const useGameStore = create((set) => ({
             timer: null,
             isRunning: false,
         });
+    },
+
+    startGame: async (gameId) => {
+        try {
+            await GameService.startGame(gameId, useAuthStore.getState().user?.uid);
+        } catch (error) {
+            console.error('[gameStore] Failed to start game:', error);
+            set({ error: error.message });
+            throw error;
+        }
     },
 
     // 🔴 Real-time subscriptions
@@ -383,6 +395,7 @@ const useGameStore = create((set) => ({
 
     handlePlayerOut: async (gameId, playerId, notifContext) => {
         let previousStatus = null;
+        let lineupUpdates = null;
         set((state) => {
             const { game } = state;
             if (!game) return state;
@@ -398,6 +411,11 @@ const useGameStore = create((set) => ({
                 updatedPlayersOut.push(game.playersInvited.find(player => player.id === playerId));
             }
 
+            // Teams may already be drawn: drop the player from the lineup too, or the
+            // completion math (rank/stats from team1/team2) and the debt split
+            // (team1 + team2 + injured) would still count someone who is OUT.
+            lineupUpdates = removeFromLineup(game, playerId);
+
             const newStatus = updatedPlayersIn.length >= (game.minPlayers || 10) ? 'confirmed' : 'open';
 
             return {
@@ -406,6 +424,7 @@ const useGameStore = create((set) => ({
                     playersIn: updatedPlayersIn,
                     playersInvited: updatedPlayersInvited,
                     playersOut: updatedPlayersOut,
+                    ...(lineupUpdates || {}),
                     status: newStatus
                 }
             };
@@ -417,6 +436,7 @@ const useGameStore = create((set) => ({
                 playersIn: game.playersIn,
                 playersInvited: game.playersInvited,
                 playersOut: game.playersOut,
+                ...(lineupUpdates || {}),
                 status: game.status
             });
             logEvent('player_out', { gameId, playerId, inCount: game.playersIn.length });

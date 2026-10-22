@@ -8,6 +8,7 @@ import useLanguageStore from '../store/languageStore';
 import useNotificationStore from '../store/notificationStore';
 import useThemeStore from '../store/themeStore';
 import AppHeaderBar from '../components/bars/AppHeaderBar';
+import { APP_VERSION_LABEL } from '../version';
 import {
     SectionLabel, SettingsGroup, SettingsRow, settingsInputStyle,
     SettingsToggle, SettingsSegmented,
@@ -175,6 +176,16 @@ function AppSettingsPage() {
                         </div>
                     </div>
                 )}
+
+                <p style={{
+                    textAlign: 'center',
+                    color: 'var(--c-text-muted)',
+                    fontSize: '0.72rem',
+                    marginTop: 8,
+                    letterSpacing: '0.3px',
+                }}>
+                    {APP_VERSION_LABEL}
+                </p>
             </div>
         </div>
     );

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiPlay, FiPause, FiRotateCcw } from 'react-icons/fi';
-import { Share2, Timer, CalendarCog } from 'lucide-react';
+import { Share2, CalendarCog } from 'lucide-react';
 import useGameStore from '../store/gameStore';
 import useGroupStore from '../store/groupStore';
 import { getCaptain } from '../utils/teamBalancer';
@@ -9,7 +9,8 @@ import SubTimerModal from '../components/modals/SubTimerModal';
 import GoalCarousel from '../components/GoalCarousel';
 import useLanguageStore from '../store/languageStore';
 import { playSubBeep } from '../utils/audioAlert';
-import GameDebtService from '../api/gameDebtService';
+import useAuthStore from '../store/authStore';
+import { withCurrentPlayerRanks } from '../utils/seasons';
 import AppHeaderBar from '../components/bars/AppHeaderBar';
 
 const GamePage = () => {
@@ -17,21 +18,39 @@ const GamePage = () => {
     const navigate = useNavigate();
     const {
         game, subscribeToGame, loading,
-        createGame, deleteGame, updateGame,
+        startGame,
         resetGameSession, initGameSession,
         team1Goals, setTeam1Goals,
         team2Goals, setTeam2Goals,
         timer, setTimer,
         isRunning, setIsRunning,
     } = useGameStore();
-    const { updateRank, group, subscribeToGroup } = useGroupStore();
+    const { completeGame, group, subscribeToGroup } = useGroupStore();
+    const uid = useAuthStore(s => s.user?.uid);
     const { t } = useLanguageStore();
 
     const [isSubModalOpen, setIsSubModalOpen] = useState(false);
     const [subCounts, setSubCounts] = useState({});
     const [ready, setReady] = useState(false);
     const [isEnding, setIsEnding] = useState(false);
+    const [saveError, setSaveError] = useState(null);
+    const [gameStarted, setGameStarted] = useState(false);
+    const [startAttempt, setStartAttempt] = useState(0);
     const intervalRef = useRef(null);
+    const endingRef = useRef(false);
+    const isAdmin = group?.adminId === uid || group?.adminIds?.includes(uid);
+
+    useEffect(() => {
+        let cancelled = false;
+        setGameStarted(false);
+        if (!game?.id || group?.id !== game.groupId || !isAdmin) return;
+        startGame(game.id).then(() => {
+            if (!cancelled) { setGameStarted(true); setSaveError(null); }
+        }).catch(() => {
+            if (!cancelled) setSaveError('gameStartFailed');
+        });
+        return () => { cancelled = true; };
+    }, [game?.id, game?.groupId, group?.id, isAdmin, startGame, startAttempt]);
 
     useEffect(() => {
         setReady(false);
@@ -155,96 +174,20 @@ const GamePage = () => {
     };
 
     const handleEndGame = async () => {
-        if (isEnding) return;
+        if (endingRef.current || !gameStarted || !isAdmin) return;
+        endingRef.current = true;
         setIsEnding(true);
-        const allPlayers = [...team1, ...team2, ...(game.injured || [])];
-        const price = Number(game.price) || 0;
-        const adminPlayer = (group?.players || []).find(p => group?.adminIds?.includes(p.userId) || p.userId === group?.adminId);
-        const treasuryId = group?.treasuryPlayerId || adminPlayer?.id || null;
-        let payments = { ...(game.payments || {}) };
-
-        if (price > 0 && allPlayers.length > 0) {
-            const perPlayerCost = price / allPlayers.length;
-
-            // Auto-pay treasury and guests invited by treasury
-            allPlayers.forEach(p => {
-                if (p.id === treasuryId) payments[p.id] = true;
-                if (p.guest && p.addedBy === treasuryId) payments[p.id] = true;
-            });
-
-            // Build debts map for unpaid players (guest cost goes to adder)
-            const debts = {};
-            allPlayers
-                .filter(p => !payments[p.id] && p.id !== treasuryId)
-                .forEach(p => {
-                    const targetId = p.guest && p.addedBy ? p.addedBy : p.id;
-                    const targetPlayer = allPlayers.find(pl => pl.id === targetId) || p;
-                    const name = `${targetPlayer.firstName} ${targetPlayer.lastName?.[0] ? targetPlayer.lastName[0] + '.' : ''}`.trim();
-                    debts[targetId] = {
-                        name,
-                        amount: Math.round(((debts[targetId]?.amount || 0) + perPlayerCost) * 100) / 100,
-                        paid: false,
-                    };
-                });
-
-            if (Object.keys(debts).length > 0) {
-                await GameDebtService.createGameDebt({
-                    groupId: group.id,
-                    date: game.date || null,
-                    time: game.time || null,
-                    location: game.location || null,
-                    price,
-                    perPlayerCost: Math.round(perPlayerCost * 100) / 100,
-                    createdAt: Date.now(),
-                    debts,
-                });
-            }
+        setSaveError(null);
+        try {
+            await completeGame(game.groupId, game.id, { team1Goals, team2Goals });
+            resetGameSession();
+            navigate(`/groups/${game.groupId}`);
+        } catch {
+            setSaveError('gameCompletionFailed');
+        } finally {
+            endingRef.current = false;
+            setIsEnding(false);
         }
-
-        if (team1Goals === team2Goals) {
-            updateRank(group.id, team1, team2, true);
-        } else {
-            const winner = team1Goals > team2Goals ? team1 : team2;
-            const loser = team1Goals > team2Goals ? team2 : team1;
-            updateRank(group.id, winner, loser, false);
-        }
-
-        // Delete the ended game first so the recurring-game check finds no existing game
-        await deleteGame(game.id);
-        resetGameSession();
-
-        if (game.recurrence && game.recurrence !== 'none') {
-            // Create next recurring game
-            const currentDate = new Date(`${game.date}T${game.time || '00:00'}`);
-            if (game.recurrence === 'weekly') {
-                currentDate.setDate(currentDate.getDate() + 7);
-            } else if (game.recurrence === 'monthly') {
-                currentDate.setMonth(currentDate.getMonth() + 1);
-            }
-            const nextDate = currentDate.toISOString().split('T')[0];
-            const nextTime = game.time;
-
-            await createGame({
-                status: 'open',
-                date: nextDate,
-                time: nextTime,
-                location: game.location,
-                maxPlayers: game.maxPlayers,
-                minPlayers: game.minPlayers,
-                playersInvited: group?.players || game.playersInvited || [],
-                playersIn: [],
-                playersOut: [],
-                teamA: [],
-                teamB: [],
-                subTime: game.subTime,
-                recurrence: game.recurrence,
-                price: game.price || 0,
-                payments: {},
-                groupId: game.groupId,
-            });
-        }
-
-        navigate(`/groups/${game.groupId}`);
     };
 
     const handleShareResult = () => {
@@ -262,8 +205,9 @@ const GamePage = () => {
     if (loading || !game) return <p>{t('loadingGame')}</p>;
 
     const currentTimer = timer ?? 300;
-    const team1 = game.team1 || [];
-    const team2 = game.team2 || [];
+    const roster = group?.id === game.groupId ? group.players : [];
+    const team1 = withCurrentPlayerRanks(game.team1, roster);
+    const team2 = withCurrentPlayerRanks(game.team2, roster);
     const captain1 = getCaptain(team1);
     const captain2 = getCaptain(team2);
     const team1Label = captain1 ? `${captain1.firstName} Squad` : 'Team 1';
@@ -279,6 +223,14 @@ const GamePage = () => {
                 overflow: 'hidden',
                 padding: '12px',
             }}>
+                {saveError && (
+                    <div role="alert" style={styles.error}>
+                        {t(saveError)}
+                        {saveError === 'gameStartFailed' && (
+                            <button className="btn-primary" onClick={() => setStartAttempt(n => n + 1)}>{t('retry')}</button>
+                        )}
+                    </div>
+                )}
                 {/* Sub Timer */}
                 <div style={{
                     display: 'flex',
@@ -350,7 +302,7 @@ const GamePage = () => {
                         <Share2 size={20} />
                     </button>
                     <button
-                        disabled={isEnding}
+                        disabled={isEnding || !gameStarted || !isAdmin}
                         onClick={handleEndGame}
                         style={{
                             padding: '14px 24px',
@@ -390,6 +342,7 @@ const GamePage = () => {
 };
 
 const styles = {
+    error: { color: 'var(--c-danger)', padding: '8px', textAlign: 'center', flexShrink: 0 },
     iconBtn: {
         width: '48px',
         height: '48px',

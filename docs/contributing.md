@@ -17,6 +17,13 @@ Conventional Commits style:
 
 Example: `feat(teams): hurricane swirl squad-up animation`
 
+## Rank visuals
+
+- Rank images are `src/assets/rank-0.png` through `rank-4.png`.
+- Keep animation and label colors in `src/theme.js` (`rank`, `rankDefault`, `rankAccent`), matching the badge highlights: slate blue, teal, blue-teal, indigo, and mauve.
+- Render the images and rank particles without added glows, blurred halos, or drop shadows. Rank-change effects keep movement without recoloring the artwork.
+- Run `npx vitest run src/components/RankIcon.test.jsx` when changing these visuals.
+
 ## Before pushing
 
 ```pwsh

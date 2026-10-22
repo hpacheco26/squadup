@@ -8,14 +8,14 @@ import useThemeStore from '../../store/themeStore';
  * rather than match performance.
  *
  * Props:
- *  - player: { id, firstName, lastName, userId? }
+ *  - player: { id, firstName, lastName, userId?, email? }
  *  - isAdmin?: boolean        — is this player an admin of the group
  *  - canManageAdmins?: boolean — viewer can promote/demote
  *  - onToggleAdmin?: (player) => void
  *  - onRemovePlayer?: (playerId) => void
  */
 function PlayerCard({ player, isAdmin = false, canManageAdmins = false, onToggleAdmin, onRemovePlayer }) {
-    const { id, firstName, lastName, userId } = player;
+    const { id, firstName, lastName, userId, email } = player;
     const [confirmRemove, setConfirmRemove] = useState(false);
     const { t } = useLanguageStore();
     const { darkMode } = useThemeStore();
@@ -113,6 +113,18 @@ function PlayerCard({ player, isAdmin = false, canManageAdmins = false, onToggle
                 }}>
                     {firstName} {lastName}
                 </p>
+                {email ? (
+                    <p style={{
+                        margin: '2px 0 0',
+                        fontSize: '0.75rem',
+                        color: 'var(--c-text-muted)',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                    }}>
+                        {email}
+                    </p>
+                ) : null}
                 <span style={{
                     display: 'inline-block',
                     marginTop: '4px',

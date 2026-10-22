@@ -37,16 +37,16 @@ const theme = {
   navText: '#94a3b8',
   navTextActive: '#ffffff',
 
-  // Rank progression — distinct tiers (vivid colours work on both modes)
+  // Badge highlight tones, shared by rank labels, particles and change effects.
   rank: {
-    0: '#c0c0c0',
-    1: '#14b8a6',
-    2: '#3b82f6',
-    3: '#9b59b6',
-    4: '#f0c832',
+    0: '#6f96ad',
+    1: '#4b9da5',
+    2: '#388da0',
+    3: '#8588bd',
+    4: '#ad8098',
   },
-  rankDefault: '#c0c0c0',
-  rankAccent: '#f0c832',
+  rankDefault: '#6f96ad',
+  rankAccent: '#ad8098',
 };
 
 export default theme;

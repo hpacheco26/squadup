@@ -51,6 +51,41 @@ service cloud.firestore {
           && removed.size() <= 1
           && newPlayers.size() == oldPlayers.size() + (1 - removed.size());
       }
+
+      // Archives must be created together with the next-season group state.
+      match /seasons/{seasonId} {
+        allow read: if request.auth != null;
+        allow create: if request.auth != null && isGroupAdmin(groupId)
+          && request.resource.data.keys().hasAll(['number', 'gamesPlayed', 'gamesPerSeason', 'endReason', 'endedAt', 'standings'])
+          && request.resource.data.number == get(/databases/$(database)/documents/groups/$(groupId)).data.get('seasonNumber', 0)
+          && request.resource.data.number is int
+          && request.resource.data.gamesPlayed is int
+          && request.resource.data.gamesPlayed >= 0
+          && request.resource.data.gamesPerSeason is int
+          && request.resource.data.gamesPerSeason >= 5
+          && request.resource.data.gamesPerSeason <= 200
+          && request.resource.data.endReason in ['manual', 'target']
+          && request.resource.data.standings is list
+          && getAfter(/databases/$(database)/documents/groups/$(groupId)).data.seasonNumber == request.resource.data.number + 1
+          && getAfter(/databases/$(database)/documents/groups/$(groupId)).data.seasonGamesPlayed == 0;
+        allow update, delete: if false;
+      }
+
+      // A permanent, immutable receipt makes repeated completion requests idempotent.
+      match /completedGames/{gameId} {
+        allow read: if request.auth != null;
+        allow create: if request.auth != null && isGroupAdmin(groupId)
+          && request.resource.data.groupId == groupId
+          && request.resource.data.gameId == gameId
+          && request.resource.data.completedBy == request.auth.uid
+          && request.resource.data.team1Goals is int
+          && request.resource.data.team1Goals >= 0
+          && request.resource.data.team2Goals is int
+          && request.resource.data.team2Goals >= 0
+          && get(/databases/$(database)/documents/games/$(gameId)).data.groupId == groupId
+          && getAfter(/databases/$(database)/documents/groups/$(groupId)).data.seasonNumber == request.resource.data.seasonNumber;
+        allow update, delete: if false;
+      }
     }
 
     // Helper: is the current user an admin of the given group?

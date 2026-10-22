@@ -69,7 +69,7 @@ function JoinPage() {
         const uid = user.uid;
         const updatedPlayers = group.players.map(p =>
             p.id === player.id
-                ? { ...p, userId: uid }
+                ? { ...p, userId: uid, email: p.email || user.email || null }
                 : p
         );
         try {
@@ -101,6 +101,7 @@ function JoinPage() {
             firstName,
             lastName,
             userId: uid,
+            email: user.email || null,
             rank: 0,
             stats: { wins: 0, draws: 0, losses: 0 },
         };

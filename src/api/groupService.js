@@ -1,5 +1,6 @@
 import { db } from '../config/firebase';
-import { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, query, where, onSnapshot, runTransaction } from 'firebase/firestore';
+import { withSeasonDefaults, MIN_GAMES_PER_SEASON, MAX_GAMES_PER_SEASON } from '../utils/seasons';
 
 const groupsRef = collection(db, 'groups');
 const allowedCreatorsRef = doc(db, 'config', 'allowedCreators');
@@ -60,13 +61,31 @@ const GroupService = {
         const { name, adminIds, adminId } = groupData;
         const creatorId = (adminIds && adminIds[0]) || adminId;
         const formattedId = `${name.replace(/\s+/g, '').toLowerCase()}-${creatorId}`;
-        const dataWithId = withPlayerIds({ ...groupData, id: formattedId });
+        const dataWithId = withPlayerIds({
+            ...groupData, id: formattedId,
+            ...withSeasonDefaults({}, { isNewGroup: true }),
+            seasonStartedAt: Date.now(),
+        });
         await setDoc(doc(db, 'groups', formattedId), dataWithId);
         return dataWithId;
     },
 
     updateGroup: async (id, updatedData) => {
         const normalized = withPlayerIds(updatedData);
+        if ('gamesPerSeason' in normalized) {
+            return runTransaction(db, async transaction => {
+                const ref = doc(db, 'groups', id);
+                const snap = await transaction.get(ref);
+                if (!snap.exists()) throw new Error('GROUP_NOT_FOUND');
+                const target = normalized.gamesPerSeason;
+                if (!Number.isInteger(target) || target < MIN_GAMES_PER_SEASON || target > MAX_GAMES_PER_SEASON
+                    || target <= (snap.data().seasonGamesPlayed ?? 0)) {
+                    throw new Error('INVALID_SEASON_TARGET');
+                }
+                transaction.update(ref, normalized);
+                return normalized;
+            });
+        }
         await updateDoc(doc(db, 'groups', id), normalized);
         return normalized;
     },

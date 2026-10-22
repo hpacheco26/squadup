@@ -9,7 +9,9 @@ import AppHeaderBar from '../components/bars/AppHeaderBar';
 import { FiSettings } from 'react-icons/fi';
 import RankIcon from '../components/RankIcon';
 import RankTierList from '../components/RankTierList';
+import SeasonBanner from '../components/SeasonBanner';
 import StatHighlights from '../components/cards/StatHighlights';
+import theme from '../theme';
 
 import { Trophy, Swords, Minus } from 'lucide-react';
 
@@ -63,6 +65,9 @@ function GroupPage() {
                     <RankTierList />
                 </div>
 
+                {/* Season line + history */}
+                <SeasonBanner group={group} />
+
                 {/* Stat highlights */}
                 <StatHighlights players={group?.players || []} t={t} />
 
@@ -106,7 +111,7 @@ function GroupPage() {
                                             display: 'grid',
                                             gridTemplateColumns: '28px 1fr 28px repeat(3, 32px) 44px',
                                             alignItems: 'center',
-                                            background: 'var(--c-surface)',
+                                            background: `linear-gradient(${theme.rank[player.rank] || theme.rankDefault}55, ${theme.rank[player.rank] || theme.rankDefault}55), var(--c-surface)`,
                                             borderRadius: '10px',
                                             padding: '10px 12px',
                                             boxShadow: isTop3

@@ -1,5 +1,5 @@
 import { db } from '../config/firebase';
-import { collection, doc, addDoc, updateDoc, deleteDoc, query, where, onSnapshot, FieldPath } from 'firebase/firestore';
+import { collection, doc, addDoc, getDocs, updateDoc, deleteDoc, query, where, onSnapshot, FieldPath } from 'firebase/firestore';
 
 const gameDebtsRef = collection(db, 'gameDebts');
 
@@ -8,6 +8,18 @@ const GameDebtService = {
     createGameDebt: async (data) => {
         const docRef = await addDoc(gameDebtsRef, data);
         return { id: docRef.id, ...data };
+    },
+
+    // One-shot fetch of all game debts for a group (used by player removal)
+    getGameDebtsByGroup: async (groupId) => {
+        const q = query(gameDebtsRef, where('groupId', '==', groupId));
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    },
+
+    // Replace the whole debts map (safe for player ids containing dots)
+    updateDebts: async (gameDebtId, debts) => {
+        await updateDoc(doc(db, 'gameDebts', gameDebtId), { debts });
     },
 
     // Subscribe to all game debts for a group

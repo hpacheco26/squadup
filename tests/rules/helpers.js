@@ -33,5 +33,7 @@ export const asUser = (env, uid, claims = {}) => env.authenticatedContext(uid, c
 /** Unauthenticated context. */
 export const asAnon = (env) => env.unauthenticatedContext().firestore();
 
-/** Privileged context that bypasses rules — use only for arranging fixtures. */
-export const asAdmin = (env) => env.withSecurityRulesDisabled((ctx) => ctx.firestore());
+/** Await fixture writes inside the callback; the privileged context expires afterward. */
+export const asAdmin = (env, arrange) => env.withSecurityRulesDisabled(async (ctx) => {
+    await arrange(ctx.firestore());
+});
