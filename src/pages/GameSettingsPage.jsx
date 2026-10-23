@@ -569,6 +569,8 @@ function GameSettingsPage() {
     const [subMode, setSubMode] = useState('automatic');
     const [recurrence, setRecurrence] = useState('none');
     const [price, setPrice] = useState(0);
+    const [priceMode, setPriceMode] = useState('split');
+    const [pricePerPlayer, setPricePerPlayer] = useState(0);
     const [playersPerTeam, setPlayersPerTeam] = useState(5);
     const [rosterCustom, setRosterCustom] = useState(false);
     const [submitting, setSubmitting] = useState(false);
@@ -607,6 +609,8 @@ function GameSettingsPage() {
             setSubMode(game.subMode || 'automatic');
             setRecurrence(game.recurrence || 'none');
             setPrice(game.price || 0);
+            setPriceMode(game.priceMode || 'split');
+            setPricePerPlayer(game.pricePerPlayer || 0);
             setPlayersPerTeam(game.playersPerTeam || 5);
             // Open custom slider on hydrate when stored values don't match any preset
             const presets = buildPresets(game.playersPerTeam || 5);
@@ -628,8 +632,22 @@ function GameSettingsPage() {
         }
     };
 
+    // Warn when pricing changes after someone already prepaid — recorded
+    // payments are kept as-is and never recalculated.
+    const prepaidCount = Object.values(game?.payments || {}).filter(Boolean).length;
+    const pricingChanged = isEditMode && !!game
+        && (priceMode !== (game.priceMode || 'split')
+            || Number(pricePerPlayer) !== (game.pricePerPlayer || 0)
+            || Number(price) !== (game.price || 0));
+    const showPrepaidWarn = prepaidCount > 0 && pricingChanged;
+
     const handleSubmit = async () => {
         if (submitting) return;
+        if (!date || !time) {
+            setCreateError(t('dateTimeRequired'));
+            return;
+        }
+        setCreateError(null);
         setSubmitting(true);
         const baseGroupId = isEditMode ? (game?.groupId || group?.id) : routeGroupId;
 
@@ -647,6 +665,8 @@ function GameSettingsPage() {
             subMode,
             recurrence,
             price: Number(price) || 0,
+            priceMode,
+            pricePerPlayer: Number(pricePerPlayer) || 0,
             playersPerTeam: Number(playersPerTeam) || 5,
             payments: isEditMode ? game.payments || {} : {},
             groupId: baseGroupId,
@@ -913,9 +933,63 @@ function GameSettingsPage() {
                         <SettingsRow label={t('subTimer')} sublabel="min" chevron={false}>
                             <Stepper value={subTime} onChange={setSubTime} min={1} max={60} />
                         </SettingsRow>
-                        <SettingsRow label={t('priceLabel')} chevron={false} last>
-                            <Stepper value={price} onChange={setPrice} min={0} max={200} step={0.5} suffix="€" />
+                        <div style={{ padding: '10px 14px 12px', borderBottom: '1px solid var(--c-border)' }}>
+                            <span style={{ fontSize: '0.78rem', color: 'var(--c-text-secondary)', fontWeight: 500 }}>
+                                {t('pricingMode')}
+                            </span>
+                            <div style={{ marginTop: 8 }}>
+                                <SettingsSegmented
+                                    fullWidth
+                                    value={priceMode}
+                                    onChange={setPriceMode}
+                                    options={[
+                                        { value: 'split', label: t('splitCost') },
+                                        { value: 'perPlayer', label: t('perPlayerPrice') },
+                                    ]}
+                                />
+                            </div>
+                            <p style={{ margin: '8px 0 0', fontSize: '0.7rem', color: 'var(--c-text-muted)' }}>
+                                {priceMode === 'perPlayer' ? t('perPlayerHint') : t('splitCostHint')}
+                            </p>
+                            {showPrepaidWarn && (
+                                <p role="alert" style={{ margin: '6px 0 0', fontSize: '0.7rem', color: 'var(--c-danger)' }}>
+                                    {t('prepaidPricingWarn')}
+                                </p>
+                            )}
+                        </div>
+                        <SettingsRow label={t('fieldCost')} chevron={false} last={priceMode !== 'perPlayer'}>
+                            <input
+                                type="number"
+                                inputMode="decimal"
+                                min="0"
+                                step="0.5"
+                                aria-label={t('fieldCost')}
+                                value={price}
+                                onChange={(e) => setPrice(e.target.value)}
+                                style={{ ...settingsInputStyle, maxWidth: 90 }}
+                            />
                         </SettingsRow>
+                        {priceMode === 'perPlayer' && (
+                            <SettingsRow
+                                label={t('feePerPlayer')}
+                                sublabel={pricePerPlayer > 0 && price > 0
+                                    ? t('breakEvenHint', { n: Math.ceil(price / pricePerPlayer) })
+                                    : undefined}
+                                chevron={false}
+                                last
+                            >
+                                <input
+                                    type="number"
+                                    inputMode="decimal"
+                                    min="0"
+                                    step="0.5"
+                                    aria-label={t('feePerPlayer')}
+                                    value={pricePerPlayer}
+                                    onChange={(e) => setPricePerPlayer(e.target.value)}
+                                    style={{ ...settingsInputStyle, maxWidth: 90 }}
+                                />
+                            </SettingsRow>
+                        )}
                     </SettingsGroup>
 
                     {/* REPEAT */}

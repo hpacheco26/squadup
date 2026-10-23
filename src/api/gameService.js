@@ -120,6 +120,7 @@ const GameService = {
             transaction.update(groupRef, {
                 ...completion.groupFields, liveGameId: null,
                 activeGameId: completion.nextGame ? nextGameRef.id : null,
+                ...(completion.savings ? { savingsBalance: completion.savings.balanceAfter } : {}),
             });
             transaction.set(receiptRef, result);
             transaction.delete(gameRef);

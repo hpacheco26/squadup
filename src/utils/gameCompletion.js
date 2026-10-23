@@ -35,23 +35,31 @@ export function buildGameCompletion(group, game, score, now = Date.now()) {
         ...defaults, players, seasonStartedAt: updated.seasonStartedAt,
         seasonGamesPlayed: updated.seasonGamesPlayed,
     };
+    const debt = buildGameDebt(group, game, now);
     return {
         groupFields, archive: rollover?.archive || null,
-        debt: buildGameDebt(group, game, now),
+        debt,
+        savings: buildSavingsEntry(group, game),
         nextGame: buildNextGame({ ...group, players: groupFields.players }, game),
     };
 }
 
 export function buildGameDebt(group, game, now = Date.now()) {
     const allPlayers = [...(game.team1 || []), ...(game.team2 || []), ...(game.injured || [])];
+    const mode = game.priceMode === 'perPlayer' ? 'perPlayer' : 'split';
     const price = Number(game.price) || 0;
-    if (price <= 0 || !allPlayers.length) return null;
-    const admin = (group.players || []).find(p => group.adminIds?.includes(p.userId) || p.userId === group.adminId);
-    const treasuryId = group.treasuryPlayerId || admin?.id || null;
-    const perPlayerCost = price / allPlayers.length;
+    const fee = Number(game.pricePerPlayer) || 0;
+    if (!allPlayers.length) return null;
+    // split: the game cost is divided among players; perPlayer: everyone pays a
+    // fixed fee regardless of headcount and the fund covers the game cost.
+    // No exemptions: the treasury pays like everyone else — they collect from
+    // themselves into the fund, which keeps the math trivially verifiable.
+    if (mode === 'split' && price <= 0) return null;
+    if (mode === 'perPlayer' && fee <= 0) return null;
+    const perPlayerCost = mode === 'perPlayer' ? fee : price / allPlayers.length;
     const debts = {};
     for (const player of allPlayers) {
-        if (game.payments?.[player.id] || player.id === treasuryId || (player.guest && player.addedBy === treasuryId)) continue;
+        if (game.payments?.[player.id]) continue;
         const targetId = player.guest && player.addedBy ? player.addedBy : player.id;
         const target = allPlayers.find(p => p.id === targetId) || player;
         debts[targetId] = {
@@ -63,8 +71,27 @@ export function buildGameDebt(group, game, now = Date.now()) {
     return Object.keys(debts).length ? {
         groupId: group.id, date: game.date || null, time: game.time || null,
         location: game.location || null, price,
+        priceMode: mode,
+        ...(mode === 'perPlayer' ? { pricePerPlayer: fee } : {}),
         perPlayerCost: Math.round(perPlayerCost * 100) / 100, createdAt: now, debts,
     } : null;
+}
+
+/**
+ * Compute the fund expense for a per-player-priced game. Cash basis:
+ * completion books only the field cost (−cost); every debt payment books its
+ * fee (+fee) when it actually happens in GameDebtService.markPlayerPaid. The
+ * balance may go negative while payments are outstanding. Returns null for
+ * split-priced games or when no cost is set. No history is kept — the balance
+ * is the only state.
+ */
+export function buildSavingsEntry(group, game) {
+    if (game?.priceMode !== 'perPlayer') return null;
+    const cost = Number(game.price) || 0;
+    if (cost <= 0) return null;
+    const balance = Number(group?.savingsBalance) || 0;
+    const balanceAfter = Math.round((balance - cost) * 100) / 100;
+    return { delta: -cost, balanceAfter };
 }
 
 export function buildNextGame(group, game) {
@@ -81,6 +108,8 @@ export function buildNextGame(group, game) {
         minPlayers: game.minPlayers ?? 10, playersPerTeam: game.playersPerTeam ?? 5,
         playersInvited: group.players || [], playersIn: [], playersOut: [],
         team1: [], team2: [], subTime: game.subTime ?? 5, subMode: game.subMode || 'auto',
-        recurrence: game.recurrence, price: game.price || 0, payments: {}, groupId: group.id,
+        recurrence: game.recurrence, price: game.price || 0,
+        priceMode: game.priceMode || 'split', pricePerPlayer: game.pricePerPlayer || 0,
+        payments: {}, groupId: group.id,
     };
 }

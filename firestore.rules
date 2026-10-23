@@ -24,8 +24,18 @@ service cloud.firestore {
       allow update: if request.auth != null
         && (request.auth.uid == resource.data.adminId
             || (resource.data.adminIds is list && request.auth.uid in resource.data.adminIds)
-            || isSelfJoin());
+            || isSelfJoin()
+            || isSavingsOnlyUpdate());
       allow delete: if request.auth != null && request.auth.uid == resource.data.adminId;
+
+      // The treasury (or any linked group member, e.g. someone marking their own
+      // debt paid) may move ONLY the savings balance.
+      function isSavingsOnlyUpdate() {
+        return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['savingsBalance'])
+          && request.resource.data.savingsBalance is number
+          && (isGroupTreasury(groupId)
+              || ('memberUserIds' in resource.data && request.auth.uid in resource.data.memberUserIds));
+      }
 
       // A non-admin, authenticated user may join a group via invite link by either:
       //  - claiming an existing unlinked player row (replacing it with one that has their userId), or

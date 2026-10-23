@@ -53,7 +53,7 @@ const PaymentsPage = () => {
         });
     });
 
-    // All players except treasury
+    // Everyone who plays owes their share — treasury included
     const visiblePlayers = groupPlayers;
 
     const getPlayerDebt = (player) => {
@@ -66,12 +66,13 @@ const PaymentsPage = () => {
 
     // Sum only current group members to avoid orphan/guest records inflating the total
     const totalOwed = visiblePlayers.reduce((sum, p) => sum + getPlayerDebt(p).debt, 0);
+    const fundBalance = Number(group.savingsBalance) || 0;
 
     const handleClearAllForPlayer = async (playerId) => {
         for (const gd of gameDebts) {
             if (gd.debts?.[playerId] && !gd.debts[playerId].paid) {
                 try {
-                    await GameDebtService.markPlayerPaid(gd.id, playerId);
+                    await GameDebtService.markPlayerPaid(gd.id, playerId, groupId);
                     // Only group admins/treasury may delete a debt doc (firestore.rules);
                     // regular members just mark paid and leave cleanup to a manager.
                     if (canManage) {
@@ -126,17 +127,32 @@ const PaymentsPage = () => {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <AppHeaderBar
-                right={totalOwed > 0 ? (
-                    <span style={{
-                        fontSize: '0.8rem', fontWeight: '700',
-                        color: theme.danger,
-                        background: theme.dangerLight,
-                        padding: '4px 12px', borderRadius: '20px',
-                        marginRight: 6,
-                    }}>
-                        {`€${totalOwed.toFixed(2)} ${t('owed')}`}
-                    </span>
-                ) : null}
+                right={(
+                    <>
+                        {canManage && (
+                            <span style={{
+                                fontSize: '0.8rem', fontWeight: '700',
+                                color: fundBalance < 0 ? theme.danger : theme.primary,
+                                background: fundBalance < 0 ? theme.dangerLight : theme.primaryLight,
+                                padding: '4px 12px', borderRadius: '20px',
+                                marginRight: 6,
+                            }}>
+                                {`€${fundBalance.toFixed(2)} ${t('fund')}`}
+                            </span>
+                        )}
+                        {totalOwed > 0 && (
+                            <span style={{
+                                fontSize: '0.8rem', fontWeight: '700',
+                                color: theme.danger,
+                                background: theme.dangerLight,
+                                padding: '4px 12px', borderRadius: '20px',
+                                marginRight: 6,
+                            }}>
+                                {`€${totalOwed.toFixed(2)} ${t('owed')}`}
+                            </span>
+                        )}
+                    </>
+                )}
             />
 
             <div style={{ flex: 1, padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>

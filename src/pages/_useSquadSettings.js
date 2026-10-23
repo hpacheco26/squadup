@@ -12,13 +12,17 @@ import PlayerService from '../api/playerService';
 export default function useSquadSettings() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { group, subscribeToGroup, updateGroup, deleteGroup, removePlayer } = useGroupStore();
+    const { group, subscribeToGroup, updateGroup, deleteGroup, removePlayer, adjustSavings } = useGroupStore();
     const { user } = useAuthStore();
 
     const [groupName, setGroupName] = useState('');
     const [treasuryPhone, setTreasuryPhone] = useState('');
     const [gameDebts, setGameDebts] = useState([]);
     const [memberEmails, setMemberEmails] = useState({});
+    const [savingsSheet, setSavingsSheet] = useState(null); // null | 'adjustment' | 'spend'
+    const [savingsAmount, setSavingsAmount] = useState('');
+    const [savingsBusy, setSavingsBusy] = useState(false);
+    const [savingsError, setSavingsError] = useState('');
     const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
     const saveTimerRef = useRef(null);
     const phoneSaveTimerRef = useRef(null);
@@ -92,6 +96,35 @@ export default function useSquadSettings() {
 
     const handleDeleteGroup = () => { deleteGroup(group.id); navigate('/'); };
 
+    const openSavingsSheet = (type) => {
+        setSavingsSheet(type);
+        setSavingsAmount('');
+        setSavingsError('');
+    };
+
+    const handleSaveSavingsEntry = async () => {
+        if (savingsBusy || !savingsSheet || !group) return;
+        const amount = Number(savingsAmount);
+        if (!Number.isFinite(amount) || amount <= 0) {
+            setSavingsError('invalidAmount');
+            return;
+        }
+        setSavingsBusy(true);
+        setSavingsError('');
+        try {
+            await adjustSavings(group.id, {
+                type: savingsSheet,
+                delta: savingsSheet === 'spend' ? -amount : amount,
+            });
+            setSavingsSheet(null);
+        } catch (error) {
+            console.error('[useSquadSettings] Failed to save savings entry:', error);
+            setSavingsError('savingsSaveError');
+        } finally {
+            setSavingsBusy(false);
+        }
+    };
+
     const handleLeaveGroup = () => {
         if (!group || !user) return;
         const updatedPlayers = (group.players ?? []).filter(p => p.userId !== user.uid);
@@ -151,11 +184,12 @@ export default function useSquadSettings() {
     });
     const playersWithDebt = (group?.players ?? []).filter(p => (playerDebtMap[p.id] || 0) > 0);
     const totalDebt = playersWithDebt.reduce((sum, p) => sum + (playerDebtMap[p.id] || 0), 0);
+    const savingsBalance = Number(group?.savingsBalance) || 0;
 
     const handleClearDebt = async (playerId) => {
         for (const gd of gameDebts) {
             if (gd.debts?.[playerId] && !gd.debts[playerId].paid) {
-                await GameDebtService.markPlayerPaid(gd.id, playerId);
+                await GameDebtService.markPlayerPaid(gd.id, playerId, group.id);
                 const allPaid = Object.entries(gd.debts || {}).every(([id, info]) => id === playerId || info.paid);
                 if (allPaid) await GameDebtService.deleteGameDebt(gd.id);
             }
@@ -174,6 +208,11 @@ export default function useSquadSettings() {
         handleTreasuryPlayerChange, handleTreasuryPhoneChange,
         handleDeleteGroup, handleLeaveGroup,
         handleAddPlayer, handleRemovePlayer, handleToggleAdmin,
+        // savings
+        savingsBalance,
+        savingsSheet, setSavingsSheet, savingsAmount, setSavingsAmount,
+        savingsBusy, savingsError,
+        openSavingsSheet, handleSaveSavingsEntry,
         // derived
         sortedPlayers, playersWithDebt, playerDebtMap, totalDebt, handleClearDebt,
     };

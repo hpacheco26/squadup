@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Wallet, Trash2, LogOut, UserPlus, AlertCircle, Shield, UserCheck, UserX, CalendarClock } from 'lucide-react';
+import { Wallet, Trash2, LogOut, UserPlus, AlertCircle, Shield, UserCheck, UserX, CalendarClock, ChevronDown } from 'lucide-react';
 import PlayerCard from '../components/cards/PlayerCard';
 import PlayerModal from '../components/modals/PlayerModal';
 import AppHeaderBar from '../components/bars/AppHeaderBar';
@@ -19,6 +19,7 @@ function SquadSettingsPage() {
     const endSeasonNow = useGroupStore(state => state.endSeasonNow);
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [treasuryOpen, setTreasuryOpen] = useState(false);
+    const [membersOpen, setMembersOpen] = useState(true);
 
     const season = withSeasonDefaults(s.group || {});
     const [gamesPerSeason, setGamesPerSeason] = useState(season.gamesPerSeason);
@@ -238,36 +239,92 @@ function SquadSettingsPage() {
                     </>
                 )}
 
-                {/* MEMBERS */}
+                {/* SAVINGS */}
                 {s.isAdmin && (
                     <>
                         <SectionLabel
                             action={
-                                <button
-                                    className="btn-primary"
-                                    onClick={() => s.setIsPlayerModalOpen(true)}
-                                    style={{
-                                        background: 'var(--c-primary)', color: '#fff', border: 'none',
-                                        borderRadius: 8, padding: '4px 8px', fontSize: '0.7rem',
-                                        fontWeight: 600, cursor: 'pointer',
-                                        display: 'flex', alignItems: 'center', gap: 4,
-                                    }}
-                                ><UserPlus size={12} /> {t('addPlayer')}</button>
+                                <div style={{ display: 'flex', gap: 6 }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => s.openSavingsSheet('adjustment')}
+                                        style={{
+                                            background: 'var(--c-surface-alt)', color: 'var(--c-text)',
+                                            border: '1px solid var(--c-border)', borderRadius: 8,
+                                            padding: '4px 10px', fontSize: '0.7rem', fontWeight: 600,
+                                            cursor: 'pointer', fontFamily: 'inherit',
+                                        }}
+                                    >{t('adjust')}</button>
+                                    <button
+                                        type="button"
+                                        onClick={() => s.openSavingsSheet('spend')}
+                                        style={{
+                                            background: 'var(--c-primary)', color: '#fff', border: 'none',
+                                            borderRadius: 8, padding: '4px 10px', fontSize: '0.7rem',
+                                            fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                                        }}
+                                    >{t('spend')}</button>
+                                </div>
                             }
                         >
-                            {t('playersLabel')}
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginLeft: 8, textTransform: 'none', letterSpacing: 0 }}>
-                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: 'var(--c-warning)' }}>
-                                    <Shield size={11} strokeWidth={2.5} /> {adminCount}
-                                </span>
-                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: 'var(--c-primary)' }}>
-                                    <UserCheck size={11} strokeWidth={2.5} /> {memberCount}
-                                </span>
-                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: 'var(--c-text-muted)' }}>
-                                    <UserX size={11} strokeWidth={2.5} /> {nonMemberCount}
-                                </span>
-                            </span>
+                            {t('savings')}
                         </SectionLabel>
+                        <SettingsGroup>
+                            <div style={{ padding: '14px' }}>
+                                <span style={{
+                                    fontSize: '1.6rem', fontWeight: 800, fontVariantNumeric: 'tabular-nums',
+                                    color: s.savingsBalance < 0 ? 'var(--c-danger)' : 'var(--c-text)',
+                                }}>
+                                    €{s.savingsBalance.toFixed(2)}
+                                </span>
+                            </div>
+                        </SettingsGroup>
+                    </>
+                )}
+
+                {/* MEMBERS */}
+                {s.isAdmin && (
+                    <>
+                        <div
+                            role="button"
+                            tabIndex={0}
+                            aria-expanded={membersOpen}
+                            onClick={() => setMembersOpen(o => !o)}
+                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setMembersOpen(o => !o); }}
+                            style={{ cursor: 'pointer' }}
+                        >
+                            <SectionLabel
+                                action={
+                                    <button
+                                        className="btn-primary"
+                                        onClick={(e) => { e.stopPropagation(); s.setIsPlayerModalOpen(true); }}
+                                        style={{
+                                            background: 'var(--c-primary)', color: '#fff', border: 'none',
+                                            borderRadius: 8, padding: '4px 8px', fontSize: '0.7rem',
+                                            fontWeight: 600, cursor: 'pointer',
+                                            display: 'flex', alignItems: 'center', gap: 4,
+                                        }}
+                                    ><UserPlus size={12} /> {t('addPlayer')}</button>
+                                }
+                            >
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                                    <ChevronDown size={12} style={{ transform: membersOpen ? 'none' : 'rotate(-90deg)', transition: 'transform .15s' }} />
+                                    {t('playersLabel')}
+                                </span>
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginLeft: 8, textTransform: 'none', letterSpacing: 0 }}>
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: 'var(--c-warning)' }}>
+                                        <Shield size={11} strokeWidth={2.5} /> {adminCount}
+                                    </span>
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: 'var(--c-primary)' }}>
+                                        <UserCheck size={11} strokeWidth={2.5} /> {memberCount}
+                                    </span>
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: 'var(--c-text-muted)' }}>
+                                        <UserX size={11} strokeWidth={2.5} /> {nonMemberCount}
+                                    </span>
+                                </span>
+                            </SectionLabel>
+                        </div>
+                        {membersOpen && (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 24 }}>
                             {s.sortedPlayers.length === 0 ? (
                                 <p style={{ textAlign: 'center', color: 'var(--c-text-muted)', padding: 20, fontSize: '0.9rem' }}>{t('noPlayersYet')}</p>
@@ -286,6 +343,7 @@ function SquadSettingsPage() {
                                 );
                             })}
                         </div>
+                        )}
                     </>
                 )}
 
@@ -354,6 +412,46 @@ function SquadSettingsPage() {
             </div>
 
             <PlayerModal isOpen={s.isPlayerModalOpen} setIsOpen={s.setIsPlayerModalOpen} onAddPlayer={s.handleAddPlayer} />
+
+            <BottomSheet
+                open={!!s.savingsSheet}
+                onClose={() => !s.savingsBusy && s.setSavingsSheet(null)}
+                title={s.savingsSheet === 'spend' ? t('spend') : t('addFunds')}
+            >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--c-text-secondary)' }}>
+                        {t('amount')}
+                        <input
+                            type="number"
+                            inputMode="decimal"
+                            min="0"
+                            step="0.5"
+                            value={s.savingsAmount}
+                            onChange={(e) => s.setSavingsAmount(e.target.value)}
+                            style={{ ...settingsInputStyle, width: '100%', marginTop: 6, textAlign: 'left' }}
+                        />
+                    </label>
+                    {s.savingsError && (
+                        <p role="alert" style={{ margin: 0, color: 'var(--c-danger)', fontSize: '0.8rem' }}>
+                            {t(s.savingsError)}
+                        </p>
+                    )}
+                    <button
+                        type="button"
+                        disabled={s.savingsBusy}
+                        onClick={s.handleSaveSavingsEntry}
+                        style={{
+                            padding: 13, borderRadius: 12, border: 'none',
+                            background: s.savingsSheet === 'spend' ? '#e57373' : 'var(--c-primary)',
+                            color: '#fff', fontSize: '0.95rem', fontWeight: 700,
+                            cursor: s.savingsBusy ? 'not-allowed' : 'pointer',
+                            opacity: s.savingsBusy ? 0.7 : 1, fontFamily: 'inherit',
+                        }}
+                    >
+                        {s.savingsSheet === 'spend' ? t('spend') : t('addFunds')}
+                    </button>
+                </div>
+            </BottomSheet>
 
             <BottomSheet open={treasuryOpen} onClose={() => setTreasuryOpen(false)} title={t('treasuryPlayer')}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: '50vh', overflowY: 'auto' }}>

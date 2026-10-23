@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import GroupService from '../api/groupService';
 import GameService from '../api/gameService';
 import GameDebtService from '../api/gameDebtService';
+import SavingsService from '../api/savingsService';
 import SeasonService from '../api/seasonService';
 import { withSeasonDefaults, buildSeasonRecap } from '../utils/seasons';
 import { seasonMarkerKey, unseenSeason } from '../utils/seasonNotifications';
@@ -343,6 +344,13 @@ const useGroupStore = create(
                     groups: state.groups.map(g => (g.id === groupId ? { ...g, ...updates } : g)),
                     group: state.group?.id === groupId ? { ...state.group, ...updates } : state.group,
                 }));
+            },
+
+            // 🔹 Move the savings balance (treasury adjustment or year-end spend)
+            adjustSavings: async (groupId, { type, delta }) => {
+                const uid = useAuthStore.getState().user?.uid;
+                if (!uid) throw new Error('AUTH_REQUIRED');
+                return SavingsService.addEntry(groupId, { type, delta });
             },
 
             // The game, result receipt, standings, debt and next fixture commit together.
