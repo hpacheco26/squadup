@@ -656,11 +656,11 @@ function GameSettingsPage() {
             date, time, location,
             locationUrl: locationUrl || null,
             maxPlayers, minPlayers,
-            playersInvited: isEditMode ? game.playersInvited : (group?.players || []),
-            playersIn: isEditMode ? game.playersIn : [],
-            playersOut: isEditMode ? game.playersOut : [],
-            teamA: isEditMode ? game.teamA : [],
-            teamB: isEditMode ? game.teamB : [],
+            playersInvited: isEditMode ? (game.playersInvited || []) : (group?.players || []),
+            playersIn: isEditMode ? (game.playersIn || []) : [],
+            playersOut: isEditMode ? (game.playersOut || []) : [],
+            team1: isEditMode ? (game.team1 || []) : [],
+            team2: isEditMode ? (game.team2 || []) : [],
             subTime,
             subMode,
             recurrence,
@@ -673,9 +673,15 @@ function GameSettingsPage() {
         };
 
         if (isEditMode) {
-            await updateGame(game.id, gameData);
-            setSubmitting(false);
-            navigate(-1);
+            try {
+                await updateGame(game.id, gameData);
+                setSubmitting(false);
+                navigate(-1);
+            } catch (err) {
+                console.error('[GameSettingsPage] update failed:', err);
+                setSubmitting(false);
+                setCreateError(t('gameUpdateFailed'));
+            }
         } else {
             gameData.adminId = user?.uid || null;
             gameData._senderName = playerData?.firstName || 'Someone';

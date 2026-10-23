@@ -275,9 +275,11 @@ const useGameStore = create((set) => ({
             const updatedGame = await GameService.updateGame(gameId, updatedData);
             set((state) => ({
                 games: state.games.map(game => game.id === gameId ? updatedGame : game),
+                game: state.game?.id === gameId ? updatedGame : state.game,
             }));
         } catch (error) {
             set({ error: error.message });
+            throw error;
         }
     },
 

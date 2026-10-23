@@ -55,6 +55,7 @@ const en = {
   scheduleGame: 'Schedule Game',
   gameAlreadyExists: 'This group already has an active game.',
   dateTimeRequired: 'Pick a date and a time for the game.',
+  gameUpdateFailed: 'Could not update the game. Try again.',
   selectDate: 'Select Date',
   selectTime: 'Select Time',
   day: 'Day',

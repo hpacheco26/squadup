@@ -52,6 +52,7 @@ const pt = {
   scheduleGame: 'Marcar Jogo',
   gameAlreadyExists: 'Este grupo já tem um jogo ativo.',
   dateTimeRequired: 'Escolhe uma data e uma hora para o jogo.',
+  gameUpdateFailed: 'Não foi possível atualizar o jogo. Tenta novamente.',
   selectDate: 'Selecionar Data',
   selectTime: 'Selecionar Hora',
   day: 'Dia',
